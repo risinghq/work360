@@ -9,6 +9,7 @@ export interface PersonRef {
   doc_type: string | null;
   doc_number: string | null;
   name: string | null;
+  role_name: string | null;
 }
 
 export interface PersonGroup {
@@ -177,6 +178,7 @@ function mergeCompanyRow(
       doc_type: normalized(person.doc_type) || null,
       doc_number: normalized(person.doc_number) || null,
       name: normalized(person.name) || null,
+      role_name: normalized(person.role_name) || null,
     };
     const refKey = personRefKey(ref);
 

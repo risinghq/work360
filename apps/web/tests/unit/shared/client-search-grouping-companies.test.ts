@@ -70,7 +70,12 @@ describe("client search grouping companies", () => {
     ]);
 
     expect(groups[0]?.people).toEqual([
-      { doc_type: "DNI", doc_number: "12345678", name: "JUAN PEREZ" },
+      {
+        doc_type: "DNI",
+        doc_number: "12345678",
+        name: "JUAN PEREZ",
+        role_name: "GERENTE GENERAL",
+      },
     ]);
   });
 

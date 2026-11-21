@@ -1,5 +1,8 @@
+import { For, Show } from "solid-js";
+
 import Users from "~/components/icons/users";
 import { RecordChipList } from "~/components/ui/record-chip/record-chip";
+import type { PersonRef } from "~/features/search/model/grouping";
 
 import { SidePanelPage } from "../../components/page";
 import { useSidePanelPageState } from "../../router/page-state";
@@ -28,7 +31,32 @@ export function SearchCompanyPage() {
           <div class={styles.sectionTitle}>Teléfonos</div>
           <RecordChipList items={pageState().company.phones} shape="square" />
         </section>
+
+        <Show when={pageState().company.people.length > 0}>
+          <section class={styles.section}>
+            <div class={styles.sectionTitle}>Personas</div>
+            <div class={styles.list}>
+              <For each={pageState().company.people}>
+                {(person) => (
+                  <div class={styles.row}>
+                    <div class={styles.rowTitle}>
+                      {person.name ?? "Persona sin nombre"}
+                    </div>
+                    <div class={styles.rowMeta}>{personMeta(person)}</div>
+                  </div>
+                )}
+              </For>
+            </div>
+          </section>
+        </Show>
       </div>
     </SidePanelPage>
   );
+}
+
+function personMeta(person: PersonRef): string {
+  const document = [person.doc_type, person.doc_number]
+    .filter((part) => part !== null)
+    .join(" ");
+  return [person.role_name, document].filter(Boolean).join(" · ");
 }
