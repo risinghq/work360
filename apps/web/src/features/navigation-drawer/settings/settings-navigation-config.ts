@@ -1,10 +1,16 @@
 import Activity from "~/components/icons/activity";
 import Bell from "~/components/icons/bell";
+import CircleAlert from "~/components/icons/circle-alert";
+import CircleCheckBig from "~/components/icons/circle-check-big";
 import ColorSwatch from "~/components/icons/color-swatch";
 import DoorEnter from "~/components/icons/door-enter";
 import HelpCircle from "~/components/icons/help-circle";
-import Settings from "~/components/icons/settings";
+import Lock from "~/components/icons/lock";
+import MoneyBag from "~/components/icons/moneybag";
 import ShieldCheck from "~/components/icons/shield-check";
+import Target from "~/components/icons/target";
+import TimelineEvent from "~/components/icons/timeline-event";
+import TrendingDown from "~/components/icons/trending-down";
 import UploadCloud from "~/components/icons/upload-cloud";
 import UserCircle from "~/components/icons/user-circle";
 import Users from "~/components/icons/users";
@@ -17,6 +23,8 @@ interface CreateSettingsNavigationSectionsOptions {
   onLogout: () => void | Promise<void>;
 }
 
+// Advanced items come last in their section, so turning them off leaves no gap
+// between the items that stay.
 export function createSettingsNavigationSections(
   options: CreateSettingsNavigationSectionsOptions,
 ): SettingsNavSection[] {
@@ -64,7 +72,7 @@ export function createSettingsNavigationSections(
           id: "sales-policies",
           label: "Políticas comerciales",
           href: "/settings/capacity-policies",
-          icon: Settings,
+          icon: Activity,
           section: "operations",
           isHidden: !canAccessPath(
             options.member,
@@ -75,7 +83,7 @@ export function createSettingsNavigationSections(
           id: "quotation-policies",
           label: "Políticas de cotización",
           href: "/settings/quotation-policies",
-          icon: Settings,
+          icon: TrendingDown,
           section: "operations",
           isHidden: !canAccessPath(
             options.member,
@@ -86,7 +94,7 @@ export function createSettingsNavigationSections(
           id: "commission-scheme",
           label: "Esquema de comisiones",
           href: "/settings/commission-scheme",
-          icon: Settings,
+          icon: MoneyBag,
           section: "operations",
           isHidden: !canAccessPath(
             options.member,
@@ -109,37 +117,20 @@ export function createSettingsNavigationSections(
           isHidden: !canAccessPath(options.member, "/settings/members"),
         },
         {
-          id: "login-protection",
-          label: "Protección de inicio de sesión",
-          href: "/settings/login-protection",
-          icon: ShieldCheck,
+          id: "campaigns",
+          label: "Campañas",
+          href: "/settings/campaigns",
+          icon: Target,
           section: "administration",
-          isHidden: !canAccessPath(
-            options.member,
-            "/settings/login-protection",
-          ),
-          isAdvanced: true,
+          isHidden: !canAccessPath(options.member, "/settings/campaigns"),
         },
         {
-          id: "security-policies",
-          label: "Políticas de riesgo",
-          href: "/settings/security-policies",
-          icon: ShieldCheck,
+          id: "outcomes",
+          label: "Resultados",
+          href: "/settings/outcomes",
+          icon: CircleCheckBig,
           section: "administration",
-          isHidden: !canAccessPath(
-            options.member,
-            "/settings/security-policies",
-          ),
-          isAdvanced: true,
-        },
-        {
-          id: "event-logs",
-          label: "Registro de eventos",
-          href: "/settings/event-logs",
-          icon: Activity,
-          section: "administration",
-          isHidden: !canAccessPath(options.member, "/settings/event-logs"),
-          isAdvanced: true,
+          isHidden: !canAccessPath(options.member, "/settings/outcomes"),
         },
         {
           id: "data-sources",
@@ -151,20 +142,37 @@ export function createSettingsNavigationSections(
           isAdvanced: true,
         },
         {
-          id: "campaigns",
-          label: "Campañas",
-          href: "/settings/campaigns",
-          icon: UploadCloud,
+          id: "login-protection",
+          label: "Protección de inicio de sesión",
+          href: "/settings/login-protection",
+          icon: Lock,
           section: "administration",
-          isHidden: !canAccessPath(options.member, "/settings/campaigns"),
+          isHidden: !canAccessPath(
+            options.member,
+            "/settings/login-protection",
+          ),
+          isAdvanced: true,
         },
         {
-          id: "outcomes",
-          label: "Resultados",
-          href: "/settings/outcomes",
-          icon: Activity,
+          id: "security-policies",
+          label: "Políticas de riesgo",
+          href: "/settings/security-policies",
+          icon: CircleAlert,
           section: "administration",
-          isHidden: !canAccessPath(options.member, "/settings/outcomes"),
+          isHidden: !canAccessPath(
+            options.member,
+            "/settings/security-policies",
+          ),
+          isAdvanced: true,
+        },
+        {
+          id: "event-logs",
+          label: "Registro de eventos",
+          href: "/settings/event-logs",
+          icon: TimelineEvent,
+          section: "administration",
+          isHidden: !canAccessPath(options.member, "/settings/event-logs"),
+          isAdvanced: true,
         },
       ],
     },
