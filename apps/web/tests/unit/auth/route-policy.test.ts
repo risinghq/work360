@@ -98,6 +98,8 @@ describe("workspace modules", () => {
 describe("page headers", () => {
   it("resolves header metadata for current dynamic routes", () => {
     expect(getHeaderRoute("/rate-simulator").label).toBe("Simulador de tasas");
+    expect(getHeaderRoute("/companies").label).toBe("Empresas");
+    expect(getHeaderRoute("/companies/42").label).toBe("Empresas");
   });
 
   it("uses fallback when no header rule exists", () => {

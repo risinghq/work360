@@ -7,6 +7,11 @@ export type RouteIcon =
   | "team"
   | "fulfillment"
   | "leads"
+  | "contacts"
+  | "campaigns"
+  | "cases"
+  | "companies"
+  | "reports"
   | "rate-simulator"
   | "home"
   | "audit"
@@ -77,21 +82,25 @@ export const PAGE_HEADERS = [
     match: "/me/assignments",
     header: {
       label: "Mis contactos",
-      icon: "leads",
+      icon: "contacts",
       tileColor: "blue",
     },
   },
   {
     match: "/campaigns",
-    header: { label: "Campañas", icon: "leads", tileColor: "green" },
+    header: { label: "Campañas", icon: "campaigns", tileColor: "green" },
   },
   {
     match: /^\/cases(?:\/.*)?$/,
-    header: { label: "Casos", icon: "leads", tileColor: "turquoise" },
+    header: { label: "Casos", icon: "cases", tileColor: "turquoise" },
+  },
+  {
+    match: /^\/companies(?:\/.*)?$/,
+    header: { label: "Empresas", icon: "companies", tileColor: "blue" },
   },
   {
     match: "/reports",
-    header: { label: "Reportes", icon: "dashboards", tileColor: "purple" },
+    header: { label: "Reportes", icon: "reports", tileColor: "purple" },
   },
   {
     match: "/me/capacity",
@@ -204,7 +213,7 @@ export const SIDEBAR_ENTRIES = [
     href: "/me/assignments",
     activePrefixes: ["/me/assignments"],
     label: "Mis contactos",
-    icon: "leads",
+    icon: "contacts",
     tileColor: "blue",
     section: "secondary",
     order: 4,
@@ -215,7 +224,7 @@ export const SIDEBAR_ENTRIES = [
     href: "/campaigns",
     activePrefixes: ["/campaigns"],
     label: "Campañas",
-    icon: "leads",
+    icon: "campaigns",
     tileColor: "green",
     section: "secondary",
     order: 4,
@@ -226,7 +235,7 @@ export const SIDEBAR_ENTRIES = [
     href: "/cases",
     activePrefixes: ["/cases"],
     label: "Casos",
-    icon: "leads",
+    icon: "cases",
     tileColor: "turquoise",
     section: "secondary",
     order: 4,
@@ -237,7 +246,7 @@ export const SIDEBAR_ENTRIES = [
     href: "/companies",
     activePrefixes: ["/companies"],
     label: "Empresas",
-    icon: "leads",
+    icon: "companies",
     tileColor: "blue",
     section: "secondary",
     order: 4,
@@ -248,7 +257,7 @@ export const SIDEBAR_ENTRIES = [
     href: "/reports",
     activePrefixes: ["/reports"],
     label: "Reportes",
-    icon: "dashboards",
+    icon: "reports",
     tileColor: "purple",
     section: "secondary",
     order: 4,
