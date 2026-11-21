@@ -1,5 +1,5 @@
 import { useAction } from "@solidjs/router";
-import { For, Loading, createMemo, type Accessor } from "solid-js";
+import { For, Loading, Show, createMemo, type Accessor } from "solid-js";
 import { createStore } from "solid-js";
 
 import { createActionTarget } from "~/browser/ui/action-in-flight";
@@ -177,7 +177,9 @@ export default function CapacityPoliciesPage() {
   return (
     <SettingsPageLayout>
       <Loading fallback={<Spinner />}>
-        <CapacityPoliciesEditor snapshot={defaults} />
+        <Show when={defaults()}>
+          {(snapshot) => <CapacityPoliciesEditor snapshot={snapshot} />}
+        </Show>
       </Loading>
     </SettingsPageLayout>
   );

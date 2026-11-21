@@ -158,7 +158,9 @@ export default function CommissionSchemePage() {
 
   return (
     <Loading fallback={<Spinner />}>
-      <CommissionSchemeForm initial={draft()} />
+      <Show when={draft()}>
+        {(initial) => <CommissionSchemeForm initial={initial()} />}
+      </Show>
     </Loading>
   );
 }

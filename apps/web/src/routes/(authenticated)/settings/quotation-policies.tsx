@@ -205,8 +205,12 @@ export default function QuotationPoliciesPage() {
   return (
     <SettingsPageLayout>
       <Loading fallback={<Spinner />}>
-        <RateProposalPolicyEditor snapshot={rateProposalPolicy} />
-        <PendingQuotationPolicyEditor snapshot={pendingQuotationPolicy} />
+        <Show when={rateProposalPolicy()}>
+          {(snapshot) => <RateProposalPolicyEditor snapshot={snapshot} />}
+        </Show>
+        <Show when={pendingQuotationPolicy()}>
+          {(snapshot) => <PendingQuotationPolicyEditor snapshot={snapshot} />}
+        </Show>
       </Loading>
     </SettingsPageLayout>
   );
