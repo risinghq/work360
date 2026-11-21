@@ -83,6 +83,18 @@ describe("session authentication", () => {
       .execute();
 
     expect((await resolve(token))?.modules).toEqual([]);
+
+    await ctx.db
+      .insertInto("case_types")
+      .values({
+        id: crypto.randomUUID(),
+        key: "fija",
+        name: "Fija",
+        created_at: NOW,
+      })
+      .execute();
+
+    expect((await resolve(token))?.modules).toEqual(["cases"]);
   });
 
   it("reads the member's current role on each request", async () => {

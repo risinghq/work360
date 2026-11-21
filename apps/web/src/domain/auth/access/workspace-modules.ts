@@ -7,7 +7,11 @@ import { isPermission, type Permission, type Role } from "./rbac";
 // decides which features a workspace sees.
 export const WORKSPACE_MODULES = ["culqi", "contacts"] as const;
 
-export type WorkspaceModule = (typeof WORKSPACE_MODULES)[number];
+export type StoredModule = (typeof WORKSPACE_MODULES)[number];
+
+// Cases and their reports show nothing until the workspace defines a case
+// process, so `cases` is on exactly while one exists. No settings row stores it.
+export type WorkspaceModule = StoredModule | "cases";
 
 // What a user may do. `role` is the role's kind; `permissions` are the role's
 // permissions, already limited to the workspace's modules.
@@ -68,17 +72,17 @@ const PERMISSION_MODULES: Record<Permission, WorkspaceModule | null> = {
   "campaign:work": null,
   "campaign:manage": null,
   "outcome:manage": null,
-  "case:work": null,
-  "case:view:all": null,
-  "case:reassign": null,
+  "case:work": "cases",
+  "case:view:all": "cases",
+  "case:reassign": "cases",
   "company:read": null,
   "company:view:all": null,
-  "report:read": null,
-  "report:view:branch": null,
-  "report:view:all": null,
+  "report:read": "cases",
+  "report:view:branch": "cases",
+  "report:view:all": "cases",
 };
 
-export function isWorkspaceModule(value: string): value is WorkspaceModule {
+export function isStoredModule(value: string): value is StoredModule {
   return WORKSPACE_MODULES.some((module) => module === value);
 }
 

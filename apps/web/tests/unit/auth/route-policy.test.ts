@@ -25,7 +25,7 @@ function culqiMember(role: Role): Member {
 
 // A workspace that runs only campaigns and cases, like the Entel deploy.
 function caseMember(role: Role): Member {
-  return member(role, []);
+  return member(role, ["cases"]);
 }
 
 function can(role: Role, path: string): boolean {
@@ -85,6 +85,18 @@ describe("workspace modules", () => {
     expect(canAccessPath(executive, "/campaigns")).toBe(true);
     expect(canAccessPath(executive, "/cases")).toBe(true);
     expect(canAccessPath(admin, "/settings/members")).toBe(true);
+  });
+
+  it("closes cases and reports to a workspace with no case process", () => {
+    const executive = culqiMember("executive");
+    const admin = culqiMember("admin");
+
+    expect(canAccessPath(executive, "/cases")).toBe(false);
+    expect(canAccessPath(admin, "/reports")).toBe(false);
+    expect(getDefaultAppPath(culqiMember("back_office"))).toBe("/records");
+    expect(getDefaultAppPath(member("back_office", []))).toBe(
+      "/settings/profile",
+    );
   });
 
   it("lands a member on a page their workspace has", () => {

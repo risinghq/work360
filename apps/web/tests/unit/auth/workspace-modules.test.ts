@@ -30,7 +30,9 @@ describe("workspace modules", () => {
     expect(grants(admin, [], "lead:work")).toBe(false);
     expect(grants(admin, ["culqi"], "lead:work")).toBe(true);
     expect(grants(admin, ["culqi"], "search:use")).toBe(false);
-    expect(grants(admin, [], "case:work")).toBe(true);
+    expect(grants(admin, [], "case:work")).toBe(false);
+    expect(grants(admin, ["cases"], "case:work")).toBe(true);
+    expect(grants(admin, [], "campaign:work")).toBe(true);
     expect(grants(admin, [], "team:read")).toBe(true);
   });
 

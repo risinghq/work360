@@ -67,7 +67,7 @@ describe("decideNavigation", () => {
     ).toEqual({ kind: "redirect", to: "/home" });
     expect(
       decideNavigation(
-        makeAuthSession({ role: "back_office", modules: [] }),
+        makeAuthSession({ role: "back_office", modules: ["cases"] }),
         "/records/lead-1",
       ),
     ).toEqual({ kind: "redirect", to: "/cases" });

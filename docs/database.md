@@ -113,8 +113,13 @@ an `in (...)` list with `listBatches`, both in
 | `contacts` | contact search, data-source imports and search capacity                                   |
 
 `contacts` is separate because contact data is personal data under Ley 29733: a
-workspace receives it only when its contract covers it. Campaigns, cases, team
-and administration need no module.
+workspace receives it only when its contract covers it. Campaigns, team and
+administration need no module.
+
+`cases` is not stored. A workspace has it while `case_types` holds a row,
+because cases and their reports have nothing to show without a case process. A
+workspace with no case process sees neither page in its menu and never lands on
+one.
 
 [`workspace-modules.ts`](../apps/web/src/domain/auth/access/workspace-modules.ts)
 maps every permission to its module or to none. A member holds a permission when

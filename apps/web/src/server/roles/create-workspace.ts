@@ -9,7 +9,7 @@ import {
   type Role,
 } from "~/domain/auth/access/rbac";
 import { getRoleLabel } from "~/domain/auth/access/role-display";
-import type { WorkspaceModule } from "~/domain/auth/access/workspace-modules";
+import type { StoredModule } from "~/domain/auth/access/workspace-modules";
 import { RoleId, type WorkspaceId } from "~/domain/ids";
 import {
   BASELINE_OUTCOMES,
@@ -35,7 +35,7 @@ export interface RoleSeed {
 export interface NewWorkspace {
   id: WorkspaceId;
   name: string;
-  modules: readonly WorkspaceModule[];
+  modules: readonly StoredModule[];
   createdAt: Date;
   // Roles the workspace needs beyond the baseline, such as Entel's validador.
   extraRoles?: readonly RoleSeed[];
