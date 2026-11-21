@@ -5,7 +5,10 @@ import {
   applyThemeMode,
   readThemeMode,
 } from "../components/ui/theme/theme-mode";
-import { sentryDefaultDataCollection } from "../shared/observability/sentry";
+import {
+  SENTRY_TUNNEL_PATH,
+  sentryDefaultDataCollection,
+} from "../shared/observability/sentry";
 import { reloadOnStaleBuild } from "./stale-build";
 
 // Browser setup that must run before the app renders. The plugin's generated
@@ -20,6 +23,7 @@ function startSentry(): void {
 
   init({
     dsn,
+    tunnel: SENTRY_TUNNEL_PATH,
     // Router 2 navigates through the History API, which this integration
     // instruments directly. It replaces @sentry/solid's router integration,
     // which is pinned to Solid 1 and Router 0.x/1.x.

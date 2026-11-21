@@ -10,12 +10,20 @@ import { enforceAuthRequest } from "./server/platform/http/request-auth";
 import { classifyRequest } from "./server/platform/http/request-class";
 import { buildAnonymousRequestContext } from "./server/platform/http/request-context-builder";
 import { securityHeaders } from "./server/platform/http/security-headers";
+import { relaySentryEnvelope } from "./server/platform/http/sentry-tunnel";
 import { generateRequestId, generateTraceId } from "./shared/observability/ids";
+import { SENTRY_TUNNEL_PATH } from "./shared/observability/sentry";
 
 const SECURITY_HEADERS = securityHeaders({
   development: import.meta.env.DEV,
-  browserSentryDsn: import.meta.env.VITE_SENTRY_DSN ?? "",
 });
+
+// The Worker entry relays these before any Durable Object; this serves the
+// Bun server.
+const relaySentry: StartMiddleware = (event, next) =>
+  new URL(event.request.url).pathname === SENTRY_TUNNEL_PATH
+    ? relaySentryEnvelope(event.request, import.meta.env.VITE_SENTRY_DSN ?? "")
+    : next();
 
 const identifyRequest: StartMiddleware = (event, next) => {
   const { trustedProxy } = middlewareConfig();
@@ -97,6 +105,7 @@ const serveApiRoutes: StartMiddleware = (event, next) =>
   handleApiRoutes(event.request, next);
 
 export default [
+  relaySentry,
   identifyRequest,
   applySecurityHeaders,
   resolveSession,

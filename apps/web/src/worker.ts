@@ -58,6 +58,7 @@ import {
   r2Blobs,
   type R2BucketLike,
 } from "~/server/platform/files/r2-blob-store";
+import { relaySentryEnvelope } from "~/server/platform/http/sentry-tunnel";
 import { queueDuty } from "~/server/platform/jobs/job-queue";
 import {
   createObjectAlarm,
@@ -71,6 +72,7 @@ import {
   type SocketPeer,
   type SocketUpgrade,
 } from "~/server/realtime/sockets";
+import { SENTRY_TUNNEL_PATH } from "~/shared/observability/sentry";
 
 interface ObjectNamespace<Stub> {
   idFromName(name: string): import("cloudflare:workers").DurableObjectId;
@@ -288,6 +290,12 @@ export default withSentry(workerSentryOptions, {
     const store = STORE_ROUTE.exec(pathname);
     if (store) {
       return storeRoute(request, env, store);
+    }
+    if (pathname === SENTRY_TUNNEL_PATH) {
+      return relaySentryEnvelope(
+        request,
+        import.meta.env.VITE_SENTRY_DSN ?? "",
+      );
     }
     return pathname.startsWith("/api/") || pathname.startsWith("/_server")
       ? route(request, env)

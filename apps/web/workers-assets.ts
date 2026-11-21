@@ -6,20 +6,14 @@ import { securityHeaders } from "./src/server/platform/http/security-headers.ts"
 // the Worker, so the middleware's headers never reach them. Workers reads these
 // two files from the assets directory instead of serving them.
 export function workersAssetsPlugin(): Plugin {
-  let browserSentryDsn = "";
   return {
     name: "workers-assets",
     applyToEnvironment: (environment) => environment.name === "client",
-    configResolved(config) {
-      browserSentryDsn = config.env.VITE_SENTRY_DSN ?? "";
-    },
     generateBundle() {
       this.emitFile({
         type: "asset",
         fileName: "_headers",
-        source: headersFile(
-          securityHeaders({ development: false, browserSentryDsn }),
-        ),
+        source: headersFile(securityHeaders({ development: false })),
       });
       this.emitFile({
         type: "asset",

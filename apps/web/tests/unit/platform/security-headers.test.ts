@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import { securityHeaders } from "~/server/platform/http/security-headers";
 
-const DSN = "https://key@o123.ingest.us.sentry.io/456";
-
 function directives(csp: string | undefined): Map<string, string> {
   return new Map(
     (csp ?? "").split("; ").map((directive) => {
@@ -14,11 +12,9 @@ function directives(csp: string | undefined): Map<string, string> {
 }
 
 describe("securityHeaders", () => {
-  it("allows only same-origin scripts in a build", () => {
+  it("allows only same-origin scripts and connections in a build", () => {
     const csp = directives(
-      securityHeaders({ development: false, browserSentryDsn: "" })[
-        "Content-Security-Policy"
-      ],
+      securityHeaders({ development: false })["Content-Security-Policy"],
     );
 
     expect(csp.get("script-src")).toBe("'self'");
@@ -27,23 +23,8 @@ describe("securityHeaders", () => {
     expect(csp.get("frame-ancestors")).toBe("'none'");
   });
 
-  it("lets the browser reach the Sentry host of its own DSN", () => {
-    const csp = directives(
-      securityHeaders({ development: false, browserSentryDsn: DSN })[
-        "Content-Security-Policy"
-      ],
-    );
-
-    expect(csp.get("connect-src")).toBe(
-      "'self' https://o123.ingest.us.sentry.io",
-    );
-  });
-
   it("relaxes scripts and drops HSTS in development", () => {
-    const headers = securityHeaders({
-      development: true,
-      browserSentryDsn: "",
-    });
+    const headers = securityHeaders({ development: true });
 
     expect(
       directives(headers["Content-Security-Policy"]).get("script-src"),
@@ -52,19 +33,7 @@ describe("securityHeaders", () => {
   });
 
   it("sends HSTS from a build", () => {
-    const headers = securityHeaders({
-      development: false,
-      browserSentryDsn: "",
-    });
+    const headers = securityHeaders({ development: false });
     expect(headers["Strict-Transport-Security"]).toContain("max-age=");
-  });
-
-  it("ignores a malformed DSN", () => {
-    const csp = directives(
-      securityHeaders({ development: false, browserSentryDsn: "not a url" })[
-        "Content-Security-Policy"
-      ],
-    );
-    expect(csp.get("connect-src")).toBe("'self'");
   });
 });

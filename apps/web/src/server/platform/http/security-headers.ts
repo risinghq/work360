@@ -5,8 +5,6 @@ export interface SecurityHeaderOptions {
    * the static shell, whose only script is the client entry file.
    */
   development: boolean;
-  /** The browser's Sentry DSN; its host is where the browser sends events. */
-  browserSentryDsn: string;
 }
 
 export function securityHeaders(
@@ -15,8 +13,6 @@ export function securityHeaders(
   const scriptSrc = options.development
     ? "'self' 'unsafe-inline' 'unsafe-eval'"
     : "'self'";
-  const sentryHost = dsnHost(options.browserSentryDsn);
-  const connectSrc = sentryHost ? `'self' https://${sentryHost}` : "'self'";
 
   const csp = [
     "default-src 'self'",
@@ -27,7 +23,8 @@ export function securityHeaders(
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    `connect-src ${connectSrc}`,
+    // The browser reports to Sentry through the same-origin tunnel.
+    "connect-src 'self'",
     "object-src 'none'",
     "frame-ancestors 'none'",
     "form-action 'self'",
@@ -45,15 +42,4 @@ export function securityHeaders(
       ? {}
       : { "Strict-Transport-Security": "max-age=63072000; includeSubDomains" }),
   };
-}
-
-function dsnHost(dsn: string): string {
-  if (!dsn) {
-    return "";
-  }
-  try {
-    return new URL(dsn).host;
-  } catch {
-    return "";
-  }
 }

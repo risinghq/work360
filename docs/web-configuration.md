@@ -113,14 +113,14 @@ KiB, 403 for any other. The `GET` verification handshake still works.
 
 ## Observability
 
-| Variable                                            | Default                                      | Purpose                                                                               |
-| --------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `SENTRY_DSN`                                        | Empty                                        | Sentry DSN for the server.                                                            |
-| `VITE_SENTRY_DSN`                                   | Empty                                        | Sentry DSN for the browser, read at build time. Its host joins the CSP `connect-src`. |
-| `SENTRY_TRACES_SAMPLE_RATE`                         | `0.1`                                        | Server trace sample rate.                                                             |
-| `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` | None                                         | Upload source maps during the build.                                                  |
-| `LOG_LEVEL`                                         | `debug` in development, `info` in production | Minimum log level (`debug`, `info`, `warn`, `error`).                                 |
-| `LOG_FORMAT`                                        | Unset                                        | `json` forces JSON output. Production always logs JSON.                               |
+| Variable                                            | Default                                      | Purpose                                                               |
+| --------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------- |
+| `SENTRY_DSN`                                        | Empty                                        | Sentry DSN for the server.                                            |
+| `VITE_SENTRY_DSN`                                   | Empty                                        | Sentry DSN for the browser, read at build time. See the tunnel below. |
+| `SENTRY_TRACES_SAMPLE_RATE`                         | `0.1`                                        | Server trace sample rate.                                             |
+| `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` | None                                         | Upload source maps during the build.                                  |
+| `LOG_LEVEL`                                         | `debug` in development, `info` in production | Minimum log level (`debug`, `info`, `warn`, `error`).                 |
+| `LOG_FORMAT`                                        | Unset                                        | `json` forces JSON output. Production always logs JSON.               |
 
 The browser samples 10% of traces, replays 5% of sessions and replays every
 session with an error ([bootstrap.ts](../apps/web/src/browser/bootstrap.ts)).
@@ -129,6 +129,12 @@ read at Vite build time. The container build must receive them as Docker build
 args. `compose.app.yml` passes them through `build.args`, with `VITE_SENTRY_DSN`
 set from `SENTRY_DSN`; `environment:` or `env_file:` alone does not reach the
 build stage.
+
+The browser posts its events to the same-origin `/api/monitoring`, not to
+Sentry's ingest host, which content blockers drop. The server relays an envelope
+only when its header names the build's `VITE_SENTRY_DSN`
+([sentry-tunnel.ts](../apps/web/src/server/platform/http/sentry-tunnel.ts)), so
+the CSP `connect-src` stays `'self'`.
 
 The Bun server initializes Sentry only in production. The Worker and its Durable
 Objects report whenever `SENTRY_DSN` is set
