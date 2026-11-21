@@ -82,14 +82,64 @@
 }
 
 .fileControl {
+  box-sizing: border-box;
   width: 100%;
   min-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--background-transparent-lighter);
   color: var(--foreground);
   font-size: var(--font-size-body);
-  padding: 6px 8px;
+  padding: 3px 8px 3px 3px;
+  cursor: pointer;
+  position: relative;
+}
+
+.fileControl:focus-within {
+  border-color: var(--color-blue);
+}
+
+.fileNative {
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  width: 1px;
+}
+
+.fileButton {
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  color: var(--foreground);
+  font-weight: var(--font-weight-medium);
+  padding: 2px 8px;
+}
+
+.fileControl:hover .fileButton {
+  background: var(--background-transparent-light);
+}
+
+.fileName,
+.fileEmpty {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileEmpty {
+  color: var(--foreground-light);
+}
+
+.fileDisabled {
+  color: var(--foreground-tertiary);
+  cursor: not-allowed;
 }
 
 .textareaControl {
