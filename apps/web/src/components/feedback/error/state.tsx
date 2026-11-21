@@ -13,7 +13,9 @@ interface ErrorStateProps {
 export function ErrorState(props: ErrorStateProps) {
   return (
     <section class={styles.root} role="alert" aria-live="assertive">
-      <h2 class={styles.title}>{props.title ?? "Something went wrong"}</h2>
+      <h2 class={styles.title}>
+        {props.title ?? "No se pudo mostrar esta página"}
+      </h2>
       <p class={styles.message}>{props.message}</p>
       <Show when={props.onRetry}>
         <div class={styles.actions}>
@@ -24,7 +26,7 @@ export function ErrorState(props: ErrorStateProps) {
               props.onRetry?.();
             }}
           >
-            Try again
+            Reintentar
           </Button>
         </div>
       </Show>
