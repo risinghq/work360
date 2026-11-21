@@ -38,7 +38,7 @@ function home(role: Role): string {
 
 describe("route permissions", () => {
   it("resolves static and dynamic route permissions", () => {
-    expect(getRoutePermission("/team")).toBe("team:read");
+    expect(getRoutePermission("/team")).toBe("capacity:read:team");
     expect(getRoutePermission("/records")).toBeNull();
     expect(getRoutePermission("/rate-simulator")).toBe("lead:rate:simulate");
     expect(getRoutePermission("/records/new")).toBeNull();
@@ -58,14 +58,15 @@ describe("route permissions", () => {
     expect(can("logistics", "/records")).toBe(true);
     expect(can("logistics", "/rate-simulator")).toBe(false);
     expect(can("executive", "/team")).toBe(false);
-    expect(can("hr", "/team")).toBe(true);
+    expect(can("hr", "/team")).toBe(false);
+    expect(can("hr", "/settings/members")).toBe(true);
     expect(can("admin", "/settings/catalog")).toBe(true);
   });
 
   it("returns a role-safe default path", () => {
     expect(home("executive")).toBe("/home");
     expect(home("logistics")).toBe("/fulfillment");
-    expect(home("hr")).toBe("/team");
+    expect(home("hr")).toBe("/settings/members");
     expect(home("back_office")).toBe("/records");
     expect(home("supervisor")).toBe("/records");
     expect(home("admin")).toBe("/records");
@@ -102,8 +103,9 @@ describe("workspace modules", () => {
   it("lands a member on a page their workspace has", () => {
     expect(getDefaultAppPath(caseMember("executive"))).toBe("/campaigns");
     expect(getDefaultAppPath(caseMember("back_office"))).toBe("/cases");
-    expect(getDefaultAppPath(caseMember("supervisor"))).toBe("/team");
-    expect(getDefaultAppPath(caseMember("hr"))).toBe("/team");
+    expect(getDefaultAppPath(caseMember("supervisor"))).toBe("/campaigns");
+    expect(canAccessPath(caseMember("supervisor"), "/team")).toBe(false);
+    expect(getDefaultAppPath(caseMember("hr"))).toBe("/settings/members");
   });
 });
 
