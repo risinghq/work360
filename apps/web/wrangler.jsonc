@@ -7,7 +7,8 @@
   "routes": [{ "pattern": "work360.rising.sh", "custom_domain": true }],
   "vars": {
     "APP_PUBLIC_ORIGIN": "https://work360.rising.sh",
-    "NOTIFICATION_ROUTES": "email:log",
+    "NOTIFICATION_ROUTES": "email:resend",
+    "EMAIL_FROM": "work360 <no-reply@work360.rising.sh>",
     "ENGINE_HMAC_KEY_ID": "work360",
   },
   // A stores:push commit swaps a whole workspace in one transaction. The

@@ -79,7 +79,11 @@ The secrets `SESSION_SECRET`, `TOTP_ENCRYPTION_KEY`, `RECOVERY_CODE_PEPPER`,
 `ENGINE_HMAC_SECRET` and `WHATSAPP_WEBHOOK_VERIFY_TOKEN` are set once with
 `bunx wrangler secret bulk FILE -c dist/worker/wrangler.json`. Keep a copy of
 `TOTP_ENCRYPTION_KEY`: without it, no enrolled TOTP secret can be decrypted.
-`NOTIFICATION_ROUTES=email:log` keeps the deploy from sending mail or WhatsApp.
+
+The deploy sends email through Resend from `work360.rising.sh`, a domain
+verified in Resend with its DNS records in the rising.sh zone. The secret
+`RESEND_API_KEY` holds a sending-only key scoped to that domain. WhatsApp has no
+route, so the deploy sends none.
 
 Server errors reach Sentry from the Worker and from each Durable Object once the
 secret `SENTRY_DSN` is set with
