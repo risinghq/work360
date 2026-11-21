@@ -2,7 +2,8 @@
 // The Worker: routes each API request to the Durable Object that holds the
 // store it names, and serves the app there. Each object composes its own
 // store's application and reaches its peers through `remote` ports, one
-// Durable Object call per operation. Static assets never reach this code.
+// Durable Object call per operation. A static asset never reaches this code;
+// a path no asset matches does, and gets the app shell.
 import { constantTimeEqual } from "@oslojs/crypto/subtle";
 import {
   instrumentDurableObjectWithSentry,
@@ -58,6 +59,7 @@ import {
   r2Blobs,
   type R2BucketLike,
 } from "~/server/platform/files/r2-blob-store";
+import { serveAppShell } from "~/server/platform/http/app-shell";
 import { relaySentryEnvelope } from "~/server/platform/http/sentry-tunnel";
 import { queueDuty } from "~/server/platform/jobs/job-queue";
 import {
@@ -299,7 +301,7 @@ export default withSentry(workerSentryOptions, {
     }
     return pathname.startsWith("/api/") || pathname.startsWith("/_server")
       ? route(request, env)
-      : env.ASSETS.fetch(request);
+      : serveAppShell(request, env.ASSETS);
   },
 });
 

@@ -98,8 +98,15 @@ caching for the content-hashed `/assets/*`. Every other path, the HTML shell
 among them, carries `Cache-Control: no-transform`. That keeps Cloudflare from
 injecting the rising.sh Web Analytics beacon, which the CSP would block, without
 a paid RUM rule. The build also writes `.assetsignore`, which keeps the bundle
-analyzer's report out of the upload. The browser Sentry DSN in the CSP is read
-at build, so build with the production `VITE_SENTRY_DSN`.
+analyzer's report out of the upload.
+
+A path no asset matches runs the Worker
+([app-shell.ts](../apps/web/src/server/platform/http/app-shell.ts)). A client
+route gets the HTML shell with the same headers. A missing file under `/assets/`
+gets an uncached 404. During a deploy a page from one build can request a chunk
+only the other build has. Cloudflare's own `single-page-application` fallback
+answered that with the HTML shell, which the year of immutable caching kept
+under the script's name, so the page stayed blank in that browser.
 
 ### Stores
 

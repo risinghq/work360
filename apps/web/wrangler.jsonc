@@ -18,7 +18,9 @@
     "directory": "dist/client",
     "binding": "ASSETS",
     "run_worker_first": ["/api/*", "/_server*"],
-    "not_found_handling": "single-page-application",
+    // The Worker answers a path no asset matches (see app-shell.ts), so a
+    // missing hashed chunk is a 404, not the HTML shell.
+    "not_found_handling": "none",
   },
   "durable_objects": {
     "bindings": [

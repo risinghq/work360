@@ -1,5 +1,6 @@
 import type { Plugin } from "vite";
 
+import { SHELL_CACHE_CONTROL } from "./src/server/platform/http/app-shell.ts";
 import { securityHeaders } from "./src/server/platform/http/security-headers.ts";
 
 // On Workers the assets binding serves pages and static files without running
@@ -31,10 +32,9 @@ export function headersFile(security: Record<string, string>): string {
   return [
     "/*",
     ...lines(security),
-    // no-transform stops Cloudflare injecting its Web Analytics beacon, which
-    // the CSP would block. It also stops Cloudflare compressing, so the
-    // bundles under /assets detach it.
-    "  Cache-Control: public, max-age=0, must-revalidate, no-transform",
+    // no-transform also stops Cloudflare compressing, so the bundles under
+    // /assets detach it.
+    `  Cache-Control: ${SHELL_CACHE_CONTROL}`,
     // Vite content-hashes every file under /assets, so a name never changes
     // content.
     "/assets/*",

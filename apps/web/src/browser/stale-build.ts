@@ -1,5 +1,4 @@
-// A deploy replaces the hashed chunks, and the asset fallback answers a
-// missing chunk with the app's HTML, so a tab opened before the deploy fails
+// A deploy replaces the hashed chunks, so a tab opened before the deploy fails
 // to import the routes it has not loaded yet. The router imports a route when
 // the pointer rests on its link, well before any click, so the failure marks
 // the build stale instead of reloading under a half-filled form. The next
