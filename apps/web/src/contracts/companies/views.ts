@@ -2,6 +2,8 @@ export type CompanySummaryView = {
   id: string;
   ruc: string;
   legalName: string | null;
+  lineOfBusiness: string | null;
+  district: string | null;
 };
 
 export type CompanyDetailView = {

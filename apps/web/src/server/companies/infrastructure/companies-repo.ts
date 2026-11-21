@@ -23,12 +23,12 @@ export type CompanySummary = {
   id: OrganizationId;
   ruc: string;
   legalName: string | null;
+  lineOfBusiness: string | null;
+  district: string | null;
 };
 
 export type CompanyIdentity = CompanySummary & {
-  lineOfBusiness: string | null;
   address: string | null;
-  district: string | null;
   province: string | null;
   department: string | null;
   phone: string | null;
@@ -116,7 +116,13 @@ export function createCompaniesRepo(db: Kysely<WorkspaceDatabase>) {
       viewer: CompanyViewer,
     ): Promise<CompanySummary[]> {
       const query = visible(viewer)
-        .select(["o.id", "o.ruc", "o.legal_name"])
+        .select([
+          "o.id",
+          "o.ruc",
+          "o.legal_name",
+          "o.line_of_business",
+          "o.district",
+        ])
         .limit(SEARCH_LIMIT);
       let ordered;
       if (/^\d+$/.test(text)) {
@@ -146,6 +152,8 @@ export function createCompaniesRepo(db: Kysely<WorkspaceDatabase>) {
         id: row.id,
         ruc: row.ruc,
         legalName: row.legal_name,
+        lineOfBusiness: row.line_of_business,
+        district: row.district,
       }));
     },
 
