@@ -5,14 +5,13 @@ export type RouteIcon =
   | "search"
   | "settings"
   | "team"
-  | "inventory"
+  | "fulfillment"
   | "leads"
   | "rate-simulator"
   | "home"
   | "audit"
   | "capacity"
   | "profile"
-  | "schedule"
   | "dashboards";
 
 export type SidebarSection = "primary" | "secondary";
@@ -59,10 +58,6 @@ export const PAGE_HEADERS = [
     header: { label: "Inicio", icon: "home", tileColor: "blue" },
   },
   {
-    match: "/schedule",
-    header: { label: "Agenda", icon: "schedule", tileColor: "purple" },
-  },
-  {
     match: "/records",
     header: { label: "Registros", icon: "leads", tileColor: "blue" },
   },
@@ -107,18 +102,10 @@ export const PAGE_HEADERS = [
     },
   },
   {
-    match: "/inventory",
-    header: {
-      label: "Inventario",
-      icon: "inventory",
-      tileColor: "orange",
-    },
-  },
-  {
     match: "/fulfillment",
     header: {
       label: "Entregas",
-      icon: "inventory",
+      icon: "fulfillment",
       tileColor: "orange",
     },
   },
@@ -178,16 +165,6 @@ export const SIDEBAR_ENTRIES = [
     tileColor: "blue",
     section: "primary",
     order: 1,
-  },
-  {
-    id: "schedule",
-    href: "/schedule",
-    activePrefixes: ["/schedule"],
-    label: "Agenda",
-    icon: "schedule",
-    tileColor: "purple",
-    section: "primary",
-    order: 2,
   },
   {
     id: "records",
@@ -289,17 +266,6 @@ export const SIDEBAR_ENTRIES = [
     group: "Comercial",
   },
   {
-    id: "inventory",
-    href: "/inventory",
-    activePrefixes: ["/inventory"],
-    label: "Inventario",
-    icon: "inventory",
-    tileColor: "orange",
-    section: "secondary",
-    order: 6,
-    group: "Operaciones",
-  },
-  {
     id: "team",
     href: "/team",
     activePrefixes: ["/team"],
@@ -319,7 +285,7 @@ export const SIDEBAR_ENTRIES = [
     href: "/fulfillment",
     activePrefixes: ["/fulfillment"],
     label: "Entregas",
-    icon: "inventory",
+    icon: "fulfillment",
     tileColor: "orange",
     section: "secondary",
     order: 8,

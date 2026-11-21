@@ -188,16 +188,6 @@ const PERMISSION_CATALOG: Record<Permission, PermissionMeta> = {
     description: "Completar los pasos de entrega de tus propios clientes.",
     group: "entregas",
   },
-  "inventory:read": {
-    label: "Ver inventario",
-    description: "Consultar el stock disponible.",
-    group: "entregas",
-  },
-  "inventory:manage": {
-    label: "Gestionar inventario",
-    description: "Administrar el stock y los movimientos.",
-    group: "entregas",
-  },
   "team:read": {
     label: "Ver miembros",
     description: "Consultar los miembros del equipo.",

@@ -55,7 +55,7 @@ describe("decideNavigation", () => {
     });
     expect(
       decideNavigation(makeAuthSession({ role: "logistics" }), "/"),
-    ).toEqual({ kind: "redirect", to: "/inventory" });
+    ).toEqual({ kind: "redirect", to: "/fulfillment" });
   });
 
   it("sends a member away from a page they cannot use", () => {

@@ -1,5 +1,4 @@
 import Building2 from "~/components/icons/building-2";
-import CalendarDays from "~/components/icons/calendar-days";
 import House from "~/components/icons/house";
 import type { IconComponent } from "~/components/icons/icon-base";
 import Info from "~/components/icons/info";
@@ -17,13 +16,12 @@ export const ICON_BY_ROUTE: Record<RouteIcon, IconComponent> = {
   search: Search,
   settings: Settings,
   team: Users,
-  inventory: Package,
+  fulfillment: Package,
   leads: User,
   "rate-simulator": Moneybag,
   home: House,
   audit: Info,
   capacity: Building2,
   profile: UserRound,
-  schedule: CalendarDays,
   dashboards: LayoutDashboard,
 };

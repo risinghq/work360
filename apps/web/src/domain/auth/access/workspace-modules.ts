@@ -41,8 +41,6 @@ const PERMISSION_MODULES: Record<Permission, WorkspaceModule | null> = {
   "integration:manage": "culqi",
   "fulfillment:manage": "culqi",
   "fulfillment:client-step": "culqi",
-  "inventory:read": "culqi",
-  "inventory:manage": "culqi",
   "commission:read": "culqi",
   "commission:manage": "culqi",
   // The dashboards read leads and merchant stats until cases join them.

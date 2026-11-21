@@ -64,7 +64,7 @@ describe("route permissions", () => {
 
   it("returns a role-safe default path", () => {
     expect(home("executive")).toBe("/home");
-    expect(home("logistics")).toBe("/inventory");
+    expect(home("logistics")).toBe("/fulfillment");
     expect(home("hr")).toBe("/team");
     expect(home("back_office")).toBe("/records");
     expect(home("supervisor")).toBe("/records");
@@ -80,7 +80,6 @@ describe("workspace modules", () => {
 
     expect(canAccessPath(executive, "/records")).toBe(false);
     expect(canAccessPath(executive, "/records/123")).toBe(false);
-    expect(canAccessPath(executive, "/schedule")).toBe(false);
     expect(canAccessPath(executive, "/home")).toBe(false);
     expect(canAccessPath(admin, "/settings/data-sources")).toBe(false);
     expect(canAccessPath(executive, "/campaigns")).toBe(true);

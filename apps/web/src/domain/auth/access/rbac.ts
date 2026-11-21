@@ -29,8 +29,6 @@ export type Permission =
   | "capacity:audit:read"
   | "team:read"
   | "team:manage"
-  | "inventory:read"
-  | "inventory:manage"
   | "hr:read"
   | "team:invite"
   | "admin:read"
@@ -171,7 +169,6 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "team:read",
     "team:manage",
     "team:invite",
-    "inventory:read",
     "audit:read",
     "admin:read",
     "admin:manage",
@@ -193,8 +190,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   ],
 
   logistics: [
-    "inventory:read",
-    "inventory:manage",
+    "fulfillment:manage",
     "case:work",
     "case:view:all",
     "company:read",
@@ -231,8 +227,6 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "capacity:audit:read",
     "team:read",
     "team:manage",
-    "inventory:read",
-    "inventory:manage",
     "hr:read",
     "team:invite",
     "admin:read",
@@ -287,8 +281,6 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "capacity:audit:read",
     "team:read",
     "team:manage",
-    "inventory:read",
-    "inventory:manage",
     "hr:read",
     "team:invite",
     "admin:read",
@@ -331,8 +323,6 @@ const PERMISSION_SET: Record<Permission, true> = {
   "capacity:audit:read": true,
   "team:read": true,
   "team:manage": true,
-  "inventory:read": true,
-  "inventory:manage": true,
   "hr:read": true,
   "team:invite": true,
   "admin:read": true,

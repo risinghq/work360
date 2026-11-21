@@ -13,6 +13,7 @@ export type { Permission, Role } from "./rbac";
 export type { Member } from "./workspace-modules";
 
 const ROLE_DEFAULT_PATHS: Partial<Record<Role, AppPath>> = {
+  logistics: "/fulfillment",
   back_office: "/records",
   supervisor: "/records",
   admin: "/records",

@@ -13,7 +13,6 @@ export type AppPath =
   | "/settings/members"
   | "/team"
   | "/team/requests"
-  | "/inventory"
   | "/records"
   | "/inquiries"
   | "/fulfillment"
@@ -21,7 +20,6 @@ export type AppPath =
   | "/home"
   | "/dashboards"
   | "/dashboards/merchant-gpv"
-  | "/schedule"
   | "/settings/profile"
   | "/settings/appearance"
   | "/settings/notifications"
@@ -63,7 +61,6 @@ export const ROUTE_MANIFEST: Record<AppPath, RouteConfig> = {
   "/settings/members": { permission: "team:read" },
   "/team": { permission: "team:read", landingPriority: 6 },
   "/team/requests": { permission: "capacity:approve", landingPriority: 7 },
-  "/inventory": { permission: "inventory:read", landingPriority: 5 },
   "/records": { module: "culqi" },
   "/inquiries": { permission: "lead:register" },
   "/fulfillment": { permission: "fulfillment:manage" },
@@ -75,7 +72,6 @@ export const ROUTE_MANIFEST: Record<AppPath, RouteConfig> = {
   },
   "/dashboards": { permission: "dashboards:read" },
   "/dashboards/merchant-gpv": { permission: "dashboards:read" },
-  "/schedule": { module: "culqi" },
   "/settings/profile": {},
   "/settings/appearance": {},
   "/settings/notifications": {},
