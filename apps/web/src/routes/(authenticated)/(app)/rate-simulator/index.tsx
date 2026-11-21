@@ -1,10 +1,6 @@
 import { createSignal, For, Show } from "solid-js";
 
-import {
-  AppPage,
-  AppPageSection,
-  AppPageSectionTitle,
-} from "~/components/layout/page";
+import { SettingsSection } from "~/components/settings/SettingsSection";
 import { Button } from "~/components/ui/input/button";
 import { Input } from "~/components/ui/input/input";
 import {
@@ -14,6 +10,7 @@ import {
   type RatesInput,
   type SummaryTable,
 } from "~/features/rate-simulator/model/calculator";
+import { SettingsPageContainer } from "~/features/settings-shell/content/settings-page-container";
 
 import styles from "./rate-simulator-page.module.css";
 
@@ -91,15 +88,11 @@ export default function RateSimulatorPage() {
   };
 
   return (
-    <AppPage width="medium" class={styles.page}>
-      <AppPageSection>
-        <AppPageSectionTitle
-          title="Simulador de tasas"
-          description="Ingresa mezcla y tasas en porcentaje para mostrar escenario antes y después de IGV."
-        />
-      </AppPageSection>
-
-      <AppPageSection>
+    <SettingsPageContainer>
+      <SettingsSection
+        title="Escenario"
+        description="Ingresa la mezcla y las tasas en porcentaje para comparar antes y después de IGV."
+      >
         <form class={styles.form} onSubmit={calculate}>
           <div class={styles.inputGrid}>
             <section class={styles.card}>
@@ -169,15 +162,14 @@ export default function RateSimulatorPage() {
             </Show>
           </div>
         </form>
-      </AppPageSection>
+      </SettingsSection>
 
       <Show when={summary()}>
         {(table) => (
-          <AppPageSection>
-            <AppPageSectionTitle
-              title="Resumen"
-              description="Comparativo para presentar al cliente potencial."
-            />
+          <SettingsSection
+            title="Resumen"
+            description="Comparativo para presentar al cliente potencial."
+          >
             <div class={styles.tableWrap}>
               <table class={styles.table}>
                 <thead>
@@ -201,9 +193,9 @@ export default function RateSimulatorPage() {
                 </tbody>
               </table>
             </div>
-          </AppPageSection>
+          </SettingsSection>
         )}
       </Show>
-    </AppPage>
+    </SettingsPageContainer>
   );
 }
