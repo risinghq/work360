@@ -3,6 +3,7 @@ import { createEffect, Match, Show, Switch } from "solid-js";
 
 import { PresenceTransition } from "~/components/ui/animation/presence-transition";
 import { Button } from "~/components/ui/input/button";
+import { MODAL_LAYER_CLICK_OUTSIDE_ID } from "~/components/ui/modal-layer";
 
 import { getFileCategoryFromMime } from "./file-category";
 
@@ -59,6 +60,7 @@ export function PreviewModal(props: PreviewModalProps) {
             <div
               class={styles.previewOverlay}
               role="presentation"
+              data-click-outside-id={MODAL_LAYER_CLICK_OUTSIDE_ID}
               onClick={(event) => {
                 if (event.target === event.currentTarget) {
                   props.onClose();

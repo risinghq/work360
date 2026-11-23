@@ -4,8 +4,8 @@
   padding: var(--spacing-6);
 }
 
-.error {
-  color: var(--destructive, #b91c1c);
-  font-size: 12px;
+.deleteError {
+  color: var(--destructive);
+  font-size: var(--font-size-body);
   margin: 0;
 }

@@ -16,14 +16,11 @@ import { actionErrorMessage } from "~/contracts/errors";
 import { hasPermission } from "~/domain/auth/access/rbac";
 import { useLeadActions } from "~/features/record-show/use-record-actions";
 import { PAGE_HEADER_SIDE_PANEL_BUTTON_CLICK_OUTSIDE_ID } from "~/features/side-panel/constants/side-panel-click-outside-id";
+import { usePageCommands } from "~/features/side-panel/hooks/use-page-commands";
 import { useSidePanelMenu } from "~/features/side-panel/hooks/use-side-panel-menu";
 import { leadDetailQuery } from "~/rpc/workflow/lead-detail";
 
 import { useLeadNavigation } from "./lead-navigation";
-import {
-  RecordShowActionsMenu,
-  type RecordShowMenuItem,
-} from "./record-show-actions-menu";
 
 import styles from "./record-show-header.module.css";
 
@@ -87,25 +84,26 @@ export function RecordShowHeaderActions(props: { leadId: string }) {
     () => detail()?.lead != null && hasPermission(currentUser(), "lead:delete"),
   );
 
-  const menuItems = createMemo<RecordShowMenuItem[]>(() => {
-    const items: RecordShowMenuItem[] = [];
-
-    if (canDelete()) {
-      items.push({
-        id: "delete",
-        label: "Eliminar empresa",
-        icon: Trash,
-        danger: true,
-        disabled: deleteBusy(),
-        onSelect: () => {
-          setDeleteErrorMessage(null);
-          setConfirmDeleteOpen(true);
-        },
-      });
-    }
-
-    return items;
-  });
+  usePageCommands(() =>
+    canDelete()
+      ? {
+          label: "Empresa",
+          items: [
+            {
+              id: "delete",
+              label: "Eliminar empresa",
+              icon: Trash,
+              danger: true,
+              disabled: deleteBusy(),
+              onAction: () => {
+                setDeleteErrorMessage(null);
+                setConfirmDeleteOpen(true);
+              },
+            },
+          ],
+        }
+      : null,
+  );
 
   const isFavorite = () => detail()?.lead.isFavorite ?? false;
 
@@ -158,8 +156,6 @@ export function RecordShowHeaderActions(props: { leadId: string }) {
       <Loading fallback={<NavigationButtons nextId={null} previousId={null} />}>
         <LoadedNavigationButtons leadId={props.leadId} />
       </Loading>
-
-      <RecordShowActionsMenu items={menuItems()} />
 
       <TopBarCommandButton
         isOpen={isSidePanelOpen()}

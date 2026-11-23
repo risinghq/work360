@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { Show, createEffect, createMemo } from "solid-js";
+import { Show, createEffect, createMemo, createSignal } from "solid-js";
 
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
 import BrowserMaximize from "~/components/icons/browser-maximize";
@@ -9,7 +9,9 @@ import Mail from "~/components/icons/mail";
 import Trash from "~/components/icons/trash";
 import X from "~/components/icons/x";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
+import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import { actionErrorMessage } from "~/contracts/errors";
+import { hasPermission } from "~/domain/auth/access/rbac";
 import { RecordTabs } from "~/features/record-show/tabs/record-tabs";
 import { useEnrichmentWatch } from "~/features/record-show/use-enrichment-watch";
 import { useLeadActions } from "~/features/record-show/use-record-actions";
@@ -33,15 +35,33 @@ import styles from "./page.module.css";
 
 export function RecordPage() {
   const navigate = useNavigate();
-  const { setFavorite, exportLead } = useLeadActions();
-  const { enqueueSuccessSnackBar, enqueueErrorSnackBar, enqueueInfoSnackBar } =
-    useSnackBar();
+  const { setFavorite, exportLead, deleteBusy, deleteLead } = useLeadActions();
+  const { enqueueSuccessSnackBar, enqueueErrorSnackBar } = useSnackBar();
   const { currentUser } = useAuthenticatedSession();
-  const { navigateTo } = useSidePanel();
+  const { navigateTo, closePanel } = useSidePanel();
   const { pageState, leadId, activeTab, setActiveTab, setSubtitle } =
     useLeadRecordPageState();
 
-  const canDeleteCompany = createMemo(() => currentUser().role === "superuser");
+  const canDeleteCompany = createMemo(() =>
+    hasPermission(currentUser(), "lead:delete"),
+  );
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = createSignal(false);
+  const [deleteErrorMessage, setDeleteErrorMessage] = createSignal<
+    string | null
+  >(null);
+
+  async function handleConfirmDelete() {
+    setDeleteErrorMessage(null);
+
+    try {
+      await deleteLead(leadId());
+      setConfirmDeleteOpen(false);
+      closePanel();
+      enqueueSuccessSnackBar("Empresa eliminada");
+    } catch (caught) {
+      setDeleteErrorMessage(actionErrorMessage(caught));
+    }
+  }
   const detailData = createMemo(() => leadDetailQuery(leadId()));
 
   createEffect(
@@ -194,8 +214,11 @@ export function RecordPage() {
         label: "Eliminar empresa",
         icon: Trash,
         danger: true,
-        onSelect: () =>
-          enqueueInfoSnackBar("Eliminar empresa estará disponible pronto"),
+        disabled: deleteBusy(),
+        onSelect: () => {
+          setDeleteErrorMessage(null);
+          setConfirmDeleteOpen(true);
+        },
       });
     }
 
@@ -224,6 +247,21 @@ export function RecordPage() {
           />
         )}
       </Show>
+
+      <ConfirmDialog
+        isOpen={confirmDeleteOpen()}
+        title="Eliminar empresa"
+        description="Se quitará de tus listas de clientes. Esta acción no se puede deshacer desde la aplicación."
+        confirmLabel="Eliminar"
+        variant="destructive"
+        loading={deleteBusy()}
+        onConfirm={() => void handleConfirmDelete()}
+        onClose={() => setConfirmDeleteOpen(false)}
+      >
+        <Show when={deleteErrorMessage()}>
+          {(message) => <p class={styles.deleteError}>{message()}</p>}
+        </Show>
+      </ConfirmDialog>
     </SidePanelPage>
   );
 }

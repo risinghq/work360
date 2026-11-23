@@ -2,10 +2,15 @@ import {
   type Accessor,
   type ParentProps,
   createContext,
+  createSignal,
   useContext,
 } from "solid-js";
 
 import { selectCurrentEntry, selectNavigationStack } from "../core/selectors";
+import type {
+  PageCommandGroup,
+  PageCommandSource,
+} from "../types/page-commands";
 import type {
   SidePanelNavigationEntry,
   SidePanelPageDefinition,
@@ -36,6 +41,10 @@ export type SidePanelContextValue = {
   onCloseAnimationComplete: () => void;
   setSearchText: (text: string) => void;
   setPanelWidth: (width: number) => void;
+  pageCommands: Accessor<PageCommandGroup | null>;
+  // Returns the unregister function. One page registers at a time; a stale
+  // unregister does not clear a newer page's commands.
+  registerPageCommands: (source: PageCommandSource) => () => void;
 };
 
 const SidePanelContext = createContext<SidePanelContextValue>();
@@ -47,6 +56,15 @@ export function SidePanelProvider(props: ParentProps) {
     selectCurrentEntry(state);
   const navigationStack: Accessor<SidePanelNavigationEntry[]> = () =>
     selectNavigationStack(state);
+  const [pageCommandSource, setPageCommandSource] =
+    createSignal<PageCommandSource | null>(null);
+
+  const registerPageCommands = (source: PageCommandSource) => {
+    setPageCommandSource(() => source);
+
+    return () =>
+      setPageCommandSource((current) => (current === source ? null : current));
+  };
 
   const value: SidePanelContextValue = {
     isOpen: () => state.isOpen,
@@ -65,6 +83,8 @@ export function SidePanelProvider(props: ParentProps) {
     onCloseAnimationComplete: store.onCloseAnimationComplete,
     setSearchText: store.setSearchText,
     setPanelWidth: store.setPanelWidth,
+    pageCommands: () => pageCommandSource()?.() ?? null,
+    registerPageCommands,
   };
 
   return <SidePanelContext value={value}>{props.children}</SidePanelContext>;

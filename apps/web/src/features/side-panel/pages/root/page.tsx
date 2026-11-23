@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { For, Show, createMemo, createSignal } from "solid-js";
+import { type Component, For, Show, createMemo, createSignal } from "solid-js";
 
 import { useHotkey } from "~/browser/hotkey/use-hotkey";
 import { ICON_BY_ROUTE } from "~/components/layout/route-icons";
@@ -18,7 +18,9 @@ import styles from "./page.module.css";
 type ActionItem = {
   id: string;
   label: string;
-  icon: typeof ICON_BY_ROUTE.home;
+  icon: Component<{ size?: number }>;
+  danger?: boolean;
+  disabled?: boolean;
   onAction: () => void;
 };
 
@@ -30,10 +32,35 @@ type CommandGroup = {
 export function RootPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuthenticatedSession();
-  const { searchText, closePanel } = useSidePanel();
+  const { searchText, closePanel, pageCommands } = useSidePanel();
   const [selectedId, setSelectedId] = createSignal<string | null>(null);
 
-  const commandGroups = createMemo<CommandGroup[]>(() => {
+  const pageGroup = createMemo<CommandGroup[]>(() => {
+    const group = pageCommands();
+
+    if (!group || group.items.length === 0) {
+      return [];
+    }
+
+    return [
+      {
+        label: group.label,
+        items: group.items.map((item) => ({
+          id: `page:${item.id}`,
+          label: item.label,
+          icon: item.icon,
+          danger: item.danger,
+          disabled: item.disabled,
+          onAction: () => {
+            closePanel();
+            item.onAction();
+          },
+        })),
+      },
+    ];
+  });
+
+  const routeGroups = createMemo<CommandGroup[]>(() => {
     const routes = getNavigableRoutes(currentUser());
     const grouped = new Map<string, ActionItem[]>();
 
@@ -65,6 +92,8 @@ export function RootPage() {
     }));
   });
 
+  const commandGroups = () => [...pageGroup(), ...routeGroups()];
+
   const filteredGroups = createMemo(() => {
     const query = searchText().toLowerCase();
 
@@ -94,7 +123,9 @@ export function RootPage() {
         (item) => item.id === selectedId(),
       );
 
-      selectedItem?.onAction();
+      if (!selectedItem?.disabled) {
+        selectedItem?.onAction();
+      }
     },
     { allowInInputs: true },
   );
@@ -119,6 +150,8 @@ export function RootPage() {
                       <MenuItem
                         text={item.label}
                         focused={selectedId() === item.id}
+                        accent={item.danger ? "danger" : "default"}
+                        disabled={item.disabled}
                         onClick={item.onAction}
                         onHighlight={() => setSelectedId(item.id)}
                         leftComponent={<item.icon size={16} />}

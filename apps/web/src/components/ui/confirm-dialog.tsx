@@ -4,6 +4,7 @@ import { createEffect } from "solid-js";
 
 import { PresenceTransition } from "~/components/ui/animation/presence-transition";
 import { Button } from "~/components/ui/input/button";
+import { MODAL_LAYER_CLICK_OUTSIDE_ID } from "~/components/ui/modal-layer";
 
 import styles from "./confirm-dialog.module.css";
 
@@ -47,6 +48,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
         <div
           class={styles.overlay}
           role="presentation"
+          data-click-outside-id={MODAL_LAYER_CLICK_OUTSIDE_ID}
           onClick={(e) => {
             if (e.target === e.currentTarget && !props.loading) {
               props.onClose();
