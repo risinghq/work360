@@ -41,17 +41,6 @@ function NavigationButtons(props: {
 
   return (
     <>
-      <TopBarTooltip content="Registro siguiente">
-        <TopBarActionButton
-          ariaLabel="Navegar al siguiente registro"
-          iconOnly
-          disabled={!props.nextId}
-          onClick={() => props.nextId && navigate(`/records/${props.nextId}`)}
-        >
-          <ChevronDown size={16} />
-        </TopBarActionButton>
-      </TopBarTooltip>
-
       <TopBarTooltip content="Registro anterior">
         <TopBarActionButton
           ariaLabel="Navegar al registro anterior"
@@ -62,6 +51,17 @@ function NavigationButtons(props: {
           }
         >
           <ChevronUp size={16} />
+        </TopBarActionButton>
+      </TopBarTooltip>
+
+      <TopBarTooltip content="Registro siguiente">
+        <TopBarActionButton
+          ariaLabel="Navegar al siguiente registro"
+          iconOnly
+          disabled={!props.nextId}
+          onClick={() => props.nextId && navigate(`/records/${props.nextId}`)}
+        >
+          <ChevronDown size={16} />
         </TopBarActionButton>
       </TopBarTooltip>
     </>
@@ -127,9 +127,16 @@ export function RecordShowHeaderActions(props: { leadId: string }) {
 
   return (
     <>
-      <Loading fallback={<NavigationButtons nextId={null} previousId={null} />}>
-        <LoadedNavigationButtons leadId={props.leadId} />
-      </Loading>
+      <TopBarTooltip content="Enviar email estará disponible pronto">
+        <TopBarActionButton
+          ariaLabel="Enviar email"
+          label="Enviar email"
+          disabled
+          class={styles.desktopAction}
+        >
+          <Mail size={14} />
+        </TopBarActionButton>
+      </TopBarTooltip>
 
       <TopBarTooltip
         content={isFavorite() ? "Quitar de favoritos" : "Agregar a favoritos"}
@@ -148,16 +155,9 @@ export function RecordShowHeaderActions(props: { leadId: string }) {
         </TopBarActionButton>
       </TopBarTooltip>
 
-      <TopBarTooltip content="Enviar email estará disponible pronto">
-        <TopBarActionButton
-          ariaLabel="Enviar email"
-          label="Enviar email"
-          disabled
-          class={styles.desktopAction}
-        >
-          <Mail size={14} />
-        </TopBarActionButton>
-      </TopBarTooltip>
+      <Loading fallback={<NavigationButtons nextId={null} previousId={null} />}>
+        <LoadedNavigationButtons leadId={props.leadId} />
+      </Loading>
 
       <RecordShowActionsMenu items={menuItems()} />
 

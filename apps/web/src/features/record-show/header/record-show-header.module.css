@@ -1,14 +1,14 @@
 .breadcrumb {
   align-items: center;
   display: flex;
-  gap: var(--spacing-2);
+  font-size: var(--t-font-size-md);
+  font-weight: var(--t-font-weight-medium);
+  gap: var(--t-spacing-1);
   overflow: hidden;
 }
 
 .breadcrumbLink {
   color: var(--foreground-tertiary);
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-medium);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -20,19 +20,13 @@
 .breadcrumbPrefix {
   align-items: center;
   display: inline-flex;
-  gap: var(--spacing-2);
+  gap: var(--t-spacing-1);
 }
 
-.objectIconBadge {
-  align-items: center;
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-  border-radius: var(--radius-sm);
-  color: var(--accent);
-  display: inline-flex;
-  height: 20px;
-  justify-content: center;
-  width: 20px;
+.objectIcon {
+  display: flex;
+  flex-shrink: 0;
+  opacity: 0.64;
 }
 
 .breadcrumbSep {
@@ -42,8 +36,6 @@
 
 .breadcrumbCurrent {
   color: var(--foreground);
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-medium);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -52,8 +44,6 @@
 .paginationInfo {
   color: var(--foreground-tertiary);
   flex-shrink: 0;
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-medium);
 }
 
 .deleteError {

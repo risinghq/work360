@@ -41,8 +41,8 @@ export function RecordShowHeader(
               aria-label="Volver a Registros"
             >
               <span class={styles.breadcrumbPrefix}>
-                <span class={styles.objectIconBadge}>
-                  <Building2 size={14} />
+                <span class={styles.objectIcon}>
+                  <Building2 size={16} />
                 </span>
                 <span>Registros</span>
               </span>
