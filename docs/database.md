@@ -52,6 +52,40 @@ receiving number to the workspace that takes the message.
 No transaction spans two stores. A write that touches two stores, such as
 accepting an invite, writes each store in its own transaction.
 
+### Why a SQLite Durable Object per workspace
+
+In production each store is a SQLite Durable Object.
+
+- Isolation is physical. A request reaches one company's database, so no query
+  can read another company's rows. This replaced Postgres row-level security.
+- The object serves one request at a time, and `ctx.storage.transaction` rolls
+  back on a throw. Read-then-write commands keep their guarantee with no row
+  locks. The cost: a long transaction stalls every other user of that workspace,
+  so a write batch is sized to about 100 ms.
+- Hibernating WebSockets on the object carry live updates, and alarms run the
+  job queues. Point-in-time restore covers 30 days. Each object migrates itself
+  when it wakes, so one deploy updates every company.
+- A CRM's load splits by company and almost never crosses companies. One object
+  per company scales out with no shared primary, pool or sharding, and a query
+  runs in-process. Postgres would win if one company outgrew 10 GB or about a
+  thousand writes a second, or if the product needed cross-company queries.
+  Reporting across companies exports to R2 instead.
+
+Two alternatives were rejected on 2026-11-18:
+
+- D1 puts every company in one database. Payload's `db-d1-sqlite` adapter uses a
+  no-op transaction unless configured, and its docs advise against transactions.
+  A CMS can accept a partial write; a case transition cannot.
+- Neon's free plan caps a project at 1 GB and restores only 6 hours back. It
+  adds a processor of client personal data outside Cloudflare. Hyperdrive resets
+  session state per transaction, which broke the per-connection workspace
+  binding.
+
+Durable Objects run in North America only: the `sam` hint places them in ENAM,
+and an object never moves. Lima users reach them in Miami, about 130 ms from the
+EZE or GIG entry. That distance, not the code, sets the floor of every server
+call.
+
 [`store.ts`](../apps/web/src/server/platform/database/store.ts) defines the
 interface every store implements.
 [`bun-store.ts`](../apps/web/src/server/platform/database/bun-store.ts) opens a
