@@ -2,7 +2,8 @@ import { Show } from "solid-js";
 
 import type { RecordContext } from "~/features/record-show/model/record-context";
 import { DetailFieldsSection } from "~/features/record-show/sections/fields";
-import { WidgetStack } from "~/features/widgets/widget-layout";
+
+import styles from "./datos-tab.module.css";
 
 export function DatosTab(props: { context: RecordContext }) {
   return (
@@ -11,9 +12,9 @@ export function DatosTab(props: { context: RecordContext }) {
       keyed
     >
       {(data) => (
-        <WidgetStack>
+        <div class={styles.fields}>
           <DetailFieldsSection data={data} />
-        </WidgetStack>
+        </div>
       )}
     </Show>
   );
