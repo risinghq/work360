@@ -72,7 +72,7 @@ test.describe("leads workspace", () => {
     // router navigation, which reuses the loaded app and its cached queries.
     await asExecutive.goto("/records");
     await asExecutive.evaluate(() => {
-      (window as { rowOpenMarker?: boolean }).rowOpenMarker = true;
+      document.documentElement.dataset.rowOpenMarker = "set";
     });
     await asExecutive
       .getByRole("link", { name: "20987654321", exact: true })
@@ -81,9 +81,9 @@ test.describe("leads workspace", () => {
     await expect(asExecutive).toHaveURL(/\/records\/[0-9a-f-]{36}$/);
     expect(
       await asExecutive.evaluate(
-        () => (window as { rowOpenMarker?: boolean }).rowOpenMarker,
+        () => document.documentElement.dataset.rowOpenMarker,
       ),
-    ).toBe(true);
+    ).toBe("set");
 
     expect(pageErrors).toEqual([]);
   });
