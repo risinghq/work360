@@ -53,9 +53,6 @@ function workspaceStores(dataDir: string): string[] {
 
 async function main(): Promise<void> {
   const { base, token, stores } = transferArgs("stores:pull");
-  if (stores.length > 0) {
-    throw new Error("stores:pull copies every store; it takes no store names");
-  }
   const { dataDir } = databaseConfig();
   // `stores:push` sends every local store, so a stray local workspace would
   // reach production.
@@ -63,6 +60,15 @@ async function main(): Promise<void> {
     throw new Error(`${dataDir} already holds stores; pull into an empty one`);
   }
   mkdirSync(join(dataDir, "workspaces"), { recursive: true });
+  // Named stores pull alone, so a fix to one small store skips the large
+  // workspaces; the push then sends back only those stores.
+  if (stores.length > 0) {
+    for (const name of stores) {
+      // eslint-disable-next-line no-await-in-loop
+      await pullStore(base, token, dataDir, name);
+    }
+    return;
+  }
   await pullStore(base, token, dataDir, "platform");
   for (const name of ["registry", ...workspaceStores(dataDir)]) {
     // One store at a time keeps a failure's report to one store.

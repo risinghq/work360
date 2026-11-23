@@ -160,11 +160,11 @@ Store names after the URL push only those stores, such as
 a store at once, and a store of several hundred thousand rows runs past the
 object's time limit, so a push after a pull names the stores it changed.
 
-`stores:pull` is the reverse. It copies every deployed store into an empty
-`WEB_DATA_DIR`, so a local command can write to production's rows and
-`stores:push` can send them back. A pull reads each store over many requests, so
-run it while nobody writes. A store that gains rows between the pull and the
-push refuses the push, so the copy never overwrites newer writes:
+`stores:pull` is the reverse. With no store names it copies every deployed store
+into an empty `WEB_DATA_DIR`, so a local command can write to production's rows
+and `stores:push` can send them back. A pull reads each store over many
+requests, so run it while nobody writes. A store that gains rows between the
+pull and the push refuses the push, so the copy never overwrites newer writes:
 
 ```sh
 bunx wrangler secret put LOAD_TOKEN -c dist/worker/wrangler.json
@@ -173,3 +173,7 @@ LOAD_TOKEN=... WEB_DATA_DIR=./pulled bun run stores:pull https://HOST
 LOAD_TOKEN=... WEB_DATA_DIR=./pulled bun run stores:push https://HOST
 bunx wrangler secret delete LOAD_TOKEN -c dist/worker/wrangler.json
 ```
+
+Store names after the URL pull only those stores, such as
+`stores:pull https://HOST platform`. A fix to the platform store then skips the
+large workspaces, and the push sends back only the pulled stores.
