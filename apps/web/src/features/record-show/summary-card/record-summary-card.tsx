@@ -1,35 +1,30 @@
-import { createMemo, Show } from "solid-js";
-
 import Building2 from "~/components/icons/building-2";
+import { OverflowingText } from "~/components/ui/overflow-tooltip/overflow-tooltip";
+import { Tag } from "~/components/ui/tag/tag";
 import type { LeadDetailLeadView } from "~/contracts/workflow/views";
-
-import { formatPastRelativeDate } from "./format-relative-date";
+import {
+  leadStageColor,
+  leadStageLabel,
+} from "~/features/workflow/presentation/lead-display";
 
 import styles from "./record-summary-card.module.css";
 
-type RecordSummaryCardProps = {
-  lead: LeadDetailLeadView;
-  evaluatedAt: number;
-};
-
-export function RecordSummaryCard(props: RecordSummaryCardProps) {
-  const relativeDate = createMemo(() =>
-    formatPastRelativeDate(props.lead.createdAt, props.evaluatedAt),
-  );
-
+// Twenty's record identifier bar: icon tile, name and a status label in one
+// left-aligned row at the top of the record page's side column.
+export function RecordSummaryCard(props: { lead: LeadDetailLeadView }) {
   return (
-    <div class={styles.card}>
-      <div class={styles.iconWrapper}>
-        <Building2 size={20} />
+    <div class={styles.bar}>
+      <div class={styles.tile}>
+        <Building2 size={16} />
       </div>
-      <div class={styles.info}>
-        <p class={styles.name}>{props.lead.legalName ?? props.lead.ruc}</p>
-        <Show when={props.lead.legalName}>
-          <p class={styles.ruc}>{props.lead.ruc}</p>
-        </Show>
-        <p class={styles.stage}>{props.lead.stage}</p>
-        <p class={styles.date}>Agregado {relativeDate()}</p>
-      </div>
+      <h3 class={styles.name}>
+        <OverflowingText text={props.lead.legalName ?? props.lead.ruc} />
+      </h3>
+      <Tag
+        color={leadStageColor(props.lead.stage)}
+        text={leadStageLabel(props.lead.stage)}
+        preventShrink
+      />
     </div>
   );
 }

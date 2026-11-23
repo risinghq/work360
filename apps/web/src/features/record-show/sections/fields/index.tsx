@@ -11,7 +11,12 @@ import {
   FieldTextValue,
   RecordInlineCell,
 } from "~/features/widgets/field-table";
-import { WidgetCard, WidgetCardContent } from "~/features/widgets/widget-card";
+import {
+  WidgetCard,
+  WidgetCardContent,
+  WidgetCardHeader,
+  WidgetCardTitle,
+} from "~/features/widgets/widget-card";
 import { ExecutivePicker } from "~/features/workflow/detail/actions/executive-picker";
 import { CommercialScopeFields } from "~/features/workflow/forms/commercial-scope/fields";
 import { leadStageLabel } from "~/features/workflow/presentation/lead-display";
@@ -66,7 +71,10 @@ function PriorityRow(props: { data: LeadDetailView }) {
 
 export function DetailFieldsSection(props: { data: LeadDetailView }) {
   return (
-    <WidgetCard>
+    <WidgetCard variant="side-column">
+      <WidgetCardHeader>
+        <WidgetCardTitle text="Campos" />
+      </WidgetCardHeader>
       <WidgetCardContent>
         <FieldTable>
           <CommercialFields data={props.data} />

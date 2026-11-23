@@ -14,12 +14,16 @@ import { createLeadActionSidePanelPage } from "~/features/side-panel/types/side-
 
 import styles from "./record-right-panel.module.css";
 
+// The record page shows the fields in its left panel, as Twenty does; the side
+// panel has no left panel and keeps them as its first tab.
+const FIELDS_IN_LEFT_PANEL: readonly RecordTabId[] = ["datos"];
+
 type RecordRightPanelProps = {
   data: LeadDetailView;
 };
 
 export function RecordRightPanel(props: RecordRightPanelProps) {
-  const [activeTab, setActiveTab] = createSignal<RecordTabId>("datos");
+  const [activeTab, setActiveTab] = createSignal<RecordTabId>("actividad");
   const { openPanel } = useSidePanel();
 
   const cta = createMemo(() => nextActionCta(props.data));
@@ -47,6 +51,7 @@ export function RecordRightPanel(props: RecordRightPanelProps) {
           context={{ kind: "lead", data: props.data }}
           activeTab={activeTab()}
           onTabSelect={setActiveTab}
+          hiddenTabs={FIELDS_IN_LEFT_PANEL}
         />
       </div>
       <Show when={cta()}>

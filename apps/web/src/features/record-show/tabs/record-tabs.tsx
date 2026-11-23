@@ -12,8 +12,12 @@ export function RecordTabs(props: {
   context: RecordContext;
   activeTab: RecordTabId;
   onTabSelect: (tabId: RecordTabId) => void;
+  hiddenTabs?: readonly RecordTabId[];
 }) {
-  const tabs = () => recordTabsFor(props.context);
+  const tabs = () =>
+    recordTabsFor(props.context).filter(
+      (tab) => !props.hiddenTabs?.includes(tab.id),
+    );
   const activeDefinition = () =>
     tabs().find((tab) => tab.id === props.activeTab) ?? tabs()[0];
 
