@@ -21,13 +21,25 @@
   padding-right: var(--t-spacing-2);
 }
 
+/*
+  Zero width and clipped: an unclipped measure row past the panel edge widens
+  the panel's scroll area and shows a horizontal scrollbar. The tabs inside
+  keep their natural width, which is what the overflow logic reads.
+*/
 .hiddenMeasure {
   display: flex;
   gap: var(--t-spacing-1);
+  left: 0;
+  overflow: hidden;
   pointer-events: none;
   position: absolute;
   top: -9999px;
   visibility: hidden;
+  width: 0;
+}
+
+.hiddenMeasure > * {
+  flex-shrink: 0;
 }
 
 .tabContainer {
