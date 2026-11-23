@@ -1,3 +1,4 @@
+import { useNavigate } from "@solidjs/router";
 import { createMemo, createSignal, For, Show } from "solid-js";
 
 import { OverflowingText } from "~/components/ui/overflow-tooltip/overflow-tooltip";
@@ -74,6 +75,7 @@ interface RecordLinkChipProps extends RecordChipProps {
 }
 
 export function RecordLinkChip(props: RecordLinkChipProps) {
+  const navigate = useNavigate();
   return (
     <span class={styles.linkChipWrap}>
       <a
@@ -83,7 +85,22 @@ export function RecordLinkChip(props: RecordLinkChipProps) {
         rel={props.target === "_blank" ? "noopener noreferrer" : undefined}
         data-click-outside-id="link-chip-click-outside-id"
         onClick={(event) => {
+          // The grid cell must not see the click. The router reads link
+          // clicks from the document, so a stopped click would load the page
+          // in full; a plain click therefore navigates here.
           event.stopPropagation();
+          if (
+            props.target === "_blank" ||
+            event.button !== 0 ||
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey
+          ) {
+            return;
+          }
+          event.preventDefault();
+          navigate(props.href);
         }}
         onMouseDown={(event) => {
           event.stopPropagation();

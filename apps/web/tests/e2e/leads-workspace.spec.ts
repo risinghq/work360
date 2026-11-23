@@ -26,7 +26,9 @@ test.describe("leads workspace", () => {
     ).toHaveCount(0);
   });
 
-  test("an executive can register a lead", async ({ asExecutive }) => {
+  test("an executive registers a lead and opens it from the grid", async ({
+    asExecutive,
+  }) => {
     const pageErrors: string[] = [];
 
     asExecutive.on("pageerror", (error) => {
@@ -65,6 +67,23 @@ test.describe("leads workspace", () => {
     await expect(
       asExecutive.getByText("RUC 20987654321").first(),
     ).toBeVisible();
+
+    // A full page load would drop the marker: opening a row must stay a
+    // router navigation, which reuses the loaded app and its cached queries.
+    await asExecutive.goto("/records");
+    await asExecutive.evaluate(() => {
+      (window as { rowOpenMarker?: boolean }).rowOpenMarker = true;
+    });
+    await asExecutive
+      .getByRole("link", { name: "20987654321", exact: true })
+      .first()
+      .click();
+    await expect(asExecutive).toHaveURL(/\/records\/[0-9a-f-]{36}$/);
+    expect(
+      await asExecutive.evaluate(
+        () => (window as { rowOpenMarker?: boolean }).rowOpenMarker,
+      ),
+    ).toBe(true);
 
     expect(pageErrors).toEqual([]);
   });
