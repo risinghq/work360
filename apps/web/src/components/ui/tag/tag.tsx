@@ -3,7 +3,9 @@ import { type JSX } from "@solidjs/web";
 import styles from "./tag.module.css";
 
 export type TagColor =
+  | "gray"
   | "blue"
+  | "sky"
   | "purple"
   | "turquoise"
   | "green"
@@ -28,8 +30,8 @@ function tagVars(color: TagColor): JSX.CSSProperties {
     };
   }
   return {
-    "--tag-background": `var(--color-${color}-5)`,
-    "--tag-text": `var(--color-${color}-11)`,
+    "--tag-background": `var(--t-tag-background-${color})`,
+    "--tag-text": `var(--t-tag-text-${color})`,
   };
 }
 

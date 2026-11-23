@@ -7,9 +7,9 @@ import CalendarDays from "~/components/icons/calendar-days";
 import CircleQuestionMark from "~/components/icons/circle-question-mark";
 import Info from "~/components/icons/info";
 import Target from "~/components/icons/target";
-import { Badge } from "~/components/ui/display/badge";
 import { Button } from "~/components/ui/input/button";
 import { TextInput } from "~/components/ui/input/text-input";
+import { Tag } from "~/components/ui/tag/tag";
 import { parseWireError } from "~/contracts/errors";
 import type { InquiryListRowView } from "~/contracts/workflow/views";
 import { formatAppDate } from "~/domain/time/app-time";
@@ -99,9 +99,10 @@ export function InquiriesPage() {
       icon: Info,
       width: 130,
       renderCell: (row) => (
-        <Badge variant={row.state === "PENDING" ? "outline" : "secondary"}>
-          {inquiryStateLabel(row.state)}
-        </Badge>
+        <Tag
+          color={row.state === "PENDING" ? "orange" : "gray"}
+          text={inquiryStateLabel(row.state)}
+        />
       ),
     },
     {
@@ -110,9 +111,7 @@ export function InquiriesPage() {
       icon: Info,
       width: 140,
       renderCell: (row) =>
-        row.status ? (
-          <Badge variant="outline">{capitalize(row.status)}</Badge>
-        ) : null,
+        row.status ? <Tag color="gray" text={capitalize(row.status)} /> : null,
     },
     {
       key: "priority",
@@ -121,7 +120,7 @@ export function InquiriesPage() {
       width: 120,
       renderCell: (row) =>
         row.priority ? (
-          <Badge variant="secondary">{capitalize(row.priority)}</Badge>
+          <Tag color="gray" text={capitalize(row.priority)} />
         ) : null,
     },
     {

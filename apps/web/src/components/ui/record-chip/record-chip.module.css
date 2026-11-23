@@ -58,7 +58,6 @@
 
 .label {
   color: var(--foreground);
-  font-size: var(--font-size-xs);
   min-width: 0;
 }
 

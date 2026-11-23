@@ -15,14 +15,12 @@ export function getRoleLabel(role: Role): string {
   return ROLE_LABELS[role];
 }
 
-export function getRoleBadgeVariant(
-  role: Role,
-): "default" | "warning" | "info" {
+export function getRoleTagColor(role: Role): "gray" | "orange" | "blue" {
   if (role === "supervisor") {
-    return "warning";
+    return "orange";
   }
   if (role === "admin" || role === "superuser") {
-    return "info";
+    return "blue";
   }
-  return "default";
+  return "gray";
 }

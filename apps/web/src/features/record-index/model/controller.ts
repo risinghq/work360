@@ -95,7 +95,7 @@ export function createRecordIndexController<T extends { id: string }>(
     const totalCount = total();
 
     return typeof totalCount === "number" && totalCount !== visibleCount
-      ? `${visibleCount} of ${totalCount}`
+      ? `${visibleCount} de ${totalCount}`
       : String(visibleCount);
   });
 

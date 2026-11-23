@@ -4,10 +4,10 @@ import { createMemo, createSignal, For, Show } from "solid-js";
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
 import { SettingsSection } from "~/components/settings/SettingsSection";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
-import { Badge } from "~/components/ui/display/badge";
 import { Button } from "~/components/ui/input/button";
 import { Checkbox } from "~/components/ui/input/checkbox";
 import { Input } from "~/components/ui/input/input";
+import { Tag } from "~/components/ui/tag/tag";
 import { actionErrorMessage } from "~/contracts/errors";
 import type { RoleDetail } from "~/contracts/roles";
 import type { Permission } from "~/domain/auth/access/rbac";
@@ -106,7 +106,7 @@ function RoleEditor(props: { role: RoleDetail }) {
             {props.role.memberCount} miembro
             {props.role.memberCount === 1 ? "" : "s"}{" "}
             <Show when={props.role.locked}>
-              <Badge>Fijo</Badge>
+              <Tag color="gray" text="Fijo" />
             </Show>
           </span>
         </div>

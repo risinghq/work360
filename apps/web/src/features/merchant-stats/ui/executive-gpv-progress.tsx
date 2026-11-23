@@ -7,10 +7,10 @@ import CalendarDays from "~/components/icons/calendar-days";
 import ChartColumn from "~/components/icons/chart-column";
 import CircleCheckBig from "~/components/icons/circle-check-big";
 import { AppPageBody } from "~/components/layout/page";
-import { Badge } from "~/components/ui/display/badge";
 import { Skeleton } from "~/components/ui/feedback/skeleton";
 import { Button } from "~/components/ui/input/button";
 import { SearchInput } from "~/components/ui/input/search-input";
+import { Tag } from "~/components/ui/tag/tag";
 import type {
   ExecutiveGpvMerchantView,
   ExecutiveGpvProgressView,
@@ -325,9 +325,10 @@ function merchantColumns(
       icon: CircleCheckBig,
       width: 130,
       renderCell: (merchant) => (
-        <Badge variant={activationVariant(merchant.isActive)}>
-          {activationLabel(merchant.isActive)}
-        </Badge>
+        <Tag
+          color={activationColor(merchant.isActive)}
+          text={activationLabel(merchant.isActive)}
+        />
       ),
     },
     {
@@ -344,12 +345,12 @@ function merchantColumns(
   ];
 }
 
-function activationVariant(isActive: boolean | null) {
+function activationColor(isActive: boolean | null) {
   if (isActive === null) {
-    return "warning" as const;
+    return "orange" as const;
   }
 
-  return isActive ? ("success" as const) : ("secondary" as const);
+  return isActive ? ("green" as const) : ("gray" as const);
 }
 
 function activationLabel(isActive: boolean | null): string {

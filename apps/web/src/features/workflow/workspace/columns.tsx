@@ -6,11 +6,11 @@ import Package from "~/components/icons/package";
 import Target from "~/components/icons/target";
 import TimelineEvent from "~/components/icons/timeline-event";
 import User from "~/components/icons/user";
-import { Badge } from "~/components/ui/display/badge";
 import {
   RecordChip,
   RecordLinkChip,
 } from "~/components/ui/record-chip/record-chip";
+import { Tag } from "~/components/ui/tag/tag";
 import type { LeadListRowView } from "~/contracts/workflow/views";
 import {
   hasPermission,
@@ -22,6 +22,7 @@ import type { DataGridColumn } from "~/features/data-grid/model/types";
 import { ExecutivePicker } from "~/features/workflow/detail/actions/executive-picker";
 import {
   leadNextStepLabel,
+  leadStageColor,
   leadStageLabel,
 } from "~/features/workflow/presentation/lead-display";
 import { capitalize } from "~/shared/text";
@@ -64,17 +65,10 @@ const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
     icon: Target,
     width: 172,
     renderCell: (lead) => (
-      <Badge
-        variant={
-          lead.stage === "SETUP" || lead.stage === "LIVE"
-            ? "success"
-            : lead.stage === "PRICING"
-              ? "warning"
-              : "secondary"
-        }
-      >
-        {leadStageLabel(lead.stage)}
-      </Badge>
+      <Tag
+        color={leadStageColor(lead.stage)}
+        text={leadStageLabel(lead.stage)}
+      />
     ),
   },
   {
@@ -83,9 +77,7 @@ const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
     icon: Info,
     width: 168,
     renderCell: (lead) =>
-      lead.status ? (
-        <Badge variant="outline">{capitalize(lead.status)}</Badge>
-      ) : null,
+      lead.status ? <Tag color="gray" text={capitalize(lead.status)} /> : null,
   },
   {
     key: "priority",
@@ -94,7 +86,7 @@ const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
     width: 152,
     renderCell: (lead) =>
       lead.priority ? (
-        <Badge variant="secondary">{capitalize(lead.priority)}</Badge>
+        <Tag color="gray" text={capitalize(lead.priority)} />
       ) : null,
   },
   {

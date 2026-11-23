@@ -12,8 +12,8 @@ import {
   SettingsOptionCardWideRow,
 } from "~/components/settings/settings-option-card";
 import { SettingsSection } from "~/components/settings/SettingsSection";
-import { Badge } from "~/components/ui/display/badge";
 import { TextInput } from "~/components/ui/input/text-input";
+import { Tag } from "~/components/ui/tag/tag";
 import type {
   PayoutBand,
   PenalidadActivacionRules,
@@ -185,7 +185,7 @@ export function PendingSection(props: { title: string; description: string }) {
     <SettingsSection
       title={props.title}
       description={props.description}
-      actions={<Badge variant="secondary">Pendiente de definir</Badge>}
+      actions={<Tag color="gray" text="Pendiente de definir" />}
     />
   );
 }

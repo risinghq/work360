@@ -2,7 +2,6 @@ import { useAction, useNavigate, useSearchParams } from "@solidjs/router";
 import { For, Loading, Show, createMemo } from "solid-js";
 
 import { EmptyState } from "~/components/feedback/empty-state/empty";
-import { Badge } from "~/components/ui/display/badge";
 import { Skeleton } from "~/components/ui/feedback/skeleton";
 import { Button } from "~/components/ui/input/button";
 import { ExportButton } from "~/components/ui/input/export-button";
@@ -15,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/layout/table";
+import { Tag } from "~/components/ui/tag/tag";
 import type { CaseSummaryView, CaseTypeView } from "~/contracts/cases/views";
 import { formatAppDateTime } from "~/domain/time/app-time";
 import { requestCaseReportMutation } from "~/features/cases/data/mutations";
@@ -210,9 +210,10 @@ function CaseTable(props: {
                   <For each={props.caseType.stages}>
                     {(stage) => (
                       <TableCell>
-                        <Badge variant="secondary">
-                          {row.statuses[stage.key] ?? "Sin estado"}
-                        </Badge>
+                        <Tag
+                          color="gray"
+                          text={row.statuses[stage.key] ?? "Sin estado"}
+                        />
                       </TableCell>
                     )}
                   </For>

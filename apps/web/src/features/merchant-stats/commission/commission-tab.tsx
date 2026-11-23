@@ -8,7 +8,6 @@ import {
 } from "solid-js";
 
 import { EmptyState } from "~/components/feedback/empty-state/empty";
-import { Badge } from "~/components/ui/display/badge";
 import { SearchInput } from "~/components/ui/input/search-input";
 import {
   Table,
@@ -18,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/layout/table";
+import { Tag } from "~/components/ui/tag/tag";
 import type {
   CommissionManagerView,
   CorporateCaja2Result,
@@ -341,9 +341,10 @@ function UserWindowCell(props: { window: CorporateCaja2UserRow["m0PlusM1"] }) {
   return (
     <span class={styles.userWindowCell}>
       {formatSolesCompact(props.window.qualifyingSum)}
-      <Badge variant={props.window.active ? "success" : "secondary"}>
-        {props.window.active ? "Activo" : "Inactivo"}
-      </Badge>
+      <Tag
+        color={props.window.active ? "green" : "gray"}
+        text={props.window.active ? "Activo" : "Inactivo"}
+      />
     </span>
   );
 }

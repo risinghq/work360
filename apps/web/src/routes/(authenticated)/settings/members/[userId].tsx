@@ -7,9 +7,9 @@ import ShieldCheck from "~/components/icons/shield-check";
 import { getUserInitials } from "~/components/layout/account-menu-utils";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import { Avatar } from "~/components/ui/display/avatar";
-import { Badge } from "~/components/ui/display/badge";
+import { Tag } from "~/components/ui/tag/tag";
 import { hasPermission } from "~/domain/auth/access/rbac";
-import { getRoleBadgeVariant } from "~/domain/auth/access/role-display";
+import { getRoleTagColor } from "~/domain/auth/access/role-display";
 import { shortName } from "~/domain/identity/display-name";
 import { SettingsPageLayout } from "~/features/settings-shell/page/settings-page-layout";
 import {
@@ -81,15 +81,16 @@ export default function SettingsMemberDetailPage() {
                     <span class={styles.detailEmail}>{member().email}</span>
 
                     <div class={styles.headerBadges}>
-                      <Badge variant={getRoleBadgeVariant(member().role)}>
-                        {member().roleName}
-                      </Badge>
+                      <Tag
+                        color={getRoleTagColor(member().role)}
+                        text={member().roleName}
+                      />
 
                       <Show
                         when={member().isActive}
-                        fallback={<Badge variant="secondary">Inactivo</Badge>}
+                        fallback={<Tag color="gray" text="Inactivo" />}
                       >
-                        <Badge variant="success">Activo</Badge>
+                        <Tag color="green" text="Activo" />
                       </Show>
                     </div>
                   </div>

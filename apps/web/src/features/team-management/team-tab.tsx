@@ -6,7 +6,6 @@ import { getUserInitials } from "~/components/layout/account-menu-utils";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import { SettingsSection } from "~/components/settings/SettingsSection";
 import { Avatar } from "~/components/ui/display/avatar";
-import { Badge } from "~/components/ui/display/badge";
 import { SearchInput } from "~/components/ui/input/search-input";
 import {
   Table,
@@ -17,20 +16,21 @@ import {
   TableRow,
 } from "~/components/ui/layout/table";
 import { OverflowingText } from "~/components/ui/overflow-tooltip/overflow-tooltip";
+import { Tag } from "~/components/ui/tag/tag";
 import type { MemberListItem } from "~/contracts/members";
 import { shortName } from "~/domain/identity/display-name";
 import { membersRosterQuery } from "~/rpc/team-management/members-roster";
 
 import styles from "./team-management.module.css";
 
-function statusBadge(member: MemberListItem) {
+function statusTag(member: MemberListItem) {
   if (!member.isActive) {
-    return { variant: "secondary", label: "Inactivo" } as const;
+    return { color: "gray", label: "Inactivo" } as const;
   }
   if (!member.onboardingCompleted) {
-    return { variant: "warning", label: "Pendiente" } as const;
+    return { color: "orange", label: "Pendiente" } as const;
   }
-  return { variant: "success", label: "Activo" } as const;
+  return { color: "green", label: "Activo" } as const;
 }
 
 export function TeamTab() {
@@ -104,7 +104,7 @@ export function TeamTab() {
           >
             <For each={filtered()}>
               {(member) => {
-                const status = statusBadge(member);
+                const status = statusTag(member);
                 const canOpen = () => !isSelf(member);
                 return (
                   <TableRow
@@ -131,7 +131,7 @@ export function TeamTab() {
                     </TableCell>
                     <TableCell ellipsis>{member.email}</TableCell>
                     <TableCell>
-                      <Badge variant={status.variant}>{status.label}</Badge>
+                      <Tag color={status.color} text={status.label} />
                     </TableCell>
                     <TableCell align="right" class={styles.rosterChevron}>
                       <Show when={!isSelf(member)}>

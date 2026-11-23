@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 
-import { Badge } from "~/components/ui/display/badge";
+import { Tag } from "~/components/ui/tag/tag";
 import { QUALITY_ISSUE_COPY } from "~/contracts/merchant-stats/quality-copy";
 import type { QualitySummary } from "~/contracts/merchant-stats/views";
 import { QUALITY_ISSUES } from "~/contracts/merchant-stats/vocabulary";
@@ -30,9 +30,10 @@ export function QualityPanel(props: { summary: QualitySummary }) {
                   </span>
                 }
               >
-                <Badge variant="warning">
-                  {formatInteger(props.summary[issue])}
-                </Badge>
+                <Tag
+                  color="orange"
+                  text={formatInteger(props.summary[issue])}
+                />
               </Show>
             </a>
           </li>

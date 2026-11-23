@@ -7,7 +7,6 @@ import Link from "~/components/icons/link";
 import Mail from "~/components/icons/mail";
 import Trash from "~/components/icons/trash";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
-import { Badge } from "~/components/ui/display/badge";
 import { Button } from "~/components/ui/input/button";
 import {
   Table,
@@ -18,9 +17,10 @@ import {
   TableRow,
 } from "~/components/ui/layout/table";
 import { OverflowingText } from "~/components/ui/overflow-tooltip/overflow-tooltip";
+import { Tag } from "~/components/ui/tag/tag";
 import { actionErrorMessage } from "~/contracts/errors";
 import type { TeamInvite } from "~/contracts/team";
-import { getRoleBadgeVariant } from "~/domain/auth/access/role-display";
+import { getRoleTagColor } from "~/domain/auth/access/role-display";
 import {
   renewTeamInviteLinkMutation,
   resendTeamInviteMutation,
@@ -127,14 +127,19 @@ export function PendingInvitesTable(props: {
                     <OverflowingText text={invite.email} />
                   </TableCell>
                   <TableCell>
-                    <Badge variant={getRoleBadgeVariant(invite.role)}>
-                      {invite.roleName}
-                    </Badge>
+                    <Tag
+                      color={getRoleTagColor(invite.role)}
+                      text={invite.roleName}
+                    />
                   </TableCell>
                   <TableCell align="center">
-                    <Badge variant="secondary">
-                      {getExpiresAtText(invite.expiresAt, props.evaluatedAt)}
-                    </Badge>
+                    <Tag
+                      color="gray"
+                      text={getExpiresAtText(
+                        invite.expiresAt,
+                        props.evaluatedAt,
+                      )}
+                    />
                   </TableCell>
                   <TableCell align="right">
                     <div class={styles.actions}>

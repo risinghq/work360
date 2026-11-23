@@ -3,10 +3,10 @@ import { For, Loading, Show, createMemo, createSignal } from "solid-js";
 
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
-import { Badge } from "~/components/ui/display/badge";
 import { Skeleton } from "~/components/ui/feedback/skeleton";
 import { Button } from "~/components/ui/input/button";
 import { Select } from "~/components/ui/input/select";
+import { Tag } from "~/components/ui/tag/tag";
 import type {
   CaseDetailView,
   CaseEventView,
@@ -198,7 +198,7 @@ function CaseStage(props: { detail: CaseDetailView; stage: CaseStageView }) {
           <span class={styles.title}>{props.stage.name}</span>
           <span class={styles.meta}>{props.stage.ownerRoleLabel}</span>
         </div>
-        <Badge variant="secondary">{props.stage.status}</Badge>
+        <Tag color="gray" text={props.stage.status} />
       </div>
       <Show when={props.stage.access !== "writable"}>
         <StageValues detail={props.detail} stage={props.stage} />

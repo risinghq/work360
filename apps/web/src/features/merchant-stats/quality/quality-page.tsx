@@ -8,8 +8,8 @@ import ChartColumn from "~/components/icons/chart-column";
 import CircleAlert from "~/components/icons/circle-alert";
 import User from "~/components/icons/user";
 import { Present } from "~/components/ui/control-flow/present";
-import { Badge } from "~/components/ui/display/badge";
 import { InlineOptionsEditor } from "~/components/ui/input/inline-field-editor";
+import { Tag } from "~/components/ui/tag/tag";
 import {
   ATTRIBUTION_CONFIDENCE_LABEL,
   QUALITY_ISSUE_COPY,
@@ -128,9 +128,10 @@ export function QualityPage() {
       grow: true,
       renderCell: (row) => (
         <span class={styles.detail}>
-          <Badge variant="warning">
-            {ATTRIBUTION_CONFIDENCE_LABEL[row.confidence]}
-          </Badge>
+          <Tag
+            color="orange"
+            text={ATTRIBUTION_CONFIDENCE_LABEL[row.confidence]}
+          />
           <span>{row.detail}</span>
         </span>
       ),
