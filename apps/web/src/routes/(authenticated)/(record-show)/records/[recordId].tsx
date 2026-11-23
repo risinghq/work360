@@ -1,10 +1,8 @@
 import { type RouteDefinition, useParams } from "@solidjs/router";
 
+import { leadNavigationQuery } from "~/features/record-show/header/lead-navigation";
 import { RecordShowPage } from "~/features/record-show/page/record-show-page";
 import { leadDetailQuery } from "~/rpc/workflow/lead-detail";
-import { leadListQuery } from "~/rpc/workflow/lead-list";
-
-const LEAD_NAVIGATION_LIMIT = 200;
 
 export const route = {
   preload: ({ params }) => {
@@ -18,10 +16,7 @@ export const route = {
     // renders the failure through its error boundary.
     void Promise.allSettled([
       leadDetailQuery(params.recordId),
-      leadListQuery({
-        limit: LEAD_NAVIGATION_LIMIT,
-        offset: 0,
-      }),
+      leadNavigationQuery(),
     ]);
   },
 } satisfies RouteDefinition;

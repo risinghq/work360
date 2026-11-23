@@ -12,6 +12,7 @@ import { createGridSource } from "~/features/data-grid/model/create-grid-source"
 import { RecordIndexScreen } from "~/features/record-index/components/screen";
 import type { RecordIndexDefinition } from "~/features/record-index/model/definition";
 import { exportWorkflowLeads } from "~/rpc/workflow/files";
+import { leadDetailQuery } from "~/rpc/workflow/lead-detail";
 import { leadListQuery } from "~/rpc/workflow/lead-list";
 import { pendingQuotationCountQuery } from "~/rpc/workflow/pending-quotation-count";
 
@@ -131,6 +132,8 @@ export function LeadsWorkspace() {
     },
 
     onRowOpen: openLeadRecord,
+    // allSettled keeps a failed warm-up out of Sentry; the open reads again.
+    onRowIntent: (id) => void Promise.allSettled([leadDetailQuery(id)]),
     rowOpenIndicator: "panel",
 
     emptyState: {

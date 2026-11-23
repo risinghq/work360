@@ -26,6 +26,8 @@ export type DataGridProps<T> = {
   loadMore?: DataGridLoadMore;
   onAddColumn?: () => void;
   onRowOpen?: (row: T) => void;
+  // The pointer rests on a row: warm what onRowOpen will read.
+  onRowIntent?: (rowId: string) => void;
   pagination?: DataGridPagination;
   reorder?: DataGridReorderConfig<T>;
   rowId: (row: T) => string;

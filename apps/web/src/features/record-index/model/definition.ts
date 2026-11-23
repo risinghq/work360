@@ -79,6 +79,7 @@ export type RecordIndexDefinition<T extends { id: string }> = Omit<
   source: Accessor<DataGridSource<T>>;
   reorder?: DataGridReorderConfig<T>;
   onRowOpen?: (row: T) => void;
+  onRowIntent?: (rowId: string) => void;
   rowOpenIndicator?: DataGridRowOpenIndicator;
   pagination?: RecordIndexPagination;
   filter?: {

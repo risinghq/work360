@@ -117,12 +117,13 @@ export async function loadLeadDetailSections(
   input: { leadId: WorkflowLeadId; actorUserId: UserId },
   operation: OperationContext,
 ): Promise<Result<LeadDetailLoadedSections, DomainError>> {
-  const lead = await deps.leads.findById(input.leadId);
+  const [lead, commercialScope] = await Promise.all([
+    deps.leads.findById(input.leadId),
+    deps.leads.findCommercialScope(input.leadId),
+  ]);
   if (!lead) {
     return Err(fail("lead_not_found"));
   }
-
-  const commercialScope = await deps.leads.findCommercialScope(input.leadId);
   if (!commercialScope) {
     return Err(fail("lead_commercial_scope_missing"));
   }

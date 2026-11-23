@@ -51,6 +51,7 @@ export function DataGrid<T>(props: DataGridProps<T>) {
         loadMore={props.loadMore}
         onAddColumn={props.onAddColumn}
         onRowOpen={props.onRowOpen}
+        onRowIntent={props.onRowIntent}
         pagination={props.pagination}
         rowId={props.rowId}
         rowOpenIndicator={props.rowOpenIndicator}

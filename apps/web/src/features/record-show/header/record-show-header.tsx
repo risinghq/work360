@@ -1,14 +1,13 @@
 import { Title } from "@solidjs/meta";
-import { Show, createMemo, type ParentProps } from "solid-js";
+import { Loading, Show, createMemo, type ParentProps } from "solid-js";
 
 import Building2 from "~/components/icons/building-2";
 import { PageCardHeader } from "~/components/ui/layout/page-card/page-card-header";
 import { leadDetailQuery } from "~/rpc/workflow/lead-detail";
-import { leadListQuery } from "~/rpc/workflow/lead-list";
+
+import { useLeadNavigation } from "./lead-navigation";
 
 import styles from "./record-show-header.module.css";
-
-const LEAD_NAVIGATION_LIMIT = 200;
 
 export function RecordShowHeader(
   props: ParentProps<{
@@ -16,12 +15,6 @@ export function RecordShowHeader(
   }>,
 ) {
   const data = createMemo(() => leadDetailQuery(props.leadId));
-  const leadList = createMemo(() =>
-    leadListQuery({
-      limit: LEAD_NAVIGATION_LIMIT,
-      offset: 0,
-    }),
-  );
 
   const lead = createMemo(() => data()?.lead);
 
@@ -33,27 +26,6 @@ export function RecordShowHeader(
     const name = lead()?.legalName ?? lead()?.ruc;
 
     return name ? `${name} - Registro` : "Registro";
-  });
-
-  const currentIndex = createMemo(() => {
-    const rows = leadList()?.rows;
-
-    if (!rows) {
-      return -1;
-    }
-
-    return rows.findIndex((row) => row.id === props.leadId);
-  });
-
-  const paginationLabel = createMemo(() => {
-    const totalCount = leadList()?.totalCount;
-    const index = currentIndex();
-
-    if (!totalCount || index < 0) {
-      return null;
-    }
-
-    return `(${index + 1}/${totalCount})`;
   });
 
   return (
@@ -82,13 +54,27 @@ export function RecordShowHeader(
               {displayName()}
             </span>
 
-            <Show when={paginationLabel()}>
-              {(label) => <span class={styles.paginationInfo}>{label()}</span>}
-            </Show>
+            <Loading fallback={null}>
+              <PaginationInfo leadId={props.leadId} />
+            </Loading>
           </span>
         }
         actionButton={props.children}
       />
     </>
+  );
+}
+
+function PaginationInfo(props: { leadId: string }) {
+  const { position } = useLeadNavigation(() => props.leadId);
+
+  return (
+    <Show when={position()}>
+      {(at) => (
+        <span class={styles.paginationInfo}>
+          ({at().index + 1}/{at().total})
+        </span>
+      )}
+    </Show>
   );
 }

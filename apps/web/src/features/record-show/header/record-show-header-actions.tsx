@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { Show, createMemo, createSignal } from "solid-js";
+import { Loading, Show, createMemo, createSignal } from "solid-js";
 
 import { useModKeyLabel } from "~/browser/hotkey/use-mod-key-label";
 import ChevronDown from "~/components/icons/chevron-down";
@@ -18,8 +18,8 @@ import { useLeadActions } from "~/features/record-show/use-record-actions";
 import { PAGE_HEADER_SIDE_PANEL_BUTTON_CLICK_OUTSIDE_ID } from "~/features/side-panel/constants/side-panel-click-outside-id";
 import { useSidePanelMenu } from "~/features/side-panel/hooks/use-side-panel-menu";
 import { leadDetailQuery } from "~/rpc/workflow/lead-detail";
-import { leadListQuery } from "~/rpc/workflow/lead-list";
 
+import { useLeadNavigation } from "./lead-navigation";
 import {
   RecordShowActionsMenu,
   type RecordShowMenuItem,
@@ -27,14 +27,50 @@ import {
 
 import styles from "./record-show-header.module.css";
 
-const LEAD_NAVIGATION_LIMIT = 200;
+function LoadedNavigationButtons(props: { leadId: string }) {
+  const { nextId, previousId } = useLeadNavigation(() => props.leadId);
+
+  return <NavigationButtons nextId={nextId()} previousId={previousId()} />;
+}
+
+function NavigationButtons(props: {
+  nextId: string | null;
+  previousId: string | null;
+}) {
+  const navigate = useNavigate();
+
+  return (
+    <>
+      <TopBarTooltip content="Registro siguiente">
+        <TopBarActionButton
+          ariaLabel="Navegar al siguiente registro"
+          iconOnly
+          disabled={!props.nextId}
+          onClick={() => props.nextId && navigate(`/records/${props.nextId}`)}
+        >
+          <ChevronDown size={16} />
+        </TopBarActionButton>
+      </TopBarTooltip>
+
+      <TopBarTooltip content="Registro anterior">
+        <TopBarActionButton
+          ariaLabel="Navegar al registro anterior"
+          iconOnly
+          disabled={!props.previousId}
+          onClick={() =>
+            props.previousId && navigate(`/records/${props.previousId}`)
+          }
+        >
+          <ChevronUp size={16} />
+        </TopBarActionButton>
+      </TopBarTooltip>
+    </>
+  );
+}
 
 export function RecordShowHeaderActions(props: { leadId: string }) {
   const navigate = useNavigate();
   const detail = createMemo(() => leadDetailQuery(props.leadId));
-  const leadList = createMemo(() =>
-    leadListQuery({ limit: LEAD_NAVIGATION_LIMIT, offset: 0 }),
-  );
 
   const { favoriteBusy, setFavorite, deleteBusy, deleteLead } =
     useLeadActions();
@@ -71,47 +107,7 @@ export function RecordShowHeaderActions(props: { leadId: string }) {
     return items;
   });
 
-  const currentIndex = createMemo(() => {
-    const rows = leadList()?.rows;
-
-    if (!rows) {
-      return -1;
-    }
-
-    return rows.findIndex((row) => row.id === props.leadId);
-  });
-
-  const previousLeadId = createMemo(() => {
-    const rows = leadList()?.rows;
-    const index = currentIndex();
-
-    if (!rows || index <= 0) {
-      return null;
-    }
-
-    return rows[index - 1]?.id ?? null;
-  });
-
-  const nextLeadId = createMemo(() => {
-    const rows = leadList()?.rows;
-    const index = currentIndex();
-
-    if (!rows || index < 0 || index >= rows.length - 1) {
-      return null;
-    }
-
-    return rows[index + 1]?.id ?? null;
-  });
-
   const isFavorite = () => detail()?.lead.isFavorite ?? false;
-
-  const goToLead = (leadId: string | null) => {
-    if (!leadId) {
-      return;
-    }
-
-    navigate(`/records/${leadId}`);
-  };
 
   const toggleFavorite = () => {
     void setFavorite(props.leadId, isFavorite());
@@ -131,27 +127,9 @@ export function RecordShowHeaderActions(props: { leadId: string }) {
 
   return (
     <>
-      <TopBarTooltip content="Registro siguiente">
-        <TopBarActionButton
-          ariaLabel="Navegar al siguiente registro"
-          iconOnly
-          disabled={!nextLeadId()}
-          onClick={() => goToLead(nextLeadId())}
-        >
-          <ChevronDown size={16} />
-        </TopBarActionButton>
-      </TopBarTooltip>
-
-      <TopBarTooltip content="Registro anterior">
-        <TopBarActionButton
-          ariaLabel="Navegar al registro anterior"
-          iconOnly
-          disabled={!previousLeadId()}
-          onClick={() => goToLead(previousLeadId())}
-        >
-          <ChevronUp size={16} />
-        </TopBarActionButton>
-      </TopBarTooltip>
+      <Loading fallback={<NavigationButtons nextId={null} previousId={null} />}>
+        <LoadedNavigationButtons leadId={props.leadId} />
+      </Loading>
 
       <TopBarTooltip
         content={isFavorite() ? "Quitar de favoritos" : "Agregar a favoritos"}

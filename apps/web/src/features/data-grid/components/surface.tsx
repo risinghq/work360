@@ -3,6 +3,7 @@ import { type JSX } from "@solidjs/web";
 import { Show, children } from "solid-js";
 
 import { useDataGrid } from "../context/instance-context";
+import { createRowIntent } from "../hooks/create-row-intent";
 import {
   REORDER_COLUMN_WIDTH,
   SELECTION_COLUMN_WIDTH,
@@ -71,6 +72,7 @@ export function DataGridSurface<T>(props: DataGridSurfaceProps<T>) {
     );
   const ariaRowCount = () =>
     dataRowCount() + 1 + Number(props.actionRow !== undefined);
+  const rowIntent = createRowIntent(() => props.onRowIntent);
 
   return (
     <div class={styles.indexContainer}>
@@ -83,6 +85,8 @@ export function DataGridSurface<T>(props: DataGridSurfaceProps<T>) {
             aria-colcount={ariaColumnCount()}
             aria-rowcount={ariaRowCount()}
             role="grid"
+            onPointerOver={rowIntent.onPointerOver}
+            onPointerLeave={rowIntent.onPointerLeave}
             style={{
               "--data-grid-columns": props.gridTemplateColumns,
               "--data-grid-selection-left": `${selectionLeft()}px`,
