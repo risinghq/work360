@@ -589,7 +589,7 @@ dependencies = [
  "hmac",
  "leads",
  "pipeline",
- "rusqlite",
+ "rusqlite 0.43.0",
  "search",
  "serde",
  "serde_json",
@@ -1119,7 +1119,7 @@ dependencies = [
  "proptest",
  "r2d2",
  "r2d2_sqlite",
- "rusqlite",
+ "rusqlite 0.43.0",
  "serde",
  "serde_json",
  "sha2",
@@ -1400,7 +1400,7 @@ dependencies = [
  "csv",
  "encoding_rs",
  "hex",
- "rusqlite",
+ "rusqlite 0.43.0",
  "serde",
  "serde_json",
  "sha2",
@@ -1545,7 +1545,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a85b8ba302c092f8ce70cefab1737627982824530c1cfb48a545bfb1d628481e"
 dependencies = [
  "r2d2",
- "rusqlite",
+ "rusqlite 0.42.0",
  "uuid",
 ]
 
@@ -1676,6 +1676,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "rusqlite"
+version = "0.43.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f172c4812a19b26d1c23cdb0070e69db335503dfa378b910eb857386e5b8beba"
+dependencies = [
+ "bitflags",
+ "fallible-iterator",
+ "fallible-streaming-iterator",
+ "hashlink",
+ "libsqlite3-sys",
+ "smallvec",
+ "sqlite-wasm-rs",
+]
+
+[[package]]
 name = "rust-multipart-rfc7578_2"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1761,7 +1776,7 @@ dependencies = [
  "hmac",
  "proptest",
  "r2d2",
- "rusqlite",
+ "rusqlite 0.43.0",
  "serde",
  "serde_json",
  "sha2",
@@ -1878,7 +1893,7 @@ dependencies = [
  "proptest",
  "r2d2",
  "r2d2_sqlite",
- "rusqlite",
+ "rusqlite 0.43.0",
  "serde",
  "sha2",
  "thiserror",
