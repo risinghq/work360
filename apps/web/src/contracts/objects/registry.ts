@@ -57,12 +57,22 @@ export type ObjectMetadata = {
   readonly icon: FieldIconName;
   readonly labelIdentifier: string;
   readonly fields: ReadonlyArray<FieldMetadata>;
+  readonly fieldGroups?: ReadonlyArray<FieldGroup>;
+};
+
+// The record page's fields widget, as Twenty's view field groups: the order
+// and grouping of the fields shown beside a record. Relations render as their
+// own cards, so a group lists plain fields only.
+export type FieldGroup<Key extends string = string> = {
+  readonly name: string;
+  readonly fields: ReadonlyArray<Key>;
 };
 
 function defineObject<const Fields extends ReadonlyArray<FieldMetadata>>(
-  object: Omit<ObjectMetadata, "fields" | "labelIdentifier"> & {
+  object: Omit<ObjectMetadata, "fields" | "labelIdentifier" | "fieldGroups"> & {
     fields: Fields;
     labelIdentifier: Fields[number]["key"];
+    fieldGroups?: ReadonlyArray<FieldGroup<Fields[number]["key"]>>;
   },
 ) {
   return object;
@@ -106,6 +116,22 @@ const COMPANY = defineObject({
       target: "campaignRecord",
     },
     { key: "createdAt", label: "Creado", type: "DATE_TIME", icon: "calendar" },
+  ],
+  fieldGroups: [
+    { name: "General", fields: ["ruc"] },
+    { name: "Negocio", fields: ["lineOfBusiness"] },
+    {
+      name: "Contacto",
+      fields: [
+        "phone",
+        "email",
+        "address",
+        "district",
+        "province",
+        "department",
+      ],
+    },
+    { name: "Sistema", fields: ["createdAt"] },
   ],
 });
 

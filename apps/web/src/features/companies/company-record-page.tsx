@@ -2,12 +2,6 @@ import { Title } from "@solidjs/meta";
 import { For, Loading, Show, createMemo, createSignal } from "solid-js";
 
 import Building2 from "~/components/icons/building-2";
-import CalendarDays from "~/components/icons/calendar-days";
-import List from "~/components/icons/list";
-import Mail from "~/components/icons/mail";
-import MapIcon from "~/components/icons/map";
-import Phone from "~/components/icons/phone";
-import Target from "~/components/icons/target";
 import TimelineEvent from "~/components/icons/timeline-event";
 import { PageCardHeader } from "~/components/ui/layout/page-card/page-card-header";
 import {
@@ -15,7 +9,8 @@ import {
   RecordLinkChip,
 } from "~/components/ui/record-chip/record-chip";
 import type { CompanyDetailView } from "~/contracts/companies/views";
-import { formatAppDate, formatAppDateTime } from "~/domain/time/app-time";
+import { OBJECTS, objectField } from "~/contracts/objects/registry";
+import { formatAppDateTime } from "~/domain/time/app-time";
 import { companyTimeline } from "~/features/companies/model/company-timeline";
 import { RecordBreadcrumb } from "~/features/record-show/header/record-breadcrumb";
 import { RecordPageLayout } from "~/features/record-show/page/record-page-layout";
@@ -24,22 +19,11 @@ import {
   RelationCard,
   RelationItem,
 } from "~/features/record-show/relations/relation-card";
+import { RecordFieldsWidget } from "~/features/record-show/sections/fields/record-fields-widget";
 import { RecordSummaryCard } from "~/features/record-show/summary-card/record-summary-card";
 import { EventList } from "~/features/record-show/tabs/timeline/components/event-list";
 import { groupEventsByMonth } from "~/features/record-show/tabs/timeline/model/group";
 import { ActivityTabEmptyState } from "~/features/side-panel/components/activity-tabs/empty-state";
-import type { TabIconComponent } from "~/features/side-panel/components/tab-strip";
-import {
-  FieldTable,
-  FieldTextValue,
-  RecordInlineCell,
-} from "~/features/widgets/field-table";
-import {
-  WidgetCard,
-  WidgetCardContent,
-  WidgetCardHeader,
-  WidgetCardTitle,
-} from "~/features/widgets/widget-card";
 import { companyQuery } from "~/rpc/companies/queries";
 
 import timelineStyles from "~/features/record-show/tabs/timeline/styles.module.css";
@@ -70,7 +54,7 @@ function CompanyBreadcrumbHeader(props: { companyId: string }) {
         breadcrumb={
           <RecordBreadcrumb
             href="/companies"
-            objectLabel="Empresas"
+            objectLabel={OBJECTS.company.labelPlural}
             icon={Building2}
             name={name()}
           />
@@ -93,7 +77,7 @@ export function CompanyRecordPage(props: { companyId: string }) {
       }
       fields={
         <>
-          <CompanyFields detail={detail()} />
+          <RecordFieldsWidget object="company" record={detail()} />
           <CompanyPeople detail={detail()} />
           <CompanyCases detail={detail()} />
           <CompanyCampaigns detail={detail()} />
@@ -105,63 +89,15 @@ export function CompanyRecordPage(props: { companyId: string }) {
   );
 }
 
-function TextField(props: {
-  label: string;
-  icon: TabIconComponent;
-  value: string | null;
-}) {
-  return (
-    <RecordInlineCell
-      label={props.label}
-      icon={props.icon}
-      empty={!props.value}
-    >
-      <FieldTextValue>{props.value}</FieldTextValue>
-    </RecordInlineCell>
-  );
-}
-
-function CompanyFields(props: { detail: CompanyDetailView }) {
-  const place = () =>
-    [props.detail.district, props.detail.province, props.detail.department]
-      .filter(Boolean)
-      .join(", ") || null;
-
-  return (
-    <WidgetCard variant="side-column">
-      <WidgetCardHeader>
-        <WidgetCardTitle text="Campos" />
-      </WidgetCardHeader>
-      <WidgetCardContent>
-        <FieldTable>
-          <TextField label="RUC" icon={List} value={props.detail.ruc} />
-          <TextField
-            label="Rubro"
-            icon={Target}
-            value={props.detail.lineOfBusiness}
-          />
-          <TextField
-            label="Dirección"
-            icon={MapIcon}
-            value={props.detail.address}
-          />
-          <TextField label="Ubicación" icon={MapIcon} value={place()} />
-          <TextField label="Teléfono" icon={Phone} value={props.detail.phone} />
-          <TextField label="Correo" icon={Mail} value={props.detail.email} />
-          <TextField
-            label="Creado"
-            icon={CalendarDays}
-            value={formatAppDate(props.detail.createdAt)}
-          />
-        </FieldTable>
-      </WidgetCardContent>
-    </WidgetCard>
-  );
-}
+const relationTitle = (key: "people" | "cases" | "campaignRecords") =>
+  objectField("company", key).label;
 
 function CompanyPeople(props: { detail: CompanyDetailView }) {
   return (
-    <RelationCard title="Contactos" count={props.detail.people.length}>
+    <RelationCard
+      title={relationTitle("people")}
+      count={props.detail.people.length}
+    >
       <For each={props.detail.people}>
         {(person) => (
           <RelationItem
@@ -178,7 +114,10 @@ function CompanyPeople(props: { detail: CompanyDetailView }) {
 
 function CompanyCases(props: { detail: CompanyDetailView }) {
   return (
-    <RelationCard title="Casos" count={props.detail.cases.length}>
+    <RelationCard
+      title={relationTitle("cases")}
+      count={props.detail.cases.length}
+    >
       <For each={props.detail.cases}>
         {(each) => (
           <RelationItem
@@ -199,7 +138,10 @@ function CompanyCases(props: { detail: CompanyDetailView }) {
 
 function CompanyCampaigns(props: { detail: CompanyDetailView }) {
   return (
-    <RelationCard title="Campañas" count={props.detail.campaignRecords.length}>
+    <RelationCard
+      title={relationTitle("campaignRecords")}
+      count={props.detail.campaignRecords.length}
+    >
       <For each={props.detail.campaignRecords}>
         {(each) => (
           <RelationItem
