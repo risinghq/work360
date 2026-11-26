@@ -29,7 +29,6 @@ export type AppPath =
   | "/settings/campaigns"
   | "/settings/outcomes"
   | "/cases"
-  | "/cases/new"
   | "/companies"
   | "/reports";
 
@@ -81,7 +80,6 @@ export const ROUTE_MANIFEST: Record<AppPath, RouteConfig> = {
   "/settings/campaigns": { permission: "campaign:manage" },
   "/settings/outcomes": { permission: "outcome:manage" },
   "/cases": { permission: "case:work", landingPriority: 9 },
-  "/cases/new": { permission: "case:work" },
   "/companies": { permission: "company:read" },
   "/reports": { permission: "report:read" },
 };

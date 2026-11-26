@@ -1,6 +1,7 @@
 import type { Component } from "solid-js";
 
 import Building2 from "~/components/icons/building-2";
+import Inbox from "~/components/icons/inbox";
 import Info from "~/components/icons/info";
 import Search from "~/components/icons/search";
 import Target from "~/components/icons/target";
@@ -33,7 +34,8 @@ export type SidePanelPageKey =
   | "view-record"
   | "lead-action"
   | "data-grid-detail"
-  | "campaign-record";
+  | "campaign-record"
+  | "create-case";
 
 export type SidePanelNavigationEntry = {
   page: SidePanelPageKey;
@@ -105,6 +107,13 @@ export type CampaignRecordSidePanelPageState = {
   record: HeldCampaignRecordView;
 };
 
+// Without a type key the page opens the first case type the viewer can open.
+export type CreateCaseSidePanelPageState = {
+  page: "create-case";
+  caseTypeKey: string | null;
+  ruc: string;
+};
+
 export type SidePanelPageState =
   | RootSidePanelPageState
   | SearchRecordsSidePanelPageState
@@ -114,7 +123,8 @@ export type SidePanelPageState =
   | ViewRecordSidePanelPageState
   | LeadActionSidePanelPageState
   | DataGridDetailSidePanelPageState
-  | CampaignRecordSidePanelPageState;
+  | CampaignRecordSidePanelPageState
+  | CreateCaseSidePanelPageState;
 
 export type SidePanelPageDefinition = {
   entry: SidePanelNavigationEntry;
@@ -324,6 +334,25 @@ export function createCampaignRecordSidePanelPage(input: {
       page: "campaign-record",
       campaignId: input.campaignId,
       record: input.record,
+    },
+  };
+}
+
+export function createCaseCreateSidePanelPage(input: {
+  caseTypeKey?: string;
+  ruc?: string;
+}): SidePanelPageDefinition {
+  return {
+    entry: {
+      page: "create-case",
+      pageId: createSidePanelPageId(),
+      pageTitle: "Nuevo caso",
+      pageIcon: Inbox,
+    },
+    state: {
+      page: "create-case",
+      caseTypeKey: input.caseTypeKey ?? null,
+      ruc: input.ruc ?? "",
     },
   };
 }

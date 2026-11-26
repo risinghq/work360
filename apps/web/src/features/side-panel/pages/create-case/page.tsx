@@ -1,55 +1,65 @@
-import { useAction, useNavigate, useSearchParams } from "@solidjs/router";
+import { useAction, useNavigate } from "@solidjs/router";
 import { For, Loading, Show, createMemo, createSignal } from "solid-js";
 
 import { EmptyState } from "~/components/feedback/empty-state/empty";
 import { Skeleton } from "~/components/ui/feedback/skeleton";
-import { Button } from "~/components/ui/input/button";
 import { Input } from "~/components/ui/input/input";
 import type { CaseTypeView } from "~/contracts/cases/views";
 import { actionErrorMessage } from "~/contracts/errors";
-import { caseTypesQuery } from "~/rpc/cases/queries";
-
 import {
   CaseFieldInput,
   fromFormValues,
   requiredFieldKeys,
   toFormValues,
-} from "./case-fields";
-import { openCaseMutation } from "./data/mutations";
+} from "~/features/cases/case-fields";
+import { openCaseMutation } from "~/features/cases/data/mutations";
+import { caseTypesQuery } from "~/rpc/cases/queries";
 
-import styles from "./cases.module.css";
+import { SidePanelPage } from "../../components/page";
+import { SidePanelFooter } from "../../components/panel-footer";
+import { useSidePanelPageState } from "../../router/page-state";
+import { useSidePanel } from "../../state/use-side-panel";
 
-export function CaseNew() {
-  const [search] = useSearchParams();
+import styles from "./page.module.css";
+
+export function CreateCasePage() {
+  const pageState = useSidePanelPageState("create-case");
   const types = createMemo(() => caseTypesQuery());
   const caseType = createMemo(() => {
     const openable = types().filter((option) => option.canOpen);
-    return openable.find((option) => option.key === search.type) ?? openable[0];
+    return (
+      openable.find((option) => option.key === pageState().caseTypeKey) ??
+      openable[0]
+    );
   });
-  const ruc = () => (typeof search.ruc === "string" ? search.ruc : "");
 
   return (
     <Loading fallback={<Skeleton height={240} />}>
       <Show
         when={caseType()}
         fallback={
-          <EmptyState
-            title="No puedes abrir casos"
-            description="Tu rol no registra casos en este espacio de trabajo."
-          />
+          <SidePanelPage>
+            <EmptyState
+              title="No puedes abrir casos"
+              description="Tu rol no registra casos en este espacio de trabajo."
+            />
+          </SidePanelPage>
         }
       >
-        {(selected) => <OpeningForm caseType={selected()} ruc={ruc()} />}
+        {(selected) => (
+          <OpeningForm caseType={selected()} ruc={pageState().ruc} />
+        )}
       </Show>
     </Loading>
   );
 }
 
-// A campaign batch row passes the company's RUC, so the form shows it instead
-// of asking for it.
+// A campaign record passes the company's RUC, so the form shows it instead of
+// asking for it.
 function OpeningForm(props: { caseType: CaseTypeView; ruc: string }) {
   const open = useAction(openCaseMutation);
   const navigate = useNavigate();
+  const { closePanel } = useSidePanel();
   const fields = () => props.caseType.opening.fields;
   const [form, setForm] = createSignal(toFormValues(fields(), {}));
   const [ruc, setRuc] = createSignal(props.ruc);
@@ -64,8 +74,7 @@ function OpeningForm(props: { caseType: CaseTypeView; ruc: string }) {
     }),
   );
 
-  async function submit(event: SubmitEvent): Promise<void> {
-    event.preventDefault();
+  async function submit(): Promise<void> {
     setBusy(true);
     setError(undefined);
     try {
@@ -78,6 +87,7 @@ function OpeningForm(props: { caseType: CaseTypeView; ruc: string }) {
         setError(result.error.message);
         return;
       }
+      closePanel();
       navigate(`/cases/${result.value.caseId}`);
     } catch (caught: unknown) {
       setError(actionErrorMessage(caught));
@@ -87,15 +97,29 @@ function OpeningForm(props: { caseType: CaseTypeView; ruc: string }) {
   }
 
   return (
-    <form class={styles.page} onSubmit={(event) => void submit(event)}>
-      <header class={styles.caseHeader}>
-        <span class={styles.title}>{props.caseType.opening.name}</span>
-        <span class={styles.meta}>
-          {props.caseType.name}
-          <Show when={props.ruc}> · RUC {props.ruc}</Show>
-        </span>
-      </header>
-      <div class={styles.form}>
+    <SidePanelPage
+      footer={
+        <SidePanelFooter
+          primary={{
+            label: "Abrir caso",
+            shortcut: "⏎",
+            onClick: () => void submit(),
+            disabled: busy(),
+          }}
+        />
+      }
+    >
+      <form
+        class={styles.form}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void submit();
+        }}
+      >
+        <header class={styles.header}>
+          <span class={styles.title}>{props.caseType.opening.name}</span>
+          <span class={styles.meta}>{props.caseType.name}</span>
+        </header>
         <Show when={!props.ruc}>
           <Input
             label="RUC"
@@ -127,12 +151,7 @@ function OpeningForm(props: { caseType: CaseTypeView; ruc: string }) {
             </p>
           )}
         </Show>
-        <div class={styles.actions}>
-          <Button type="submit" loading={busy()} disabled={busy()}>
-            Abrir caso
-          </Button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </SidePanelPage>
   );
 }

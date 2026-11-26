@@ -27,6 +27,8 @@ import {
 } from "~/features/object-registry/field-column";
 import { RecordIndexScreen } from "~/features/record-index/components/screen";
 import type { RecordIndexDefinition } from "~/features/record-index/model/definition";
+import { useSidePanel } from "~/features/side-panel/state/use-side-panel";
+import { createCaseCreateSidePanelPage } from "~/features/side-panel/types/side-panel-page";
 import {
   caseTypesQuery,
   casesQuery,
@@ -121,6 +123,7 @@ export function CaseList() {
 
 function CaseIndex(props: { views: CaseView[]; defaultView: CaseView }) {
   const navigate = useNavigate();
+  const { openPanel } = useSidePanel();
   const { currentUser } = useAuthenticatedSession();
   const { enqueueErrorSnackBar } = useSnackBar();
   const requestReport = useAction(requestCaseReportMutation);
@@ -177,8 +180,8 @@ function CaseIndex(props: { views: CaseView[]; defaultView: CaseView }) {
       ? {
           label: "Nuevo caso",
           onClick: () =>
-            navigate(
-              `/cases/new?${new URLSearchParams({ type: type().key }).toString()}`,
+            openPanel(
+              createCaseCreateSidePanelPage({ caseTypeKey: type().key }),
             ),
         }
       : undefined,

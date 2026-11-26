@@ -1,4 +1,4 @@
-import { useAction, useNavigate } from "@solidjs/router";
+import { useAction } from "@solidjs/router";
 import { For, Show, createSignal } from "solid-js";
 
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
@@ -35,6 +35,7 @@ import {
 } from "../../components/panel-footer";
 import { useSidePanelPageState } from "../../router/page-state";
 import { useSidePanel } from "../../state/use-side-panel";
+import { createCaseCreateSidePanelPage } from "../../types/side-panel-page";
 
 import styles from "./page.module.css";
 
@@ -43,8 +44,7 @@ import styles from "./page.module.css";
 export function CampaignRecordPage() {
   const pageState = useSidePanelPageState("campaign-record");
   const record = () => pageState().record;
-  const { closePanel } = useSidePanel();
-  const navigate = useNavigate();
+  const { closePanel, navigateTo } = useSidePanel();
   const { currentUser } = useAuthenticatedSession();
   const { enqueueErrorSnackBar } = useSnackBar();
   const markWorked = useAction(markCampaignRecordWorkedMutation);
@@ -82,12 +82,8 @@ export function CampaignRecordPage() {
             id: "open-case",
             label: "Abrir caso",
             icon: Inbox,
-            onSelect: () => {
-              closePanel();
-              navigate(
-                `/cases/new?${new URLSearchParams({ ruc: record().ruc }).toString()}`,
-              );
-            },
+            onSelect: () =>
+              navigateTo(createCaseCreateSidePanelPage({ ruc: record().ruc })),
           },
         ]
       : [];

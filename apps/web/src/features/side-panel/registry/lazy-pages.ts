@@ -45,6 +45,12 @@ export const CampaignRecordPage = lazy(() =>
   })),
 );
 
+export const CreateCasePage = lazy(() =>
+  import("../pages/create-case/page").then((m) => ({
+    default: m.CreateCasePage,
+  })),
+);
+
 // These are the only pages commonly opened before the panel is already active.
 export function preloadSidePanelEntryPages(): void {
   void RootPage.preload();

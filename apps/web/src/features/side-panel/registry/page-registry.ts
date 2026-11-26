@@ -4,6 +4,7 @@ import { CampaignRecordPageInfo } from "../pages/campaign-record/page-info";
 import { CompactDetailPageSkeleton } from "../pages/common/skeletons/compact-detail-page-skeleton";
 import { ListPageSkeleton } from "../pages/common/skeletons/list-page-skeleton";
 import { RecordPageSkeleton } from "../pages/common/skeletons/record-page-skeleton";
+import { CreateCasePageInfo } from "../pages/create-case/page-info";
 import { CreateLeadPageInfo } from "../pages/create-lead/page-info";
 import { DataGridDetailPageInfo } from "../pages/data-grid-detail/page-info";
 import { LeadActionPageInfo } from "../pages/lead-action/page-info";
@@ -14,6 +15,7 @@ import type { SidePanelPageKey } from "../types/side-panel-page";
 import { SearchCompanyPage, SearchPersonPage } from "./lazy-detail-pages";
 import {
   CampaignRecordPage,
+  CreateCasePage,
   CreateLeadPage,
   DataGridDetailPage,
   LeadActionPage,
@@ -92,6 +94,13 @@ export const SIDE_PANEL_PAGES_CONFIG = {
     component: CampaignRecordPage,
     skeleton: RecordPageSkeleton,
     pageInfoComponent: CampaignRecordPageInfo,
+    topBarActionsComponent: undefined,
+  },
+  "create-case": {
+    showsSearch: false,
+    component: CreateCasePage,
+    skeleton: RecordPageSkeleton,
+    pageInfoComponent: CreateCasePageInfo,
     topBarActionsComponent: undefined,
   },
 } satisfies Record<SidePanelPageKey, SidePanelPageConfig>;
