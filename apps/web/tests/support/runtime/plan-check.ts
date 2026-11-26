@@ -119,8 +119,8 @@ type PlanRow = { id: number; parent: number; detail: string };
 // - json_each over a bound parameter, which holds only the caller's rows;
 // - a scan of a partial index, which holds only the rows its condition keeps;
 // - the outermost loop walking an index in ORDER BY order under a LIMIT,
-//   which stops at the limit. A WHERE that rejects most rows would make it
-//   walk on, and the plan cannot show that.
+//   which stops at the limit, or at offset plus limit. A WHERE that rejects
+//   most rows would make it walk on, and the plan cannot show that.
 function fullScans(
   planner: Database,
   sql: string,
@@ -136,7 +136,7 @@ function fullScans(
     statement.finalize();
   }
   const aliases = tableAliases(sql);
-  const limited = /\blimit \?\s*$/i.test(sql);
+  const limited = /\blimit \?(?: offset \?)?\s*$/i.test(sql);
   return rows
     .filter((row, position) => {
       const scan = /^SCAN (\S+)(?: USING (?:COVERING )?INDEX (\S+))?(.*)$/.exec(

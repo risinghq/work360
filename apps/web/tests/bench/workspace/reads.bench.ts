@@ -24,6 +24,7 @@ const MONTH = calendar(parseCalendarMonth(BENCH_MONTH), BENCH_MONTH);
 const FROM = calendar(parseCalendarDate("2023-11-01"), "2023-11-01");
 const TO = calendar(parseCalendarDate("2023-11-30"), "2023-11-30");
 const ALL = { kind: "all" } as const;
+const FIRST_PAGE = { limit: 30, offset: 0 };
 
 // The screens a workspace opens all day, over a workspace a few months in.
 // Each one holds the workspace's Durable Object while it runs.
@@ -88,11 +89,12 @@ describe("workspace reads", () => {
     const result = await run(
       "search companies across the workspace",
       async () => {
-        const found = await volume.app.companies.search("comercial lima", {
-          userId: volume.admin.id,
-          viewAll: true,
-        });
-        if (found.length === 0) {
+        const found = await volume.app.companies.search(
+          "comercial lima",
+          FIRST_PAGE,
+          { userId: volume.admin.id, viewAll: true },
+        );
+        if (found.rows.length === 0) {
           throw new Error("search found no company");
         }
       },
@@ -102,11 +104,27 @@ describe("workspace reads", () => {
 
   test("search an executive's companies", async ({ bench: run }) => {
     const result = await run("search an executive's companies", async () => {
-      await volume.app.companies.search("comercial", {
+      await volume.app.companies.search("comercial", FIRST_PAGE, {
         userId: executive().id,
         viewAll: false,
       });
     }).run();
+    expect(result.state).toBe("completed");
+  });
+
+  test("list every company by name with its total", async ({ bench: run }) => {
+    const result = await run(
+      "list every company by name with its total",
+      async () => {
+        const found = await volume.app.companies.search("", FIRST_PAGE, {
+          userId: volume.admin.id,
+          viewAll: true,
+        });
+        if (found.rows.length === 0) {
+          throw new Error("the list found no company");
+        }
+      },
+    ).run();
     expect(result.state).toBe("completed");
   });
 

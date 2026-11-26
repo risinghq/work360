@@ -42,6 +42,12 @@ export interface OrganizationsSearchTable {
   legal_name: string | null;
 }
 
+// One row, which triggers on organizations keep at the table's row count.
+export interface OrganizationsCountTable {
+  id: number;
+  n: number;
+}
+
 export interface OrganizationOwnershipsTable {
   id: IdColumn<OrganizationOwnershipId>;
   organization_id: IdColumn<OrganizationId>;

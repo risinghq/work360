@@ -9,7 +9,7 @@ import type { CompanySummaryView } from "~/contracts/companies/views";
 import { OBJECTS } from "~/contracts/objects/registry";
 import { hasPermission } from "~/domain/auth/access/rbac";
 import { formatAppDate } from "~/domain/time/app-time";
-import { createGridSource } from "~/features/data-grid/model/create-grid-source";
+import { createPagedGridSource } from "~/features/data-grid/model/create-paged-grid-source";
 import type { DataGridColumn } from "~/features/data-grid/model/types";
 import { fieldColumn } from "~/features/object-registry/field-column";
 import { RecordIndexScreen } from "~/features/record-index/components/screen";
@@ -19,6 +19,8 @@ import { companiesQuery } from "~/rpc/companies/queries";
 import styles from "./companies.module.css";
 
 const SEARCH_DEBOUNCE_MS = 250;
+// Twenty's DEFAULT_QUERY_PAGE_SIZE.
+const COMPANY_PAGE_SIZE = 30;
 
 const COMPANY_COLUMNS: ReadonlyArray<DataGridColumn<CompanySummaryView>> = [
   fieldColumn("company", "legalName", {
@@ -82,10 +84,11 @@ export function CompanySearch() {
     return () => clearTimeout(timeout);
   });
 
-  const companies = createGridSource(
-    () => companiesQuery(debounced()),
-    (rows) => ({ rows }),
-  );
+  const companies = createPagedGridSource({
+    pageSize: COMPANY_PAGE_SIZE,
+    resetKey: debounced,
+    load: (limit, offset) => companiesQuery(debounced(), limit, offset),
+  });
 
   const recordIndex = {
     id: "companies",
@@ -103,6 +106,7 @@ export function CompanySearch() {
       canSave: hasPermission(currentUser(), "view:manage"),
     },
     source: companies.source,
+    loadMore: companies.loadMore,
     search: {
       value: text,
       placeholder: "Buscar por RUC o razón social",

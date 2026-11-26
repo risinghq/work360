@@ -83,6 +83,7 @@ export interface WorkspaceDatabase {
 
   people: organization.PeopleTable;
   organizations: organization.OrganizationsTable;
+  organizations_count: organization.OrganizationsCountTable;
   organizations_search: organization.OrganizationsSearchTable;
   organization_ownerships: organization.OrganizationOwnershipsTable;
   organization_current_owners: organization.OrganizationCurrentOwnersView;

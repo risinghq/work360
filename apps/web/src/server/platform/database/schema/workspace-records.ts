@@ -138,3 +138,25 @@ export const WORKSPACE_RECORDS: readonly string[] = [
   `create unique index idx_campaign_holds_one_holder on campaign_holds (record_id) where released_at is null`,
   `create index idx_campaign_holds_holder on campaign_holds (user_id, released_at)`,
 ];
+
+// The company list sorts the nameless companies after the named ones. Its
+// order by repeats this expression so SQLite walks the index.
+// organizations_count holds the row count, so the unfiltered list's total is
+// one row read instead of a pass over every company. A store load inserts it
+// after organizations, whose name sorts first, so the triggers find no row to
+// change and the loaded count stands.
+export const WORKSPACE_ORGANIZATIONS_LIST: readonly string[] = [
+  `drop index idx_organizations_name`,
+  `create index idx_organizations_name on organizations (legal_name is null, legal_name, ruc)`,
+  `create table organizations_count (
+    id integer primary key check (id = 1),
+    n integer not null
+  )`,
+  `insert into organizations_count (id, n) select 1, count(*) from organizations`,
+  `create trigger organizations_count_insert after insert on organizations begin
+    update organizations_count set n = n + 1;
+  end`,
+  `create trigger organizations_count_delete after delete on organizations begin
+    update organizations_count set n = n - 1;
+  end`,
+];

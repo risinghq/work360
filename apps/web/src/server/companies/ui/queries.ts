@@ -1,5 +1,6 @@
 import type {
   CompanyDetailView,
+  CompanyPageView,
   CompanySummaryView,
 } from "~/contracts/companies/views";
 import {
@@ -20,6 +21,8 @@ import type {
   CompanySummary,
   CompanyViewer,
 } from "../infrastructure/companies-repo";
+
+const MAX_PAGE = 100;
 
 function viewerOf(actor: PermissionHolder & { userId: UserId }): CompanyViewer {
   return {
@@ -60,20 +63,29 @@ function toDetailView({
 
 export async function searchCompanies(
   input: unknown,
-): Promise<CompanySummaryView[]> {
+): Promise<CompanyPageView> {
   return executeSessionServerFunction({
     name: "companies.search",
     access: { kind: "permission", permission: "company:read" },
     parse: () =>
       parseObject(input, validationFail, (r) => ({
         text: r.optStr("text") ?? "",
+        page: {
+          limit: r.optIntRange("limit", { min: 1, max: MAX_PAGE }) ?? MAX_PAGE,
+          offset: r.optIntRange("offset", { min: 0, max: 1_000_000 }) ?? 0,
+        },
       })),
-    execute: async (ctx, { text }) =>
-      Ok(
-        (
-          await getApplication().companies.search(text, viewerOf(ctx.actor))
-        ).map(toSummaryView),
-      ),
+    execute: async (ctx, { text, page }) => {
+      const found = await getApplication().companies.search(
+        text,
+        page,
+        viewerOf(ctx.actor),
+      );
+      return Ok({
+        rows: found.rows.map(toSummaryView),
+        totalCount: found.totalCount,
+      });
+    },
   });
 }
 

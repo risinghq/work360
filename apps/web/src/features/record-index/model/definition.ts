@@ -10,6 +10,7 @@ import type { DataGridSource } from "~/features/data-grid/model/source";
 import type {
   DataGridColumn,
   DataGridIcon,
+  DataGridLoadMore,
   DataGridRowOpenIndicator,
 } from "~/features/data-grid/model/types";
 import type { TileColor } from "~/shared/ui/tile-color";
@@ -89,6 +90,7 @@ export type RecordIndexDefinition<T extends { id: string }> = Omit<
   onRowIntent?: (rowId: string) => void;
   rowOpenIndicator?: DataGridRowOpenIndicator;
   pagination?: RecordIndexPagination;
+  loadMore?: Accessor<DataGridLoadMore>;
   filter?: {
     catalog: RecordIndexFilterCatalog;
     control: RecordIndexControl<string | undefined>;

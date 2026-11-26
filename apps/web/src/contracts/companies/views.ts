@@ -11,6 +11,11 @@ export type CompanySummaryView = {
   createdAt: number;
 };
 
+export type CompanyPageView = {
+  rows: CompanySummaryView[];
+  totalCount: number;
+};
+
 export type CompanyDetailView = CompanySummaryView & {
   address: string | null;
   people: {

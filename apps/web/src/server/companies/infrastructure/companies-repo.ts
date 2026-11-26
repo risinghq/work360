@@ -12,12 +12,18 @@ import type {
   WorkspaceDatabase,
 } from "~/server/platform/database/types";
 
-const SEARCH_LIMIT = 50;
 const SECTION_LIMIT = 100;
 
 // A user reaches a company through the work they did on it. view:all skips
 // the check; queue-stage readers of a case rely on it too.
 export type CompanyViewer = { userId: UserId; viewAll: boolean };
+
+export type CompanyPage = { limit: number; offset: number };
+
+export type CompanySearchResult = {
+  rows: CompanySummary[];
+  totalCount: number;
+};
 
 export type CompanySummary = {
   id: OrganizationId;
@@ -111,61 +117,75 @@ export function createCompaniesRepo(db: Kysely<WorkspaceDatabase>) {
   return {
     // Digits match the RUC from its start, in RUC order; other text matches
     // any part of the legal name. An empty query lists the visible companies
-    // by name.
+    // by name, the nameless ones last. The total counts every match.
     async search(
       text: string,
+      page: CompanyPage,
       viewer: CompanyViewer,
-    ): Promise<CompanySummary[]> {
-      const query = visible(viewer)
-        .select([
-          "o.id",
-          "o.ruc",
-          "o.legal_name",
-          "o.line_of_business",
-          "o.district",
-          "o.province",
-          "o.department",
-          "o.phone",
-          "o.email",
-          "o.created_at",
-        ])
-        .limit(SEARCH_LIMIT);
-      let ordered;
-      if (/^\d+$/.test(text)) {
+    ): Promise<CompanySearchResult> {
+      const byRuc = /^\d+$/.test(text);
+      let matches = visible(viewer);
+      if (byRuc) {
         const [from, to] = rucRange(text);
-        ordered = query
-          .where("o.ruc", ">=", from)
-          .where("o.ruc", "<", to)
-          .orderBy("o.ruc");
-      } else {
-        ordered = (
-          text.length > 0
-            ? query.where("o.seq", "in", (eb) =>
-                eb
-                  .selectFrom("organizations_search")
-                  .select("organizations_search.rowid")
-                  .where(
-                    sql<SqlBool>`organizations_search match ${namePhrase(text)}`,
-                  ),
-              )
-            : query
-        )
-          .orderBy("o.legal_name")
-          .orderBy("o.ruc");
+        matches = matches.where("o.ruc", ">=", from).where("o.ruc", "<", to);
+      } else if (text.length > 0) {
+        matches = matches.where("o.seq", "in", (eb) =>
+          eb
+            .selectFrom("organizations_search")
+            .select("organizations_search.rowid")
+            .where(
+              sql<SqlBool>`organizations_search match ${namePhrase(text)}`,
+            ),
+        );
       }
-      const rows = await ordered.execute();
-      return rows.map((row) => ({
-        id: row.id,
-        ruc: row.ruc,
-        legalName: row.legal_name,
-        lineOfBusiness: row.line_of_business,
-        district: row.district,
-        province: row.province,
-        department: row.department,
-        phone: row.phone,
-        email: row.email,
-        createdAt: row.created_at,
-      }));
+      const ordered = byRuc
+        ? matches.orderBy("o.ruc")
+        : matches
+            .orderBy(sql`o.legal_name is null`)
+            .orderBy("o.legal_name")
+            .orderBy("o.ruc");
+      const [rows, counted] = await Promise.all([
+        ordered
+          .select([
+            "o.id",
+            "o.ruc",
+            "o.legal_name",
+            "o.line_of_business",
+            "o.district",
+            "o.province",
+            "o.department",
+            "o.phone",
+            "o.email",
+            "o.created_at",
+          ])
+          .limit(page.limit)
+          .offset(page.offset)
+          .execute(),
+        viewer.viewAll && text === ""
+          ? db
+              .selectFrom("organizations_count")
+              .select("n as total")
+              .where("id", "=", 1)
+              .executeTakeFirstOrThrow()
+          : matches
+              .select((eb) => eb.fn.countAll<number>().as("total"))
+              .executeTakeFirstOrThrow(),
+      ]);
+      return {
+        rows: rows.map((row) => ({
+          id: row.id,
+          ruc: row.ruc,
+          legalName: row.legal_name,
+          lineOfBusiness: row.line_of_business,
+          district: row.district,
+          province: row.province,
+          department: row.department,
+          phone: row.phone,
+          email: row.email,
+          createdAt: row.created_at,
+        })),
+        totalCount: counted.total,
+      };
     },
 
     async findIdentity(

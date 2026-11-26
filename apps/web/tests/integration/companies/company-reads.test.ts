@@ -11,7 +11,7 @@ import {
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { hydrateRuc } from "~/domain/identity/document";
-import { ActivityId, type UserId } from "~/domain/ids";
+import { ActivityId, OrganizationId, type UserId } from "~/domain/ids";
 import { createCampaignsRuntime } from "~/server/campaigns/runtime";
 import { createCompaniesRuntime } from "~/server/companies/runtime";
 
@@ -28,6 +28,7 @@ const LATER = operationAt(new Date("2026-11-16T18:00:00.000Z"));
 
 const own = (userId: UserId) => ({ userId, viewAll: false });
 const everyCompany = { userId: MANAGER, viewAll: true };
+const ALL_ROWS = { limit: 100, offset: 0 };
 
 describe("company reads", () => {
   let ctx: TestDbContext;
@@ -73,10 +74,35 @@ describe("company reads", () => {
     text: string,
     viewer: { userId: UserId; viewAll: boolean },
   ) {
-    return (await companies().search(text, viewer)).map(
+    return (await companies().search(text, ALL_ROWS, viewer)).rows.map(
       (each) => each.legalName,
     );
   }
+
+  it("lists nameless companies last and pages with the full count", async () => {
+    await ctx.db
+      .insertInto("organizations")
+      .values({
+        id: OrganizationId.mint(),
+        ruc: "20100000000",
+        legal_name: null,
+        created_at: new Date(),
+      })
+      .execute();
+
+    expect(await names("", everyCompany)).toEqual([
+      "Org Lima",
+      "Org Norte",
+      null,
+    ]);
+    const second = await companies().search(
+      "",
+      { limit: 1, offset: 1 },
+      everyCompany,
+    );
+    expect(second.rows.map((each) => each.legalName)).toEqual(["Org Norte"]);
+    expect(second.totalCount).toBe(3);
+  });
 
   it("searches only the companies the viewer worked unless the role sees all", async () => {
     await fileCase(TEST_FIXTURES.organizations.lima.ruc);

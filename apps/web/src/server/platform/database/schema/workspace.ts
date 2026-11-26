@@ -10,7 +10,10 @@ import {
 } from "./workspace-merchant-stats";
 import { WORKSPACE_MESSAGING } from "./workspace-messaging";
 import { WORKSPACE_PIPELINE } from "./workspace-pipeline";
-import { WORKSPACE_RECORDS } from "./workspace-records";
+import {
+  WORKSPACE_ORGANIZATIONS_LIST,
+  WORKSPACE_RECORDS,
+} from "./workspace-records";
 import { WORKSPACE_SAVED_VIEWS, WORKSPACE_VIEWS } from "./workspace-views";
 
 // Until the first deploy, the schema grows inside the first migration. After
@@ -31,4 +34,5 @@ export const WORKSPACE_MIGRATIONS: readonly (readonly string[])[] = [
   WORKSPACE_MERCHANT_STATS_LATEST_ADJUSTMENT,
   WORKSPACE_VIEWS,
   WORKSPACE_SAVED_VIEWS,
+  WORKSPACE_ORGANIZATIONS_LIST,
 ];
