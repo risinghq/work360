@@ -5,12 +5,7 @@ import { saveSheet } from "~/browser/files/sheet";
 import { EmptyState } from "~/components/feedback/empty-state/empty";
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
 import { Spinner } from "~/components/feedback/spinner/spinner";
-import Building2 from "~/components/icons/building-2";
-import CalendarDays from "~/components/icons/calendar-days";
-import CircleQuestionMark from "~/components/icons/circle-question-mark";
 import Inbox from "~/components/icons/inbox";
-import Target from "~/components/icons/target";
-import User from "~/components/icons/user";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import {
   RecordChip,
@@ -19,12 +14,17 @@ import {
 import { Tag } from "~/components/ui/tag/tag";
 import type { CaseSummaryView, CaseTypeView } from "~/contracts/cases/views";
 import { actionErrorMessage } from "~/contracts/errors";
+import { caseStageField } from "~/contracts/objects/registry";
 import { caseViewObject } from "~/contracts/views/views";
 import { hasPermission } from "~/domain/auth/access/rbac";
 import { formatAppDateTime } from "~/domain/time/app-time";
 import { requestCaseReportMutation } from "~/features/cases/data/mutations";
 import { createGridSource } from "~/features/data-grid/model/create-grid-source";
 import type { DataGridColumn } from "~/features/data-grid/model/types";
+import {
+  fieldColumn,
+  metadataColumn,
+} from "~/features/object-registry/field-column";
 import { RecordIndexScreen } from "~/features/record-index/components/screen";
 import type { RecordIndexDefinition } from "~/features/record-index/model/definition";
 import {
@@ -68,12 +68,8 @@ function caseColumns(
   type: CaseTypeView,
 ): ReadonlyArray<DataGridColumn<CaseSummaryView>> {
   return [
-    {
-      key: "legalName",
-      label: "Empresa",
-      icon: Building2,
+    fieldColumn("case", "legalName", {
       width: 240,
-      sticky: true,
       renderCell: (row) => (
         <RecordLinkChip
           href={`/cases/${row.id}`}
@@ -81,37 +77,27 @@ function caseColumns(
           shape="square"
         />
       ),
-    },
-    {
-      key: "ruc",
-      label: "RUC",
-      icon: CircleQuestionMark,
+    }),
+    fieldColumn("case", "ruc", {
       width: 120,
       renderCell: (row) => <span class={styles.meta}>{row.ruc}</span>,
-    },
-    ...type.stages.map((stage): DataGridColumn<CaseSummaryView> => ({
-      key: `stage.${stage.key}`,
-      label: stage.name,
-      icon: Target,
-      renderCell: (row) => (
-        <Tag color="gray" text={row.statuses[stage.key] ?? "Sin estado"} />
-      ),
-    })),
-    {
-      key: "holder",
-      label: "Responsable",
-      icon: User,
+    }),
+    ...type.stages.map((stage) =>
+      metadataColumn<CaseSummaryView>("case", caseStageField(stage), {
+        renderCell: (row) => (
+          <Tag color="gray" text={row.statuses[stage.key] ?? "Sin estado"} />
+        ),
+      }),
+    ),
+    fieldColumn("case", "holder", {
       renderCell: (row) => <RecordChip name={row.holderName} shape="round" />,
-    },
-    {
-      key: "updatedAt",
-      label: "Actualizado",
-      icon: CalendarDays,
+    }),
+    fieldColumn("case", "updatedAt", {
       width: 160,
       renderCell: (row) => (
         <span class={styles.meta}>{formatAppDateTime(row.updatedAt)}</span>
       ),
-    },
+    }),
   ];
 }
 

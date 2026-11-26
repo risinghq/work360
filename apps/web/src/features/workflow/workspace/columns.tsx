@@ -1,11 +1,3 @@
-import Building2 from "~/components/icons/building-2";
-import CalendarDays from "~/components/icons/calendar-days";
-import Info from "~/components/icons/info";
-import List from "~/components/icons/list";
-import Package from "~/components/icons/package";
-import Target from "~/components/icons/target";
-import TimelineEvent from "~/components/icons/timeline-event";
-import User from "~/components/icons/user";
 import {
   RecordChip,
   RecordLinkChip,
@@ -19,6 +11,7 @@ import {
 } from "~/domain/auth/access/rbac";
 import { formatAppDate } from "~/domain/time/app-time";
 import type { DataGridColumn } from "~/features/data-grid/model/types";
+import { fieldColumn } from "~/features/object-registry/field-column";
 import { ExecutivePicker } from "~/features/workflow/detail/actions/executive-picker";
 import {
   leadNextStepLabel,
@@ -33,12 +26,8 @@ import styles from "./styles.module.css";
 // put, then the fields a user works the record by (stage, owner, next step),
 // then the reference fields. A field takes the default width unless its
 // content needs another one.
-const NAME_COLUMN: DataGridColumn<LeadListRowView> = {
-  key: "legalName",
-  label: "Razón social",
-  icon: Building2,
+const NAME_COLUMN = fieldColumn<"lead", LeadListRowView>("lead", "legalName", {
   width: 240,
-  sticky: true,
   renderCell: (lead) => (
     <RecordLinkChip
       href={`/records/${lead.id}`}
@@ -46,79 +35,61 @@ const NAME_COLUMN: DataGridColumn<LeadListRowView> = {
       shape="square"
     />
   ),
-};
+});
 
-const STAGE_COLUMN: DataGridColumn<LeadListRowView> = {
-  key: "stage",
-  label: "Etapa",
-  icon: Target,
+const STAGE_COLUMN = fieldColumn<"lead", LeadListRowView>("lead", "stage", {
   renderCell: (lead) => (
     <Tag color={leadStageColor(lead.stage)} text={leadStageLabel(lead.stage)} />
   ),
-};
+});
 
 const REFERENCE_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
-  {
-    key: "nextStep",
-    label: "Siguiente paso",
-    icon: TimelineEvent,
+  fieldColumn("lead", "nextStep", {
     width: 180,
     renderCell: (lead) => (
       <span class={styles.mutedCellText}>
         {leadNextStepLabel(lead.nextStep)}
       </span>
     ),
-  },
-  {
-    key: "status",
-    label: "Estado",
-    icon: Info,
+  }),
+  fieldColumn("lead", "status", {
     renderCell: (lead) =>
       lead.status ? <Tag color="gray" text={capitalize(lead.status)} /> : null,
-  },
-  {
-    key: "priority",
-    label: "Prioridad",
-    icon: Package,
+  }),
+  fieldColumn("lead", "priority", {
     width: 120,
     renderCell: (lead) =>
       lead.priority ? (
         <Tag color="gray" text={capitalize(lead.priority)} />
       ) : null,
-  },
-  {
-    key: "ruc",
-    label: "RUC",
-    icon: List,
+  }),
+  fieldColumn("lead", "ruc", {
     width: 120,
     renderCell: (lead) => <span class={styles.mutedCellText}>{lead.ruc}</span>,
-  },
-  {
-    key: "updatedAt",
-    label: "Actualizado",
-    icon: CalendarDays,
+  }),
+  fieldColumn("lead", "updatedAt", {
     width: 120,
     renderCell: (lead) => (
       <span class={styles.mutedCellText}>{formatAppDate(lead.updatedAt)}</span>
     ),
-  },
+  }),
 ];
 
-const CREATED_BY_COLUMN: DataGridColumn<LeadListRowView> = {
-  key: "createdBy",
-  label: "Registrado por",
-  icon: User,
-  width: 160,
-  renderCell: (lead) => <RecordChip name={lead.createdByName} shape="round" />,
-};
+const CREATED_BY_COLUMN = fieldColumn<"lead", LeadListRowView>(
+  "lead",
+  "createdBy",
+  {
+    width: 160,
+    renderCell: (lead) => (
+      <RecordChip name={lead.createdByName} shape="round" />
+    ),
+  },
+);
 
 function executiveColumn(
   canReassign: boolean,
 ): DataGridColumn<LeadListRowView> {
-  return {
-    key: "executive",
-    label: "Ejecutivo",
-    icon: User,
+  return fieldColumn("lead", "executive", {
     width: 160,
     renderCell: (lead) => (
       <RecordChip name={lead.executiveName} shape="round" />
@@ -137,7 +108,7 @@ function executiveColumn(
           ),
         }
       : undefined,
-  };
+  });
 }
 
 export function workspaceColumnsForRole(
