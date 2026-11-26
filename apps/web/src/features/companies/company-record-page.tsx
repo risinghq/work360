@@ -161,11 +161,7 @@ function CompanyFields(props: { detail: CompanyDetailView }) {
 
 function CompanyPeople(props: { detail: CompanyDetailView }) {
   return (
-    <RelationCard
-      title="Contactos"
-      count={props.detail.people.length}
-      emptyText="Sin contactos"
-    >
+    <RelationCard title="Contactos" count={props.detail.people.length}>
       <For each={props.detail.people}>
         {(person) => (
           <RelationItem
@@ -182,11 +178,7 @@ function CompanyPeople(props: { detail: CompanyDetailView }) {
 
 function CompanyCases(props: { detail: CompanyDetailView }) {
   return (
-    <RelationCard
-      title="Casos"
-      count={props.detail.cases.length}
-      emptyText="Sin casos"
-    >
+    <RelationCard title="Casos" count={props.detail.cases.length}>
       <For each={props.detail.cases}>
         {(each) => (
           <RelationItem
@@ -207,11 +199,7 @@ function CompanyCases(props: { detail: CompanyDetailView }) {
 
 function CompanyCampaigns(props: { detail: CompanyDetailView }) {
   return (
-    <RelationCard
-      title="Campañas"
-      count={props.detail.campaignRecords.length}
-      emptyText="En ninguna campaña"
-    >
+    <RelationCard title="Campañas" count={props.detail.campaignRecords.length}>
       <For each={props.detail.campaignRecords}>
         {(each) => (
           <RelationItem

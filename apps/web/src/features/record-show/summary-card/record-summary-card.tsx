@@ -5,8 +5,8 @@ import type { TabIconComponent } from "~/features/side-panel/components/tab-stri
 
 import styles from "./record-summary-card.module.css";
 
-// Twenty's record identifier bar: icon tile, name and a status label in one
-// left-aligned row at the top of the record page's side column.
+// Twenty's record identifier bar: icon tile, then the name and a status label,
+// in one row at the top of the record page's side column.
 export function RecordSummaryCard(props: {
   name: string;
   icon: TabIconComponent;
@@ -17,10 +17,12 @@ export function RecordSummaryCard(props: {
       <div class={styles.tile}>
         <props.icon size={16} />
       </div>
-      <h3 class={styles.name}>
-        <OverflowingText text={props.name} />
-      </h3>
-      {props.tag}
+      <div class={styles.text}>
+        <h3 class={styles.name}>
+          <OverflowingText text={props.name} />
+        </h3>
+        {props.tag}
+      </div>
     </div>
   );
 }

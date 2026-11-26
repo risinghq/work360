@@ -62,49 +62,33 @@
   transform: rotate(180deg);
 }
 
+/* Twenty's dropdown: the popup has no padding of its own; each section pads
+   its rows and the separator runs the full width between sections. */
 .menu {
-  position: absolute;
-  left: 0;
-  top: calc(100% + var(--spacing-2));
-  width: 220px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--overlay);
-  box-shadow: var(--shadow-elevation-2);
-  padding: var(--spacing-1);
-  z-index: 40;
+  -webkit-backdrop-filter: var(--t-blur-medium);
+  backdrop-filter: var(--t-blur-medium);
+  background: var(--t-background-transparent-primary);
+  border: 1px solid var(--t-border-color-medium);
+  border-radius: var(--t-border-radius-md);
+  box-shadow: var(--t-box-shadow-strong);
+  box-sizing: border-box;
+  color: var(--t-font-color-primary);
+  flex-direction: column;
+  padding: 0;
+  width: 200px;
 }
 
-.item {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  color: var(--foreground);
-  border-radius: var(--radius-sm);
-  text-align: left;
-  height: 30px;
-  padding: 0 var(--spacing-2);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-medium);
-}
-
-.item:hover {
-  background: var(--background-transparent-light);
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--t-spacing-1);
 }
 
 .separator {
+  background: var(--t-border-color-light);
+  block-size: 1px;
   border: 0;
-  border-top: 1px solid var(--border);
-  margin: 4px 0;
-}
-
-.danger {
-  color: var(--destructive);
-}
-
-.danger:hover {
-  background: color-mix(in oklab, var(--destructive) 10%, transparent);
+  flex: none;
+  margin: 0;
 }

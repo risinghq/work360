@@ -1,32 +1,27 @@
+/* Twenty's record list in a side-column card: rows sit on the card's own
+   inset with no extra padding or gap, each row 40px tall. */
 .list {
+  color: var(--t-font-color-secondary);
   display: flex;
   flex-direction: column;
-  gap: var(--t-spacing-1);
-  margin: 0;
-  padding: 0 var(--t-spacing-1);
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .item {
-  display: flex;
   align-items: center;
+  display: flex;
+  gap: var(--t-spacing-1);
+  height: var(--t-spacing-10);
   justify-content: space-between;
-  gap: var(--t-spacing-2);
-  min-height: 28px;
   min-width: 0;
 }
 
 .meta {
-  overflow: hidden;
   color: var(--t-font-color-tertiary);
   font-size: var(--t-font-size-sm);
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.empty {
-  margin: 0;
-  padding: 0 var(--t-spacing-1);
-  color: var(--t-font-color-light);
-  font-size: var(--t-font-size-md);
 }

@@ -21,13 +21,15 @@
   padding: var(--spacing-2);
 }
 
+/* Twenty's flush card: the card has no padding; header and content inset
+   themselves, so the divider between cards runs the panel's full width. */
 .card[data-variant="side-column"] {
-  border-bottom: 1px solid var(--border);
-  padding: var(--spacing-3) 0;
+  --side-column-padding-inline: var(--t-spacing-4);
+  --side-column-title-padding-top: var(--t-spacing-3);
 }
 
-.card[data-variant="side-column"]:last-child {
-  border-bottom: none;
+.card[data-variant="side-column"]:not(:last-child) {
+  border-bottom: 1px solid var(--t-border-color-light);
 }
 
 .header {
@@ -56,6 +58,13 @@
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
   font-weight: var(--t-font-weight-regular);
+}
+
+.card[data-variant="side-column"] .header {
+  box-sizing: border-box;
+  height: calc(var(--t-spacing-6) + var(--side-column-title-padding-top));
+  padding: var(--side-column-title-padding-top)
+    var(--side-column-padding-inline) 0;
 }
 
 .card[data-variant="side-column"] .title {
@@ -108,7 +117,13 @@
 }
 
 .card[data-variant="side-column"] .content {
-  padding: 0;
+  margin-top: 0;
+  padding: var(--t-spacing-3) var(--side-column-padding-inline)
+    var(--t-spacing-2);
+}
+
+.card[data-variant="side-column"] .content:empty {
+  padding: 0 0 var(--side-column-title-padding-top);
 }
 
 .actions {

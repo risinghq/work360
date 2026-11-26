@@ -10,9 +10,10 @@ import {
 
 import styles from "./relation-card.module.css";
 
-// A side-column card listing the records related to this one.
+// A side-column card listing the records related to this one. As in Twenty,
+// an empty relation shows only its title and a zero count.
 export function RelationCard(
-  props: ParentProps<{ title: string; count: number; emptyText: string }>,
+  props: ParentProps<{ title: string; count: number }>,
 ) {
   return (
     <WidgetCard variant="side-column">
@@ -20,10 +21,7 @@ export function RelationCard(
         <WidgetCardTitle text={props.title} count={props.count} />
       </WidgetCardHeader>
       <WidgetCardContent>
-        <Show
-          when={props.count > 0}
-          fallback={<p class={styles.empty}>{props.emptyText}</p>}
-        >
+        <Show when={props.count > 0}>
           <ul class={styles.list}>{props.children}</ul>
         </Show>
       </WidgetCardContent>

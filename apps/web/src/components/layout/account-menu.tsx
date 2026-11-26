@@ -9,8 +9,9 @@ import Sun from "~/components/icons/sun";
 import UserRound from "~/components/icons/user-round";
 import { getUserInitials } from "~/components/layout/account-menu-utils";
 import { Avatar } from "~/components/ui/display/avatar";
+import { MenuItem } from "~/components/ui/navigation/menu-item";
+import { AnchoredPopover } from "~/components/ui/overlay/anchored-popover";
 import { useTheme } from "~/components/ui/theme/theme-context";
-import { useDismissibleLayer } from "~/components/ui/utilities/use-dismissible-layer";
 
 import styles from "./account-menu.module.css";
 
@@ -26,22 +27,31 @@ export function AccountMenu(props: AccountMenuProps) {
   const [open, setOpen] = createSignal(false);
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  let containerRef: HTMLDivElement | undefined;
+  let trigger: HTMLButtonElement | undefined;
 
-  useDismissibleLayer({
-    enabled: open,
-    onDismiss: () => setOpen(false),
-    getContainer: () => containerRef,
-  });
+  function openProfile() {
+    setOpen(false);
+    props.onOpenSettings?.();
+    navigate("/settings/profile");
+  }
+
+  function switchTheme() {
+    setOpen(false);
+    toggleTheme();
+  }
+
+  function logOut() {
+    setOpen(false);
+    void props
+      .onLogout()
+      .then(() => navigate("/login", { replace: true }))
+      .catch(() => undefined);
+  }
 
   return (
-    <div
-      ref={(element) => {
-        containerRef = element;
-      }}
-      class={styles.container}
-    >
+    <div class={styles.container}>
       <button
+        ref={(element) => (trigger = element)}
         type="button"
         aria-haspopup="menu"
         aria-expanded={open() ? "true" : "false"}
@@ -65,47 +75,42 @@ export function AccountMenu(props: AccountMenuProps) {
         </Show>
       </button>
 
-      <Show when={open()}>
-        <div class={styles.menu}>
-          <button
-            type="button"
-            onClick={() => {
-              props.onOpenSettings?.();
-              setOpen(false);
-              navigate("/settings/profile");
-            }}
-            class={styles.item}
+      {/* Twenty opens the labeled account menu over its trigger, in a portal
+          so the page card beside the sidebar cannot cover it. */}
+      <Show when={open() ? trigger : undefined} keyed>
+        {(anchor) => (
+          <AnchoredPopover
+            anchor={anchor}
+            class={styles.menu}
+            onClose={() => setOpen(false)}
+            placement={props.collapsed ? "bottom-start" : "overlap"}
+            variant="positioner"
           >
-            <UserRound size={16} />
-            Mi perfil
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              toggleTheme();
-              setOpen(false);
-            }}
-            class={styles.item}
-          >
-            {theme() === "light" ? <Moon size={16} /> : <Sun size={16} />}
-            Tema {theme() === "light" ? "oscuro" : "claro"}
-          </button>
-          <hr class={styles.separator} />
-          <button
-            type="button"
-            class={clsx(styles.item, styles.danger)}
-            onClick={() => {
-              setOpen(false);
-              void props
-                .onLogout()
-                .then(() => navigate("/login", { replace: true }))
-                .catch(() => undefined);
-            }}
-          >
-            <LogOut size={16} />
-            Cerrar sesión
-          </button>
-        </div>
+            <div role="menu" aria-label={props.label} class={styles.section}>
+              <MenuItem
+                text="Mi perfil"
+                leftComponent={<UserRound size={16} />}
+                onClick={openProfile}
+              />
+              <MenuItem
+                text={theme() === "light" ? "Tema oscuro" : "Tema claro"}
+                leftComponent={
+                  theme() === "light" ? <Moon size={16} /> : <Sun size={16} />
+                }
+                onClick={switchTheme}
+              />
+            </div>
+            <hr class={styles.separator} />
+            <div role="menu" aria-label={props.label} class={styles.section}>
+              <MenuItem
+                text="Cerrar sesión"
+                accent="danger"
+                leftComponent={<LogOut size={16} />}
+                onClick={logOut}
+              />
+            </div>
+          </AnchoredPopover>
+        )}
       </Show>
     </div>
   );
