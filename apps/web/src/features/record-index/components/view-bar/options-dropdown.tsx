@@ -1,7 +1,8 @@
-import { createSignal, For, Show } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
 
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
 import ChevronRight from "~/components/icons/chevron-right";
+import GripVertical from "~/components/icons/grip-vertical";
 import Link from "~/components/icons/link";
 import List from "~/components/icons/list";
 import { Checkbox } from "~/components/ui/input/checkbox";
@@ -19,6 +20,18 @@ export function OptionsDropdown(props: { onClose: () => void }) {
   const [contentId, setContentId] = createSignal<OptionsContentId>("menu");
 
   const visibleFieldsCount = () => recordIndex.columns.visibleKeys().size;
+  const columnsByKey = createMemo(
+    () =>
+      new Map(
+        recordIndex.definition.columns.map((column) => [column.key, column]),
+      ),
+  );
+  const [dragKey, setDragKey] = createSignal<string>();
+  const [dropIndex, setDropIndex] = createSignal<number>();
+  function endDrag() {
+    setDragKey(undefined);
+    setDropIndex(undefined);
+  }
   const optionActions = () => recordIndex.definition.actions ?? [];
 
   const { enqueueSuccessSnackBar, enqueueErrorSnackBar } = useSnackBar();
@@ -54,20 +67,56 @@ export function OptionsDropdown(props: { onClose: () => void }) {
           <div class={sharedStyles.menuScrollable}>
             <div class={sharedStyles.menuGroupLabel}>Columnas de la tabla</div>
             <div class={sharedStyles.menuListbox}>
-              <For each={recordIndex.definition.columns}>
-                {(column) => {
-                  const isVisible = () =>
-                    recordIndex.columns.visibleKeys().has(column.key);
+              <For each={recordIndex.columns.layout()}>
+                {(field, index) => {
+                  const column = () => columnsByKey().get(field.key);
+                  const pinned = () => column()?.sticky === true;
 
                   return (
-                    <Checkbox
-                      class={sharedStyles.menuItem}
-                      checked={isVisible()}
-                      disabled={isVisible() && visibleFieldsCount() === 1}
-                      hoverable={false}
-                      label={column.label}
-                      onChange={() => recordIndex.columns.toggle(column.key)}
-                    />
+                    <div
+                      class={styles.fieldRow}
+                      draggable={pinned() ? "false" : "true"}
+                      data-drop-target={
+                        dropIndex() === index() && dragKey() !== field.key
+                          ? "true"
+                          : undefined
+                      }
+                      onDragStart={(event) => {
+                        event.dataTransfer?.setData("text/plain", field.key);
+                        setDragKey(field.key);
+                      }}
+                      onDragOver={(event) => {
+                        if (!dragKey() || pinned()) return;
+                        event.preventDefault();
+                        setDropIndex(index());
+                      }}
+                      onDragEnd={endDrag}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        const key = dragKey();
+                        if (key && !pinned()) {
+                          recordIndex.columns.move(key, index());
+                        }
+                        endDrag();
+                      }}
+                    >
+                      <span class={styles.dragHandle} aria-hidden="true">
+                        <Show when={!pinned()}>
+                          <GripVertical size={14} />
+                        </Show>
+                      </span>
+                      <Checkbox
+                        class={sharedStyles.menuItem}
+                        checked={field.visible}
+                        disabled={
+                          pinned() ||
+                          (field.visible && visibleFieldsCount() === 1)
+                        }
+                        hoverable={false}
+                        label={column()?.label ?? field.key}
+                        onChange={() => recordIndex.columns.toggle(field.key)}
+                      />
+                    </div>
                   );
                 }}
               </For>

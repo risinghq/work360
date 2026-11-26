@@ -25,6 +25,8 @@ export type DataGridProps<T> = {
   emptyState: JSX.Element;
   loadMore?: DataGridLoadMore;
   onAddColumn?: () => void;
+  // A resize ends: the owner keeps the width, or the grid holds it for the page.
+  onColumnResize?: (key: string, width: number) => void;
   onRowOpen?: (row: T) => void;
   // The pointer rests on a row: warm what onRowOpen will read.
   onRowIntent?: (rowId: string) => void;

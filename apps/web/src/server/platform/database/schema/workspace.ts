@@ -11,6 +11,7 @@ import {
 import { WORKSPACE_MESSAGING } from "./workspace-messaging";
 import { WORKSPACE_PIPELINE } from "./workspace-pipeline";
 import { WORKSPACE_RECORDS } from "./workspace-records";
+import { WORKSPACE_VIEWS } from "./workspace-views";
 
 // Until the first deploy, the schema grows inside the first migration. After
 // it, a change is a new entry that runs on every existing workspace.
@@ -28,4 +29,5 @@ export const WORKSPACE_MIGRATIONS: readonly (readonly string[])[] = [
     ...WORKSPACE_MERCHANT_STATS,
   ],
   WORKSPACE_MERCHANT_STATS_LATEST_ADJUSTMENT,
+  WORKSPACE_VIEWS,
 ];

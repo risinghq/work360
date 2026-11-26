@@ -1,5 +1,7 @@
 import { createSignal, type Accessor } from "solid-js";
 
+const MIN_COLUMN_WIDTH = 80;
+
 export type DataGridResizeController = {
   columnWidths: Accessor<Readonly<Record<string, number>>>;
   active: Accessor<boolean>;
@@ -13,7 +15,11 @@ export type DataGridResizeController = {
   complete: (pointerId: number) => void;
 };
 
-export function createDataGridResizeController(): DataGridResizeController {
+// The drag width lives here. With onResize the owner takes the final width
+// and the column's own width applies again.
+export function createDataGridResizeController(
+  onResize?: (key: string, width: number) => void,
+): DataGridResizeController {
   const [columnWidths, setColumnWidths] = createSignal<
     Readonly<Record<string, number>>
   >({});
@@ -42,7 +48,7 @@ export function createDataGridResizeController(): DataGridResizeController {
       }
 
       const width = Math.max(
-        80,
+        MIN_COLUMN_WIDTH,
         currentState.startWidth + (clientX - currentState.startX),
       );
       setColumnWidths((current) =>
@@ -52,9 +58,21 @@ export function createDataGridResizeController(): DataGridResizeController {
       );
     },
     complete(pointerId) {
-      if (state()?.pointerId === pointerId) {
-        setState(undefined);
+      const currentState = state();
+      if (currentState?.pointerId !== pointerId) {
+        return;
       }
+      setState(undefined);
+      const width = columnWidths()[currentState.key];
+      if (!onResize || width === undefined) {
+        return;
+      }
+      onResize(currentState.key, width);
+      setColumnWidths((current) =>
+        Object.fromEntries(
+          Object.entries(current).filter(([key]) => key !== currentState.key),
+        ),
+      );
     },
   };
 }

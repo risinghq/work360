@@ -107,6 +107,10 @@ export function LeadsWorkspace() {
     },
 
     columns: workspaceColumnsForRole(user),
+    savedView: {
+      object: "lead",
+      canSave: hasPermission(user, "view:manage"),
+    },
     source: leads.source,
 
     search: {

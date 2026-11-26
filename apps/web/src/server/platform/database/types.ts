@@ -18,6 +18,7 @@ import type * as platform from "./schema/types/platform";
 import type * as pricing from "./schema/types/pricing";
 import type * as sales from "./schema/types/sales";
 import type * as search from "./schema/types/search";
+import type * as views from "./schema/types/views";
 import type * as workflow from "./schema/types/workflow";
 
 export type * from "./schema/types/activities";
@@ -40,6 +41,7 @@ export type * from "./schema/types/platform";
 export type * from "./schema/types/pricing";
 export type * from "./schema/types/sales";
 export type * from "./schema/types/search";
+export type * from "./schema/types/views";
 export type * from "./schema/types/workflow";
 
 // One interface per store, matching the DDL in schema/platform.ts,
@@ -167,4 +169,6 @@ export interface WorkspaceDatabase {
   merchant_sale_gpv: merchantStats.MerchantSaleGpvView;
   merchant_monthly_gpv: merchantStats.MerchantMonthlyGpvView;
   merchant_month_credit: merchantStats.MerchantMonthCreditView;
+
+  view_fields: views.ViewFieldsTable;
 }

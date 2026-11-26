@@ -67,7 +67,8 @@ export type Permission =
   | "company:view:all"
   | "report:read"
   | "report:view:branch"
-  | "report:view:all";
+  | "report:view:all"
+  | "view:manage";
 
 const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   executive: [
@@ -123,6 +124,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "dashboards:read",
     "dashboards:read:own",
     "dashboards:manage",
+    "view:manage",
   ],
 
   back_office: [
@@ -187,6 +189,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "company:view:all",
     "report:read",
     "report:view:all",
+    "view:manage",
   ],
 
   logistics: [
@@ -248,6 +251,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "company:view:all",
     "report:read",
     "report:view:all",
+    "view:manage",
   ],
 
   superuser: [
@@ -302,6 +306,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "company:view:all",
     "report:read",
     "report:view:all",
+    "view:manage",
   ],
 };
 
@@ -362,6 +367,7 @@ const PERMISSION_SET: Record<Permission, true> = {
   "report:read": true,
   "report:view:branch": true,
   "report:view:all": true,
+  "view:manage": true,
 };
 
 export function isPermission(value: string): value is Permission {

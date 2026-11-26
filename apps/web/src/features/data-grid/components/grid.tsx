@@ -24,6 +24,7 @@ export function DataGrid<T>(props: DataGridProps<T>) {
     reorder: props.reorder,
     selection: props.selection,
     isInteractive,
+    onColumnResize: (key, width) => props.onColumnResize?.(key, width),
   });
   const gridTemplateColumns = createMemo(() =>
     buildDataGridTemplateColumns(props.columns, {

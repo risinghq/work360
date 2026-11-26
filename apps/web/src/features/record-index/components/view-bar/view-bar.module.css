@@ -7,3 +7,30 @@
   font-size: 12px;
   margin-right: 4px;
 }
+
+.fieldRow {
+  align-items: center;
+  border-radius: var(--radius-sm);
+  display: flex;
+}
+
+.fieldRow > :last-child {
+  flex: 1;
+}
+
+.fieldRow[data-drop-target="true"] {
+  box-shadow: inset 0 2px 0 var(--border-medium);
+}
+
+.dragHandle {
+  color: var(--t-font-color-tertiary);
+  cursor: grab;
+  display: inline-flex;
+  flex: none;
+  justify-content: center;
+  width: 16px;
+}
+
+.fieldRow[draggable="false"] .dragHandle {
+  cursor: default;
+}

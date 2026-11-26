@@ -40,6 +40,7 @@ export function createDataGridController<T>(options: {
   selection?: DataGridSelectionController;
   reorder?: DataGridReorderConfig<T>;
   isInteractive: Accessor<boolean>;
+  onColumnResize?: (key: string, width: number) => void;
 }): DataGridController {
   const [container, setContainer] = createSignal<HTMLElement>();
   const [scrollWrapper, setScrollWrapper] = createSignal<HTMLElement>();
@@ -59,7 +60,7 @@ export function createDataGridController<T>(options: {
       columnKeys,
       getContainer: container,
     }),
-    resize: createDataGridResizeController(),
+    resize: createDataGridResizeController(options.onColumnResize),
     activation: createDataGridRowActivationController(),
     selection: options.selection,
     reorder: options.reorder

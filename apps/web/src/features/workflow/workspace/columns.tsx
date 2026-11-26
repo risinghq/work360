@@ -29,28 +29,16 @@ import { capitalize } from "~/shared/text";
 
 import styles from "./styles.module.css";
 
+// Twenty's layout: the field that names the record comes first and stays
+// put, the other fields take the default width unless their content needs
+// another one.
 const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
-  {
-    key: "ruc",
-    label: "RUC",
-    icon: CircleQuestionMark,
-    width: 196,
-    sticky: true,
-    renderCell: (lead) => (
-      <RecordLinkChip
-        href={`/records/${lead.id}`}
-        name={lead.ruc}
-        shape="square"
-        showAvatar={false}
-      />
-    ),
-  },
   {
     key: "legalName",
     label: "Razón social",
     icon: Building2,
-    minWidth: 240,
-    maxWidth: 420,
+    width: 240,
+    sticky: true,
     renderCell: (lead) => (
       <RecordLinkChip
         href={`/records/${lead.id}`}
@@ -60,10 +48,16 @@ const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
     ),
   },
   {
+    key: "ruc",
+    label: "RUC",
+    icon: CircleQuestionMark,
+    width: 120,
+    renderCell: (lead) => <span class={styles.mutedCellText}>{lead.ruc}</span>,
+  },
+  {
     key: "stage",
     label: "Etapa",
     icon: Target,
-    width: 172,
     renderCell: (lead) => (
       <Tag
         color={leadStageColor(lead.stage)}
@@ -75,7 +69,6 @@ const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
     key: "status",
     label: "Estado",
     icon: Info,
-    width: 168,
     renderCell: (lead) =>
       lead.status ? <Tag color="gray" text={capitalize(lead.status)} /> : null,
   },
@@ -83,7 +76,6 @@ const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
     key: "priority",
     label: "Prioridad",
     icon: Package,
-    width: 152,
     renderCell: (lead) =>
       lead.priority ? (
         <Tag color="gray" text={capitalize(lead.priority)} />
@@ -93,7 +85,7 @@ const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
     key: "nextStep",
     label: "Siguiente paso",
     icon: TimelineEvent,
-    minWidth: 220,
+    width: 180,
     renderCell: (lead) => (
       <span class={styles.mutedCellText}>
         {leadNextStepLabel(lead.nextStep)}
@@ -104,7 +96,6 @@ const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
     key: "updatedAt",
     label: "Actualizado",
     icon: CalendarDays,
-    width: 140,
     renderCell: (lead) => (
       <span class={styles.mutedCellText}>{formatAppDate(lead.updatedAt)}</span>
     ),
@@ -115,7 +106,6 @@ const CREATED_BY_COLUMN: DataGridColumn<LeadListRowView> = {
   key: "createdBy",
   label: "Registrado por",
   icon: User,
-  width: 150,
   renderCell: (lead) => <RecordChip name={lead.createdByName} shape="round" />,
 };
 
@@ -126,7 +116,6 @@ function executiveColumn(
     key: "executive",
     label: "Ejecutivo",
     icon: User,
-    width: 170,
     renderCell: (lead) => (
       <RecordChip name={lead.executiveName} shape="round" />
     ),

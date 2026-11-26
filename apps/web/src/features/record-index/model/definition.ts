@@ -1,5 +1,6 @@
 import type { Accessor } from "solid-js";
 
+import type { ViewObject } from "~/contracts/views/views";
 import type { DataGridReorderConfig } from "~/features/data-grid/dnd/types";
 import type { DataGridSource } from "~/features/data-grid/model/source";
 import type {
@@ -61,7 +62,9 @@ export type RecordIndexPresentationDefinition = {
     icon: DataGridIcon;
     color: TileColor;
   };
-  columns: ReadonlyArray<Pick<DataGridColumn<never>, "key" | "label">>;
+  columns: ReadonlyArray<
+    Pick<DataGridColumn<never>, "key" | "label" | "icon" | "sticky">
+  >;
   emptyState: RecordIndexEmptyState;
   createAction?: RecordIndexCreateAction;
   actions?: ReadonlyArray<RecordIndexAction>;
@@ -95,4 +98,7 @@ export type RecordIndexDefinition<T extends { id: string }> = Omit<
     control: RecordIndexControl<string>;
   };
   search?: RecordIndexSearchControl;
+  // The workspace's saved column layout for this object. Without it the
+  // columns keep their defaults and changes last for the page.
+  savedView?: { object: ViewObject; canSave: boolean };
 };

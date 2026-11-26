@@ -28,6 +28,7 @@ export function RecordIndexTableContainer<T extends { id: string }>(props: {
       ariaLabel={props.controller.definition.ariaLabel}
       columns={props.controller.visibleColumns()}
       emptyState={<RecordIndexEmpty />}
+      onColumnResize={props.controller.columns.resize}
       onRowOpen={props.controller.definition.onRowOpen}
       onRowIntent={props.controller.definition.onRowIntent}
       pagination={

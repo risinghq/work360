@@ -29,6 +29,27 @@ describe("createDataGridResizeController", () => {
     });
   });
 
+  it("hands the final width to the owner and drops its override", () => {
+    createRoot((dispose) => {
+      const resized: Array<[string, number]> = [];
+      const resize = createDataGridResizeController((key, width) =>
+        resized.push([key, width]),
+      );
+      resize.begin({
+        key: "name",
+        pointerId: 1,
+        clientX: 100,
+        currentWidth: 150,
+      });
+      resize.update(1, 130);
+      resize.complete(1);
+
+      expect(resized).toEqual([["name", 180]]);
+      expect(resize.columnWidths()).toEqual({});
+      dispose();
+    });
+  });
+
   it("enforces the minimum column width", () => {
     createRoot((dispose) => {
       const resize = createDataGridResizeController();

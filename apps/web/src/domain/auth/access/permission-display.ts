@@ -324,6 +324,12 @@ const PERMISSION_CATALOG: Record<Permission, PermissionMeta> = {
     description: "Ver en los reportes a todos los usuarios del espacio.",
     group: "clientes",
   },
+  "view:manage": {
+    label: "Gestionar vistas",
+    description:
+      "Guardar el orden, el ancho y la visibilidad de las columnas que ve todo el equipo.",
+    group: "administracion",
+  },
 };
 
 export interface PermissionRow {

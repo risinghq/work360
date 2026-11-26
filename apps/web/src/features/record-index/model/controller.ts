@@ -1,20 +1,29 @@
+import { useAction } from "@solidjs/router";
 import { createMemo, createSignal, type Accessor, type Setter } from "solid-js";
 
+import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
+import type { ViewFieldView } from "~/contracts/views/views";
 import { createDataGridSelection } from "~/features/data-grid/hooks/create-selection";
 import type { DataGridSelectionController } from "~/features/data-grid/model/selection";
 import type { DataGridSource } from "~/features/data-grid/model/source";
 import type { DataGridColumn } from "~/features/data-grid/model/types";
+import { viewFieldsQuery } from "~/rpc/views/queries";
 
-import {
-  getVisibleRecordIndexColumns,
-  hasHiddenRecordIndexColumns,
-  toggleRecordIndexVisibleColumnKey,
-} from "./columns";
+import { saveViewFieldsMutation } from "../data/mutations";
 import type {
   RecordIndexDefinition,
   RecordIndexPresentationDefinition,
   RecordIndexSearchControl,
 } from "./definition";
+import {
+  layoutColumns,
+  mergeViewLayout,
+  moveField,
+  resizeField,
+  toggleField,
+  toSavedFields,
+  type ViewLayoutField,
+} from "./view-layout";
 
 export type RecordIndexMenu = "filter" | "sort" | "options" | "views" | null;
 
@@ -46,9 +55,12 @@ export type RecordIndexUiController = {
   columns: {
     openMenu: Accessor<RecordIndexMenu>;
     setOpenMenu: Setter<RecordIndexMenu>;
+    layout: Accessor<ReadonlyArray<ViewLayoutField>>;
     visibleKeys: Accessor<ReadonlySet<string>>;
     hasHidden: Accessor<boolean>;
     toggle: (key: string) => void;
+    move: (key: string, toIndex: number) => void;
+    resize: (key: string, width: number) => void;
   };
   filtering?: RecordIndexFilteringController;
   sorting?: RecordIndexSortingController;
@@ -73,20 +85,64 @@ function isActive(value: string | undefined, defaultValue: string | undefined) {
   return value !== undefined && value !== defaultValue;
 }
 
+function createViewLayout<T extends { id: string }>(
+  definition: RecordIndexDefinition<T>,
+) {
+  const view = definition.savedView;
+  const saved = createMemo<ViewFieldView[]>(() =>
+    view ? viewFieldsQuery(view.object) : [],
+  );
+  const [draft, setDraft] = createSignal<ViewLayoutField[]>();
+  const layout = createMemo(
+    () => draft() ?? mergeViewLayout(definition.columns, saved()),
+  );
+  const save = useAction(saveViewFieldsMutation);
+  const { enqueueErrorSnackBar } = useSnackBar();
+
+  // A member who may not manage views keeps the change on this page only.
+  function commit(next: ViewLayoutField[]) {
+    const normalized = mergeViewLayout(definition.columns, toSavedFields(next));
+    setDraft(normalized);
+    if (!view?.canSave) return;
+    save({ object: view.object, fields: toSavedFields(normalized) }).catch(
+      (caught: unknown) => {
+        console.error("Failed to save view", caught);
+        enqueueErrorSnackBar("No se pudo guardar la vista");
+      },
+    );
+  }
+
+  return {
+    layout,
+    toggle: (key: string) => commit(toggleField(layout(), key)),
+    move: (key: string, toIndex: number) =>
+      commit(moveField(layout(), key, toIndex)),
+    resize: (key: string, width: number) =>
+      commit(resizeField(layout(), key, width)),
+  };
+}
+
 export function createRecordIndexController<T extends { id: string }>(
   definition: RecordIndexDefinition<T>,
 ): RecordIndexController<T> {
   const source = createMemo(definition.source);
   const [openMenu, setOpenMenu] = createSignal<RecordIndexMenu>(null);
-  const [visibleKeys, setVisibleKeys] = createSignal<ReadonlySet<string>>(
-    new Set(definition.columns.map((column) => column.key)),
+  const viewLayout = createViewLayout(definition);
+  const visibleKeys = createMemo<ReadonlySet<string>>(
+    () =>
+      new Set(
+        viewLayout
+          .layout()
+          .filter((field) => field.visible)
+          .map((field) => field.key),
+      ),
   );
   const [filterPanel, setFilterPanel] = createSignal<RecordIndexFilterPanel>({
     kind: "field-list",
   });
 
   const visibleColumns = createMemo(() =>
-    getVisibleRecordIndexColumns(definition.columns, visibleKeys()),
+    layoutColumns(definition.columns, viewLayout.layout()),
   );
   const visible = createMemo(() => source().rows.length);
   const total = createMemo(() => source().totalCount);
@@ -111,15 +167,14 @@ export function createRecordIndexController<T extends { id: string }>(
     columns: {
       openMenu,
       setOpenMenu,
+      layout: viewLayout.layout,
       visibleKeys,
-      hasHidden: createMemo(() =>
-        hasHiddenRecordIndexColumns(definition.columns, visibleKeys()),
+      hasHidden: createMemo(
+        () => visibleKeys().size !== viewLayout.layout().length,
       ),
-      toggle(key: string) {
-        setVisibleKeys((current) =>
-          toggleRecordIndexVisibleColumnKey(current, key),
-        );
-      },
+      toggle: viewLayout.toggle,
+      move: viewLayout.move,
+      resize: viewLayout.resize,
     },
     filtering: definition.filter
       ? {

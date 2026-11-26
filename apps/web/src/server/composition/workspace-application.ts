@@ -54,6 +54,7 @@ import type { AvatarService } from "~/server/users/avatar-service";
 import { createMemberWriteContext } from "~/server/users/infrastructure/member-write-context";
 import { createMembersRepo } from "~/server/users/repos-members";
 import { createUsersRuntime } from "~/server/users/runtime";
+import { createViewsRuntime } from "~/server/views/runtime";
 import { leadReservationDuty } from "~/server/workflow/maintenance/lead-reservation-maintenance";
 import { createWorkflowRuntime } from "~/server/workflow/runtime";
 
@@ -220,6 +221,7 @@ export function createWorkspaceApplication(
       avatars: host.platform.avatars,
       publicOrigin,
     }),
+    views: createViewsRuntime({ executor: db }),
     workflow: createWorkflowRuntime(workspace, {
       files,
       organizationEnrichment: host.organizationEnrichment,
