@@ -1,12 +1,5 @@
 import { Title } from "@solidjs/meta";
-import {
-  For,
-  Loading,
-  Show,
-  createMemo,
-  createSignal,
-  type ParentProps,
-} from "solid-js";
+import { For, Loading, Show, createMemo, createSignal } from "solid-js";
 
 import Building2 from "~/components/icons/building-2";
 import List from "~/components/icons/list";
@@ -25,14 +18,16 @@ import { formatAppDateTime } from "~/domain/time/app-time";
 import { companyTimeline } from "~/features/companies/model/company-timeline";
 import { RecordBreadcrumb } from "~/features/record-show/header/record-breadcrumb";
 import { RecordPageLayout } from "~/features/record-show/page/record-page-layout";
+import { RecordTabPane } from "~/features/record-show/page/record-tab-pane";
+import {
+  RelationCard,
+  RelationItem,
+} from "~/features/record-show/relations/relation-card";
 import { RecordSummaryCard } from "~/features/record-show/summary-card/record-summary-card";
 import { EventList } from "~/features/record-show/tabs/timeline/components/event-list";
 import { groupEventsByMonth } from "~/features/record-show/tabs/timeline/model/group";
 import { ActivityTabEmptyState } from "~/features/side-panel/components/activity-tabs/empty-state";
-import {
-  TabStrip,
-  type TabIconComponent,
-} from "~/features/side-panel/components/tab-strip";
+import type { TabIconComponent } from "~/features/side-panel/components/tab-strip";
 import {
   FieldTable,
   FieldTextValue,
@@ -46,7 +41,6 @@ import {
 } from "~/features/widgets/widget-card";
 import { companyQuery } from "~/rpc/companies/queries";
 
-import styles from "./companies.module.css";
 import timelineStyles from "~/features/record-show/tabs/timeline/styles.module.css";
 
 export function companyDisplayName(company: {
@@ -159,26 +153,6 @@ function CompanyFields(props: { detail: CompanyDetailView }) {
   );
 }
 
-function RelationCard(
-  props: ParentProps<{ title: string; count: number; emptyText: string }>,
-) {
-  return (
-    <WidgetCard variant="side-column">
-      <WidgetCardHeader>
-        <WidgetCardTitle text={props.title} count={props.count} />
-      </WidgetCardHeader>
-      <WidgetCardContent>
-        <Show
-          when={props.count > 0}
-          fallback={<p class={styles.relationEmpty}>{props.emptyText}</p>}
-        >
-          <ul class={styles.relationList}>{props.children}</ul>
-        </Show>
-      </WidgetCardContent>
-    </WidgetCard>
-  );
-}
-
 function CompanyPeople(props: { detail: CompanyDetailView }) {
   return (
     <RelationCard
@@ -188,14 +162,12 @@ function CompanyPeople(props: { detail: CompanyDetailView }) {
     >
       <For each={props.detail.people}>
         {(person) => (
-          <li class={styles.relationItem}>
-            <RecordChip name={person.name} shape="round" />
-            <span class={styles.relationMeta}>
-              {[person.role, person.phone, person.email]
-                .filter(Boolean)
-                .join(" · ")}
-            </span>
-          </li>
+          <RelationItem
+            chip={<RecordChip name={person.name} shape="round" />}
+            meta={[person.role, person.phone, person.email]
+              .filter(Boolean)
+              .join(" · ")}
+          />
         )}
       </For>
     </RelationCard>
@@ -211,14 +183,16 @@ function CompanyCases(props: { detail: CompanyDetailView }) {
     >
       <For each={props.detail.cases}>
         {(each) => (
-          <li class={styles.relationItem}>
-            <RecordLinkChip
-              href={`/cases/${each.id}`}
-              name={each.caseTypeName}
-              shape="square"
-            />
-            <span class={styles.relationMeta}>{each.holderName}</span>
-          </li>
+          <RelationItem
+            chip={
+              <RecordLinkChip
+                href={`/cases/${each.id}`}
+                name={each.caseTypeName}
+                shape="square"
+              />
+            }
+            meta={each.holderName}
+          />
         )}
       </For>
     </RelationCard>
@@ -234,12 +208,10 @@ function CompanyCampaigns(props: { detail: CompanyDetailView }) {
     >
       <For each={props.detail.campaignRecords}>
         {(each) => (
-          <li class={styles.relationItem}>
-            <RecordChip name={each.campaignName} shape="square" />
-            <span class={styles.relationMeta}>
-              {each.segment} · {campaignStatus(each)}
-            </span>
-          </li>
+          <RelationItem
+            chip={<RecordChip name={each.campaignName} shape="square" />}
+            meta={`${each.segment} · ${campaignStatus(each)}`}
+          />
         )}
       </For>
     </RelationCard>
@@ -264,38 +236,35 @@ function CompanyTabs(props: { detail: CompanyDetailView }) {
   );
 
   return (
-    <div class={styles.tabPanel}>
-      <TabStrip
-        tabs={[
-          {
-            id: "timeline",
-            label: "Línea de tiempo",
-            icon: TimelineEvent,
-            pill:
-              props.detail.activities.length > 0
-                ? String(props.detail.activities.length)
-                : undefined,
-          },
-        ]}
-        activeTab={active()}
-        onTabSelect={setActive}
-      />
-      <div class={styles.tabScroll}>
-        <div class={timelineStyles.mainContainer}>
-          <Show
-            when={groups().length > 0}
-            fallback={
-              <ActivityTabEmptyState
-                type="emptyTimeline"
-                title="Aún no hay actividad"
-                subtitle="Nadie llamó ni visitó esta empresa todavía."
-              />
-            }
-          >
-            <EventList id={props.detail.id} groups={groups()} />
-          </Show>
-        </div>
+    <RecordTabPane
+      tabs={[
+        {
+          id: "timeline",
+          label: "Línea de tiempo",
+          icon: TimelineEvent,
+          pill:
+            props.detail.activities.length > 0
+              ? String(props.detail.activities.length)
+              : undefined,
+        },
+      ]}
+      active={active()}
+      onSelect={setActive}
+    >
+      <div class={timelineStyles.mainContainer}>
+        <Show
+          when={groups().length > 0}
+          fallback={
+            <ActivityTabEmptyState
+              type="emptyTimeline"
+              title="Aún no hay actividad"
+              subtitle="Nadie llamó ni visitó esta empresa todavía."
+            />
+          }
+        >
+          <EventList id={props.detail.id} groups={groups()} />
+        </Show>
       </div>
-    </div>
+    </RecordTabPane>
   );
 }

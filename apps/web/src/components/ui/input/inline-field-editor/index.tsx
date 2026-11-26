@@ -121,6 +121,8 @@ export interface InlineOptionsEditorProps<T extends string> {
   options: readonly T[];
   selected: T;
   ariaLabel: string;
+  // Options that are ids, such as user ids, need a label to show.
+  optionLabel?: (option: T) => string;
   onSubmit: (value: T) => Promise<void>;
   onClose: () => void;
 }
@@ -182,7 +184,7 @@ export function InlineOptionsEditor<T extends string>(
                 disabled={submitting()}
                 onClick={() => void handleSelect(option)}
               >
-                <span>{option}</span>
+                <span>{props.optionLabel?.(option) ?? option}</span>
 
                 <Show when={option === props.selected}>
                   <span class={styles.selectedBadge}>Actual</span>

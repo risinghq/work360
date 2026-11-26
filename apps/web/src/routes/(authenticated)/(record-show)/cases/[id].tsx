@@ -1,7 +1,10 @@
 import { type RouteDefinition, useParams } from "@solidjs/router";
 
-import { AppPage } from "~/components/layout/page";
-import { CaseDetail } from "~/features/cases/case-detail";
+import { RecordShowShell } from "~/components/layout/app-shell/record-show-shell";
+import {
+  CaseRecordHeader,
+  CaseRecordPage,
+} from "~/features/cases/case-record-page";
 import { caseQuery } from "~/rpc/cases/queries";
 
 export const route = {
@@ -15,8 +18,8 @@ export const route = {
 export default function CasePage() {
   const params = useParams<{ id: string }>();
   return (
-    <AppPage width="medium">
-      <CaseDetail caseId={params.id} />
-    </AppPage>
+    <RecordShowShell header={<CaseRecordHeader caseId={params.id} />}>
+      <CaseRecordPage caseId={params.id} />
+    </RecordShowShell>
   );
 }

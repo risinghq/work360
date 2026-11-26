@@ -1,22 +1,52 @@
+import { Title } from "@solidjs/meta";
 import { revalidate, useAction } from "@solidjs/router";
 import { For, Loading, Show, createMemo, createSignal } from "solid-js";
 
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
+import Building2 from "~/components/icons/building-2";
+import CalendarClock from "~/components/icons/calendar-clock";
+import CalendarDays from "~/components/icons/calendar-days";
+import CircleCheckBig from "~/components/icons/circle-check-big";
+import Inbox from "~/components/icons/inbox";
+import List from "~/components/icons/list";
+import Package from "~/components/icons/package";
+import TimelineEvent from "~/components/icons/timeline-event";
+import UserCircle from "~/components/icons/user-circle";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
-import { Skeleton } from "~/components/ui/feedback/skeleton";
 import { Button } from "~/components/ui/input/button";
+import { InlineOptionsEditor } from "~/components/ui/input/inline-field-editor";
 import { Select } from "~/components/ui/input/select";
+import { PageCardHeader } from "~/components/ui/layout/page-card/page-card-header";
+import { RecordLinkChip } from "~/components/ui/record-chip/record-chip";
 import { Tag } from "~/components/ui/tag/tag";
 import type {
   CaseDetailView,
-  CaseEventView,
   CaseFieldView,
   CaseStageView,
 } from "~/contracts/cases/views";
 import { actionErrorMessage } from "~/contracts/errors";
 import { hasPermission } from "~/domain/auth/access/rbac";
 import { formatAppDateTime } from "~/domain/time/app-time";
+import { caseTimeline } from "~/features/cases/model/case-timeline";
 import { CallWithExtension } from "~/features/extension/call-with-extension";
+import { RecordBreadcrumb } from "~/features/record-show/header/record-breadcrumb";
+import { RecordPageLayout } from "~/features/record-show/page/record-page-layout";
+import { RecordTabPane } from "~/features/record-show/page/record-tab-pane";
+import { RecordSummaryCard } from "~/features/record-show/summary-card/record-summary-card";
+import { EventList } from "~/features/record-show/tabs/timeline/components/event-list";
+import { groupEventsByMonth } from "~/features/record-show/tabs/timeline/model/group";
+import { ActivityTabEmptyState } from "~/features/side-panel/components/activity-tabs/empty-state";
+import {
+  FieldTable,
+  FieldTextValue,
+  RecordInlineCell,
+} from "~/features/widgets/field-table";
+import {
+  WidgetCard,
+  WidgetCardContent,
+  WidgetCardHeader,
+  WidgetCardTitle,
+} from "~/features/widgets/widget-card";
 import { caseQuery } from "~/rpc/cases/queries";
 
 import {
@@ -30,6 +60,7 @@ import {
 import { reassignCaseMutation, writeCaseStageMutation } from "./data/mutations";
 
 import styles from "./cases.module.css";
+import timelineStyles from "~/features/record-show/tabs/timeline/styles.module.css";
 
 const ACCESS_HINTS: Record<
   Exclude<CaseStageView["access"], "writable">,
@@ -54,139 +85,216 @@ function savedFileName(
     : undefined;
 }
 
-export function CaseDetail(props: { caseId: string }) {
+function caseDisplayName(detail: CaseDetailView): string {
+  return detail.legalName ?? detail.ruc;
+}
+
+export function CaseRecordHeader(props: { caseId: string }) {
+  return (
+    <Loading fallback={<PageCardHeader />}>
+      <CaseBreadcrumbHeader caseId={props.caseId} />
+    </Loading>
+  );
+}
+
+function CaseBreadcrumbHeader(props: { caseId: string }) {
   const detail = createMemo(() => caseQuery(props.caseId));
   const { currentUser } = useAuthenticatedSession();
   const canCall = () => hasPermission(currentUser(), "case:work");
-  const canReadCompany = () => hasPermission(currentUser(), "company:read");
 
   return (
-    <Loading fallback={<Skeleton height={320} />}>
-      <div class={styles.page}>
-        <header class={styles.caseHeader}>
-          <Show
-            when={canReadCompany()}
-            fallback={
-              <span class={styles.title}>
-                {detail().legalName ?? detail().ruc}
-              </span>
-            }
-          >
-            <a
-              class={styles.title}
-              href={`/companies/${detail().organizationId}`}
-            >
-              {detail().legalName ?? detail().ruc}
-            </a>
-          </Show>
-          <span class={styles.meta}>
-            RUC {detail().ruc} · {detail().caseType.name} · Responsable{" "}
-            {detail().holderName}
-          </span>
+    <>
+      <Title>{`${caseDisplayName(detail())} - ${detail().caseType.name}`}</Title>
+      <PageCardHeader
+        breadcrumb={
+          <RecordBreadcrumb
+            href="/cases"
+            objectLabel="Casos"
+            icon={Inbox}
+            name={caseDisplayName(detail())}
+          />
+        }
+        actionButton={
           <Show when={canCall()}>
             <CallWithExtension
               request={{ subject: { kind: "case", id: props.caseId } }}
             />
           </Show>
-        </header>
-        <Show when={detail().holderCandidates.length > 0}>
-          <ReassignForm detail={detail()} />
-        </Show>
-        <For each={detail().stages}>
-          {(stage) => <CaseStage detail={detail()} stage={stage} />}
-        </For>
-        <CaseHistory events={detail().events} />
-      </div>
-    </Loading>
+        }
+      />
+    </>
   );
 }
 
-function ReassignForm(props: { detail: CaseDetailView }) {
+export function CaseRecordPage(props: { caseId: string }) {
+  const detail = createMemo(() => caseQuery(props.caseId));
+
+  return (
+    <RecordPageLayout
+      summary={
+        <RecordSummaryCard
+          name={caseDisplayName(detail())}
+          icon={Inbox}
+          tag={<Tag color="gray" text={detail().caseType.name} preventShrink />}
+        />
+      }
+      fields={<CaseFields detail={detail()} />}
+    >
+      <CaseTabs detail={detail()} />
+    </RecordPageLayout>
+  );
+}
+
+function CaseFields(props: { detail: CaseDetailView }) {
+  const { currentUser } = useAuthenticatedSession();
+  const canReadCompany = () => hasPermission(currentUser(), "company:read");
+
+  return (
+    <WidgetCard variant="side-column">
+      <WidgetCardHeader>
+        <WidgetCardTitle text="Campos" />
+      </WidgetCardHeader>
+      <WidgetCardContent>
+        <FieldTable>
+          <RecordInlineCell label="Empresa" icon={Building2}>
+            <Show
+              when={canReadCompany()}
+              fallback={
+                <FieldTextValue>{caseDisplayName(props.detail)}</FieldTextValue>
+              }
+            >
+              <RecordLinkChip
+                href={`/companies/${props.detail.organizationId}`}
+                name={caseDisplayName(props.detail)}
+                shape="square"
+              />
+            </Show>
+          </RecordInlineCell>
+          <RecordInlineCell label="RUC" icon={List}>
+            <FieldTextValue>{props.detail.ruc}</FieldTextValue>
+          </RecordInlineCell>
+          <RecordInlineCell label="Tipo" icon={Package}>
+            <FieldTextValue>{props.detail.caseType.name}</FieldTextValue>
+          </RecordInlineCell>
+          <HolderField detail={props.detail} />
+          <RecordInlineCell label="Creado" icon={CalendarDays}>
+            <FieldTextValue>
+              {formatAppDateTime(props.detail.createdAt)}
+            </FieldTextValue>
+          </RecordInlineCell>
+          <RecordInlineCell label="Actualizado" icon={CalendarClock}>
+            <FieldTextValue>
+              {formatAppDateTime(props.detail.updatedAt)}
+            </FieldTextValue>
+          </RecordInlineCell>
+        </FieldTable>
+      </WidgetCardContent>
+    </WidgetCard>
+  );
+}
+
+// The holder is edited in place, as Twenty edits a relation cell; the viewer
+// sees no editor when the view offers no candidates.
+function HolderField(props: { detail: CaseDetailView }) {
   const reassign = useAction(reassignCaseMutation);
   const { enqueueSuccessSnackBar } = useSnackBar();
-  const [holder, setHolder] = createSignal(props.detail.holderUserId);
-  const [busy, setBusy] = createSignal(false);
-  const [error, setError] = createSignal<string>();
+  const candidateName = (id: string) =>
+    props.detail.holderCandidates.find((each) => each.id === id)?.name ?? id;
 
-  async function submit(event: SubmitEvent): Promise<void> {
-    event.preventDefault();
-    setBusy(true);
-    setError(undefined);
-    try {
-      const result = await reassign({
-        caseId: props.detail.id,
-        expectedVersion: props.detail.version,
-        holderUserId: holder(),
-      });
-      if (!result.ok) {
-        setError(result.error.message);
-        return;
-      }
-      enqueueSuccessSnackBar("Caso reasignado.");
-    } catch (caught: unknown) {
-      setError(actionErrorMessage(caught));
-    } finally {
-      setBusy(false);
+  async function submit(holderUserId: string): Promise<void> {
+    const result = await reassign({
+      caseId: props.detail.id,
+      expectedVersion: props.detail.version,
+      holderUserId,
+    });
+    if (!result.ok) {
+      throw new Error(result.error.message);
     }
+    enqueueSuccessSnackBar("Caso reasignado.");
   }
 
+  const edit = () =>
+    props.detail.holderCandidates.length === 0
+      ? undefined
+      : {
+          ariaLabel: "Editar Responsable",
+          renderEditor: (onClose: () => void) => (
+            <InlineOptionsEditor
+              options={props.detail.holderCandidates.map((each) => each.id)}
+              selected={props.detail.holderUserId}
+              optionLabel={candidateName}
+              ariaLabel="Responsable"
+              onSubmit={submit}
+              onClose={onClose}
+            />
+          ),
+        };
+
   return (
-    <form class={styles.reassign} onSubmit={(event) => void submit(event)}>
-      <Select
-        label="Responsable"
-        value={holder()}
-        disabled={busy()}
-        error={error()}
-        onInput={(event) => setHolder(event.currentTarget.value)}
-      >
-        <For each={props.detail.holderCandidates}>
-          {(candidate) => (
-            <option value={candidate.id}>{candidate.name}</option>
-          )}
-        </For>
-      </Select>
-      <Button
-        type="submit"
-        variant="outline"
-        loading={busy()}
-        disabled={busy() || holder() === props.detail.holderUserId}
-      >
-        Reasignar
-      </Button>
-    </form>
+    <RecordInlineCell label="Responsable" icon={UserCircle} edit={edit()}>
+      <FieldTextValue>{props.detail.holderName}</FieldTextValue>
+    </RecordInlineCell>
   );
 }
 
-function eventText(event: CaseEventView): string {
-  const actor = event.actorName ?? "Un usuario";
-  switch (event.kind) {
-    case "opened":
-      return `${actor} registró el caso`;
-    case "stage_written":
-      return `${actor} guardó ${event.stageName ?? "una etapa"}: ${event.status ?? ""}`;
-    case "reassigned":
-      return `${actor} pasó el caso a ${event.holderName ?? "otro responsable"}`;
-    case "timed_out":
-      return `${event.stageName ?? "Una etapa"} venció y pasó a ${event.status ?? ""}`;
-  }
-}
+type CaseTabId = "stages" | "timeline";
 
-function CaseHistory(props: { events: CaseEventView[] }) {
+function CaseTabs(props: { detail: CaseDetailView }) {
+  const [active, setActive] = createSignal<CaseTabId>("stages");
+  const groups = createMemo(() =>
+    groupEventsByMonth(
+      caseTimeline(props.detail.events, props.detail.caseType.name),
+    ),
+  );
+
   return (
-    <Show when={props.events.length > 0}>
-      <section class={styles.stage}>
-        <span class={styles.title}>Historial</span>
-        <ol class={styles.history}>
-          <For each={props.events}>
-            {(event) => (
-              <li class={styles.meta}>
-                {formatAppDateTime(event.at)} · {eventText(event)}
-              </li>
-            )}
+    <RecordTabPane
+      tabs={[
+        {
+          id: "stages",
+          label: "Etapas",
+          icon: CircleCheckBig,
+          pill: String(props.detail.stages.length),
+        },
+        {
+          id: "timeline",
+          label: "Línea de tiempo",
+          icon: TimelineEvent,
+          pill:
+            props.detail.events.length > 0
+              ? String(props.detail.events.length)
+              : undefined,
+        },
+      ]}
+      active={active()}
+      onSelect={setActive}
+    >
+      <Show
+        when={active() === "stages"}
+        fallback={
+          <div class={timelineStyles.mainContainer}>
+            <Show
+              when={groups().length > 0}
+              fallback={
+                <ActivityTabEmptyState
+                  type="emptyTimeline"
+                  title="Aún no hay actividad"
+                  subtitle="Nadie trabajó este caso todavía."
+                />
+              }
+            >
+              <EventList id={props.detail.id} groups={groups()} />
+            </Show>
+          </div>
+        }
+      >
+        <div class={styles.stages}>
+          <For each={props.detail.stages}>
+            {(stage) => <CaseStage detail={props.detail} stage={stage} />}
           </For>
-        </ol>
-      </section>
-    </Show>
+        </div>
+      </Show>
+    </RecordTabPane>
   );
 }
 

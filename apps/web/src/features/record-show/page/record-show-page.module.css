@@ -30,6 +30,22 @@
   padding: 0 var(--t-spacing-4);
 }
 
+.tabPane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.tabScroll {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 /* Mobile record pages scroll as one surface instead of splitting scroll
    ownership between the left rail and tab pane. */
 @media (max-width: 768px) {
@@ -47,7 +63,9 @@
     overflow: visible;
   }
 
-  .leftScroll {
-    overflow-y: visible;
+  .leftScroll,
+  .tabPane,
+  .tabScroll {
+    overflow: visible;
   }
 }
