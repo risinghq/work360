@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   leadFilterValue,
   leadSortValue,
+  leadViewFilter,
+  leadViewSort,
 } from "~/features/workflow/workspace/saved-view-query";
 
 describe("lead list defaults from the saved view", () => {
@@ -33,5 +35,35 @@ describe("lead list defaults from the saved view", () => {
     expect(
       leadFilterValue({ fieldKey: "priority", operand: "is", value: "high" }),
     ).toBe("all");
+  });
+
+  it("maps the URL sort and filter back to the saved view", () => {
+    expect(leadViewSort("registeredBy_asc")).toEqual({
+      fieldKey: "createdBy",
+      direction: "asc",
+    });
+    expect(leadViewSort("bogus")).toBeNull();
+    expect(leadViewFilter("updated_today")).toEqual({
+      fieldKey: "updatedAt",
+      operand: "isToday",
+      value: "",
+    });
+    expect(leadViewFilter("status:SIN RESULTADO")).toEqual({
+      fieldKey: "status",
+      operand: "is",
+      value: "SIN RESULTADO",
+    });
+    expect(leadViewFilter("all")).toBeNull();
+  });
+
+  it("round-trips every URL sort", () => {
+    for (const value of [
+      "createdAt_desc",
+      "updatedAt_asc",
+      "registeredBy_desc",
+      "ruc_asc",
+    ]) {
+      expect(leadSortValue(leadViewSort(value))).toBe(value);
+    }
   });
 });

@@ -45,3 +45,27 @@ export function leadFilterValue(filter: ViewFilterView | null): string {
   }
   return LEAD_WORKSPACE_FILTER_DEFAULT;
 }
+
+const SORT_FIELD: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(SORT_PREFIX).map(([fieldKey, prefix]) => [prefix, fieldKey]),
+);
+
+// The saved sort for a URL sort, so a member can save what the list shows.
+export function leadViewSort(value: string): ViewSortView | null {
+  const separator = value.lastIndexOf("_");
+  const fieldKey = SORT_FIELD[value.slice(0, separator)];
+  const direction = value.slice(separator + 1);
+  if (!fieldKey || (direction !== "asc" && direction !== "desc")) return null;
+  return { fieldKey, direction };
+}
+
+export function leadViewFilter(value: string): ViewFilterView | null {
+  if (value === "updated_today") {
+    return { fieldKey: "updatedAt", operand: "isToday", value: "" };
+  }
+  const [fieldKey, option] = value.split(":", 2);
+  if ((fieldKey === "stage" || fieldKey === "status") && option) {
+    return { fieldKey, operand: "is", value: option };
+  }
+  return null;
+}

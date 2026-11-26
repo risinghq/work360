@@ -1,6 +1,10 @@
 import type { Accessor } from "solid-js";
 
-import type { ViewObject } from "~/contracts/views/views";
+import type {
+  ViewFilterView,
+  ViewObject,
+  ViewSortView,
+} from "~/contracts/views/views";
 import type { DataGridReorderConfig } from "~/features/data-grid/dnd/types";
 import type { DataGridSource } from "~/features/data-grid/model/source";
 import type {
@@ -98,7 +102,19 @@ export type RecordIndexDefinition<T extends { id: string }> = Omit<
     control: RecordIndexControl<string>;
   };
   search?: RecordIndexSearchControl;
-  // The workspace's saved column layout for this object. Without it the
-  // columns keep their defaults and changes last for the page.
-  savedView?: { object: ViewObject; canSave: boolean };
+  // The workspace's saved view of this object. Without it the columns keep
+  // their defaults and changes last for the page. A sort or filter codec
+  // lets the view bar compare the list with the view and save it.
+  savedView?: {
+    object: ViewObject;
+    canSave: boolean;
+    sort?: ViewValueCodec<ViewSortView>;
+    filter?: ViewValueCodec<ViewFilterView>;
+  };
+};
+
+// Maps a sort or filter control value to the saved view and back.
+export type ViewValueCodec<TView> = {
+  read: (view: TView | null) => string;
+  write: (value: string) => TView | null;
 };

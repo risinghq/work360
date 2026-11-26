@@ -5,6 +5,7 @@ import List from "~/components/icons/list";
 
 import { useRecordIndex } from "../context/record-index-context";
 import { RecordIndexViewBar } from "./view-bar";
+import { RecordIndexViewDetails } from "./view-details";
 import { RecordIndexViewPicker } from "./view-picker";
 
 import menuStyles from "../styles/menu.module.css";
@@ -65,6 +66,7 @@ export function RecordIndexHeader() {
           <RecordIndexViewBar />
         </div>
       </div>
+      <RecordIndexViewDetails />
     </div>
   );
 }

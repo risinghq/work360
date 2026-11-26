@@ -23,6 +23,12 @@ import { LEAD_WORKSPACE_FILTER } from "./filter";
 import { ImportDropzone } from "./import-dropzone";
 import { LEAD_PAGE_SIZE, resolveLeadListQueryInput } from "./lead-list-query";
 import { useOpenLeadRecord } from "./open-row";
+import {
+  leadFilterValue,
+  leadSortValue,
+  leadViewFilter,
+  leadViewSort,
+} from "./saved-view-query";
 import { LEAD_WORKSPACE_SORT } from "./sort";
 import { useLeadIndexRoute } from "./use-lead-index-route";
 import { useRecordsImport } from "./use-records-import";
@@ -113,6 +119,8 @@ export function LeadsWorkspace() {
     savedView: {
       object: "lead",
       canSave: hasPermission(user, "view:manage"),
+      sort: { read: leadSortValue, write: leadViewSort },
+      filter: { read: leadFilterValue, write: leadViewFilter },
     },
     source: leads.source,
 
