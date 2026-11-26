@@ -5,7 +5,7 @@ import {
   type ObjectMetadata,
   type ObjectName,
 } from "~/contracts/objects/registry";
-import { formatAppDate } from "~/domain/time/app-time";
+import { formatAppDateTime } from "~/domain/time/app-time";
 import { recordFieldGroups } from "~/features/record-show/model/field-groups";
 
 const OBJECT_NAMES: ObjectName[] = Object.values(OBJECTS).map(
@@ -13,13 +13,11 @@ const OBJECT_NAMES: ObjectName[] = Object.values(OBJECTS).map(
 );
 
 describe("record field groups", () => {
-  it.each(OBJECT_NAMES)("%s groups only its own plain fields", (name) => {
+  it.each(OBJECT_NAMES)("%s groups its own fields, once each", (name) => {
     const object: ObjectMetadata = OBJECTS[name];
     const keys = (object.fieldGroups ?? []).flatMap((group) => group.fields);
     for (const key of keys) {
-      const field = object.fields.find((each) => each.key === key);
-      expect(field).toBeDefined();
-      expect(field?.type).not.toBe("RELATION");
+      expect(object.fields.map((field) => field.key)).toContain(key);
     }
     expect(new Set(keys).size).toBe(keys.length);
   });
@@ -48,7 +46,22 @@ describe("record field groups", () => {
     expect(values.get("lineOfBusiness")).toBeNull();
     expect(values.get("phone")).toBeNull();
     expect(values.get("email")).toBe("ventas@example.com");
-    expect(values.get("createdAt")).toBe(formatAppDate(createdAt));
+    expect(values.get("createdAt")).toBe(formatAppDateTime(createdAt));
+  });
+
+  it("lays a case out as Twenty lays out an opportunity", () => {
+    const groups = recordFieldGroups("case", { caseType: "Portabilidad" });
+    expect(
+      groups.map((group) => [
+        group.name,
+        group.fields.map((entry) => entry.field.key),
+      ]),
+    ).toEqual([
+      ["Caso", ["caseType", "ruc"]],
+      ["Relaciones", ["company", "holder"]],
+      ["Sistema", ["createdAt", "updatedAt"]],
+    ]);
+    expect(groups[0]?.fields[0]?.value).toBe("Portabilidad");
   });
 
   it("returns no groups for an object without a layout", () => {

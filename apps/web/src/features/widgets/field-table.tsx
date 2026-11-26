@@ -104,7 +104,7 @@ export function FieldInputValue(props: ParentProps) {
   return <div class={styles.fieldInputValue}>{props.children}</div>;
 }
 
-type RecordInlineCellEdit = {
+export type RecordInlineCellEdit = {
   ariaLabel: string;
   renderEditor: (onClose: () => void) => JSX.Element;
   onClose?: () => void;

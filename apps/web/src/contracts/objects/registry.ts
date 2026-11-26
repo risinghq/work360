@@ -61,8 +61,8 @@ export type ObjectMetadata = {
 };
 
 // The record page's fields widget, as Twenty's view field groups: the order
-// and grouping of the fields shown beside a record. Relations render as their
-// own cards, so a group lists plain fields only.
+// and grouping of the fields shown beside a record. A relation to one record
+// is a field here; a relation to many renders as its own card instead.
 export type FieldGroup<Key extends string = string> = {
   readonly name: string;
   readonly fields: ReadonlyArray<Key>;
@@ -215,6 +215,7 @@ const CASE = defineObject({
   fields: [
     { key: "legalName", label: "Empresa", type: "TEXT", icon: "building" },
     { key: "ruc", label: "RUC", type: "TEXT", icon: "list" },
+    { key: "caseType", label: "Tipo", type: "SELECT", icon: "package" },
     {
       key: "holder",
       label: "Responsable",
@@ -229,12 +230,19 @@ const CASE = defineObject({
       icon: "building",
       target: "company",
     },
+    { key: "createdAt", label: "Creado", type: "DATE_TIME", icon: "calendar" },
     {
       key: "updatedAt",
       label: "Actualizado",
       type: "DATE_TIME",
       icon: "calendar",
     },
+  ],
+  // Twenty's opportunity layout: the deal, its relations, then system fields.
+  fieldGroups: [
+    { name: "Caso", fields: ["caseType", "ruc"] },
+    { name: "Relaciones", fields: ["company", "holder"] },
+    { name: "Sistema", fields: ["createdAt", "updatedAt"] },
   ],
 });
 

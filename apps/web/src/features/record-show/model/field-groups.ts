@@ -4,7 +4,7 @@ import {
   type ObjectMetadata,
   type ObjectName,
 } from "~/contracts/objects/registry";
-import { formatAppDate } from "~/domain/time/app-time";
+import { formatAppDateTime } from "~/domain/time/app-time";
 
 export type RecordFieldValue = {
   field: FieldMetadata;
@@ -21,7 +21,7 @@ export function fieldDisplayValue(
   value: unknown,
 ): string | null {
   if (field.type === "DATE_TIME" && typeof value === "number") {
-    return formatAppDate(value);
+    return formatAppDateTime(value);
   }
   return typeof value === "string" && value !== "" ? value : null;
 }

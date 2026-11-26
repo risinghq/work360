@@ -3,15 +3,9 @@ import { revalidate, useAction } from "@solidjs/router";
 import { For, Loading, Show, createMemo, createSignal } from "solid-js";
 
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
-import Building2 from "~/components/icons/building-2";
-import CalendarClock from "~/components/icons/calendar-clock";
-import CalendarDays from "~/components/icons/calendar-days";
 import CircleCheckBig from "~/components/icons/circle-check-big";
 import Inbox from "~/components/icons/inbox";
-import List from "~/components/icons/list";
-import Package from "~/components/icons/package";
 import TimelineEvent from "~/components/icons/timeline-event";
-import UserCircle from "~/components/icons/user-circle";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import { Button } from "~/components/ui/input/button";
 import { InlineOptionsEditor } from "~/components/ui/input/inline-field-editor";
@@ -25,28 +19,24 @@ import type {
   CaseStageView,
 } from "~/contracts/cases/views";
 import { actionErrorMessage } from "~/contracts/errors";
+import { OBJECTS } from "~/contracts/objects/registry";
 import { hasPermission } from "~/domain/auth/access/rbac";
 import { formatAppDateTime } from "~/domain/time/app-time";
 import { caseTimeline } from "~/features/cases/model/case-timeline";
 import { CallWithExtension } from "~/features/extension/call-with-extension";
 import { RecordBreadcrumb } from "~/features/record-show/header/record-breadcrumb";
+import type { RecordFieldValue } from "~/features/record-show/model/field-groups";
 import { RecordPageLayout } from "~/features/record-show/page/record-page-layout";
 import { RecordTabPane } from "~/features/record-show/page/record-tab-pane";
+import {
+  RecordFieldCell,
+  RecordFieldsWidget,
+} from "~/features/record-show/sections/fields/record-fields-widget";
 import { RecordSummaryCard } from "~/features/record-show/summary-card/record-summary-card";
 import { EventList } from "~/features/record-show/tabs/timeline/components/event-list";
 import { groupEventsByMonth } from "~/features/record-show/tabs/timeline/model/group";
 import { ActivityTabEmptyState } from "~/features/side-panel/components/activity-tabs/empty-state";
-import {
-  FieldTable,
-  FieldTextValue,
-  RecordInlineCell,
-} from "~/features/widgets/field-table";
-import {
-  WidgetCard,
-  WidgetCardContent,
-  WidgetCardHeader,
-  WidgetCardTitle,
-} from "~/features/widgets/widget-card";
+import { FieldTextValue } from "~/features/widgets/field-table";
 import { caseQuery } from "~/rpc/cases/queries";
 
 import {
@@ -109,7 +99,7 @@ function CaseBreadcrumbHeader(props: { caseId: string }) {
         breadcrumb={
           <RecordBreadcrumb
             href="/cases"
-            objectLabel="Casos"
+            objectLabel={OBJECTS.case.labelPlural}
             icon={Inbox}
             name={caseDisplayName(detail())}
           />
@@ -146,56 +136,58 @@ export function CaseRecordPage(props: { caseId: string }) {
 }
 
 function CaseFields(props: { detail: CaseDetailView }) {
+  const record = createMemo(() => ({
+    caseType: props.detail.caseType.name,
+    ruc: props.detail.ruc,
+    createdAt: props.detail.createdAt,
+    updatedAt: props.detail.updatedAt,
+  }));
+
+  return (
+    <RecordFieldsWidget
+      object="case"
+      record={record()}
+      cells={{
+        company: (entry) => (
+          <CompanyField entry={entry} detail={props.detail} />
+        ),
+        holder: (entry) => <HolderField entry={entry} detail={props.detail} />,
+      }}
+    />
+  );
+}
+
+function CompanyField(props: {
+  entry: RecordFieldValue;
+  detail: CaseDetailView;
+}) {
   const { currentUser } = useAuthenticatedSession();
   const canReadCompany = () => hasPermission(currentUser(), "company:read");
 
   return (
-    <WidgetCard variant="side-column">
-      <WidgetCardHeader>
-        <WidgetCardTitle text="Campos" />
-      </WidgetCardHeader>
-      <WidgetCardContent>
-        <FieldTable>
-          <RecordInlineCell label="Empresa" icon={Building2}>
-            <Show
-              when={canReadCompany()}
-              fallback={
-                <FieldTextValue>{caseDisplayName(props.detail)}</FieldTextValue>
-              }
-            >
-              <RecordLinkChip
-                href={`/companies/${props.detail.organizationId}`}
-                name={caseDisplayName(props.detail)}
-                shape="square"
-              />
-            </Show>
-          </RecordInlineCell>
-          <RecordInlineCell label="RUC" icon={List}>
-            <FieldTextValue>{props.detail.ruc}</FieldTextValue>
-          </RecordInlineCell>
-          <RecordInlineCell label="Tipo" icon={Package}>
-            <FieldTextValue>{props.detail.caseType.name}</FieldTextValue>
-          </RecordInlineCell>
-          <HolderField detail={props.detail} />
-          <RecordInlineCell label="Creado" icon={CalendarDays}>
-            <FieldTextValue>
-              {formatAppDateTime(props.detail.createdAt)}
-            </FieldTextValue>
-          </RecordInlineCell>
-          <RecordInlineCell label="Actualizado" icon={CalendarClock}>
-            <FieldTextValue>
-              {formatAppDateTime(props.detail.updatedAt)}
-            </FieldTextValue>
-          </RecordInlineCell>
-        </FieldTable>
-      </WidgetCardContent>
-    </WidgetCard>
+    <RecordFieldCell entry={props.entry}>
+      <Show
+        when={canReadCompany()}
+        fallback={
+          <FieldTextValue>{caseDisplayName(props.detail)}</FieldTextValue>
+        }
+      >
+        <RecordLinkChip
+          href={`/companies/${props.detail.organizationId}`}
+          name={caseDisplayName(props.detail)}
+          shape="square"
+        />
+      </Show>
+    </RecordFieldCell>
   );
 }
 
 // The holder is edited in place, as Twenty edits a relation cell; the viewer
 // sees no editor when the view offers no candidates.
-function HolderField(props: { detail: CaseDetailView }) {
+function HolderField(props: {
+  entry: RecordFieldValue;
+  detail: CaseDetailView;
+}) {
   const reassign = useAction(reassignCaseMutation);
   const { enqueueSuccessSnackBar } = useSnackBar();
   const candidateName = (id: string) =>
@@ -231,9 +223,13 @@ function HolderField(props: { detail: CaseDetailView }) {
         };
 
   return (
-    <RecordInlineCell label="Responsable" icon={UserCircle} edit={edit()}>
+    <RecordFieldCell
+      entry={props.entry}
+      empty={!props.detail.holderName}
+      edit={edit()}
+    >
       <FieldTextValue>{props.detail.holderName}</FieldTextValue>
-    </RecordInlineCell>
+    </RecordFieldCell>
   );
 }
 
