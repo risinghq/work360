@@ -221,7 +221,7 @@ export function createWorkspaceApplication(
       avatars: host.platform.avatars,
       publicOrigin,
     }),
-    views: createViewsRuntime({ executor: db }),
+    views: createViewsRuntime({ executor: db, caseStages: cases.stages }),
     workflow: createWorkflowRuntime(workspace, {
       files,
       organizationEnrichment: host.organizationEnrichment,

@@ -124,10 +124,22 @@ export function moveField(
   return next;
 }
 
+// A field this page does not show, such as a column another role sees, stays
+// in the saved view after the page's own fields.
 export function toSavedFields(
   layout: ReadonlyArray<ViewLayoutField>,
+  previous: ReadonlyArray<ViewFieldView> = [],
 ): ViewFieldView[] {
-  return layout.map((field, position) => ({
+  const shown = new Set(layout.map((field) => field.key));
+  const kept = previous
+    .toSorted((a, b) => a.position - b.position)
+    .filter((field) => !shown.has(field.fieldKey))
+    .map((field) => ({
+      key: field.fieldKey,
+      width: field.width,
+      visible: field.visible,
+    }));
+  return [...layout, ...kept].map((field, position) => ({
     fieldKey: field.key,
     position,
     width: field.width,

@@ -69,7 +69,6 @@ function caseColumns(
 ): ReadonlyArray<DataGridColumn<CaseSummaryView>> {
   return [
     fieldColumn("case", "legalName", {
-      width: 240,
       renderCell: (row) => (
         <RecordLinkChip
           href={`/cases/${row.id}`}
@@ -79,7 +78,6 @@ function caseColumns(
       ),
     }),
     fieldColumn("case", "ruc", {
-      width: 120,
       renderCell: (row) => <span class={styles.meta}>{row.ruc}</span>,
     }),
     ...type.stages.map((stage) =>
@@ -93,7 +91,6 @@ function caseColumns(
       renderCell: (row) => <RecordChip name={row.holderName} shape="round" />,
     }),
     fieldColumn("case", "updatedAt", {
-      width: 160,
       renderCell: (row) => (
         <span class={styles.meta}>{formatAppDateTime(row.updatedAt)}</span>
       ),

@@ -1,4 +1,4 @@
-import { Errored, Loading } from "solid-js";
+import { createMemo, Errored, Loading } from "solid-js";
 
 import { saveCsv } from "~/browser/files/sheet";
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
@@ -11,6 +11,7 @@ import { hasPermission } from "~/domain/auth/access/rbac";
 import { createGridSource } from "~/features/data-grid/model/create-grid-source";
 import { RecordIndexScreen } from "~/features/record-index/components/screen";
 import type { RecordIndexDefinition } from "~/features/record-index/model/definition";
+import { viewQuery } from "~/rpc/views/queries";
 import { exportWorkflowLeads } from "~/rpc/workflow/files";
 import { leadDetailQuery } from "~/rpc/workflow/lead-detail";
 import { leadListQuery } from "~/rpc/workflow/lead-list";
@@ -41,9 +42,11 @@ export function LeadsWorkspace() {
   const canManageIntegrations = hasPermission(user, "integration:manage");
 
   const availableViews = viewsForRole(user);
+  const savedView = createMemo(() => viewQuery("lead"));
   const route = useLeadIndexRoute({
     availableViews,
     defaultViewId: defaultViewIdForRole(user),
+    savedView,
   });
 
   const leads = createGridSource(

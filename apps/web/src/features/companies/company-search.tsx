@@ -22,7 +22,6 @@ const SEARCH_DEBOUNCE_MS = 250;
 
 const COMPANY_COLUMNS: ReadonlyArray<DataGridColumn<CompanySummaryView>> = [
   fieldColumn("company", "legalName", {
-    width: 240,
     renderCell: (company) => (
       <RecordLinkChip
         href={`/companies/${company.id}`}
@@ -32,21 +31,17 @@ const COMPANY_COLUMNS: ReadonlyArray<DataGridColumn<CompanySummaryView>> = [
     ),
   }),
   fieldColumn("company", "ruc", {
-    width: 120,
     renderCell: (company) => (
       <span class={styles.mutedCellText}>{company.ruc}</span>
     ),
   }),
   fieldColumn("company", "lineOfBusiness", {
-    width: 200,
     renderCell: (company) => company.lineOfBusiness,
   }),
   fieldColumn("company", "phone", {
-    width: 140,
     renderCell: (company) => company.phone,
   }),
   fieldColumn("company", "email", {
-    width: 200,
     renderCell: (company) => company.email,
   }),
   fieldColumn("company", "district", {

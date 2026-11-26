@@ -2,14 +2,14 @@ import { useAction } from "@solidjs/router";
 import { createMemo, createSignal, type Accessor, type Setter } from "solid-js";
 
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
-import type { ViewFieldView } from "~/contracts/views/views";
+import type { SavedView } from "~/contracts/views/views";
 import { createDataGridSelection } from "~/features/data-grid/hooks/create-selection";
 import type { DataGridSelectionController } from "~/features/data-grid/model/selection";
 import type { DataGridSource } from "~/features/data-grid/model/source";
 import type { DataGridColumn } from "~/features/data-grid/model/types";
-import { viewFieldsQuery } from "~/rpc/views/queries";
+import { viewQuery } from "~/rpc/views/queries";
 
-import { saveViewFieldsMutation } from "../data/mutations";
+import { saveViewMutation } from "../data/mutations";
 import type {
   RecordIndexDefinition,
   RecordIndexPresentationDefinition,
@@ -89,27 +89,29 @@ function createViewLayout<T extends { id: string }>(
   definition: RecordIndexDefinition<T>,
 ) {
   const view = definition.savedView;
-  const saved = createMemo<ViewFieldView[]>(() =>
-    view ? viewFieldsQuery(view.object) : [],
+  const saved = createMemo<SavedView | null>(() =>
+    view ? viewQuery(view.object) : null,
   );
   const [draft, setDraft] = createSignal<ViewLayoutField[]>();
   const layout = createMemo(
-    () => draft() ?? mergeViewLayout(definition.columns, saved()),
+    () => draft() ?? mergeViewLayout(definition.columns, saved()?.fields ?? []),
   );
-  const save = useAction(saveViewFieldsMutation);
+  const save = useAction(saveViewMutation);
   const { enqueueErrorSnackBar } = useSnackBar();
 
   // A member who may not manage views keeps the change on this page only.
   function commit(next: ViewLayoutField[]) {
     const normalized = mergeViewLayout(definition.columns, toSavedFields(next));
     setDraft(normalized);
-    if (!view?.canSave) return;
-    save({ object: view.object, fields: toSavedFields(normalized) }).catch(
-      (caught: unknown) => {
-        console.error("Failed to save view", caught);
-        enqueueErrorSnackBar("No se pudo guardar la vista");
-      },
-    );
+    const stored = saved();
+    if (!view?.canSave || !stored) return;
+    save({
+      object: view.object,
+      view: { ...stored, fields: toSavedFields(normalized, stored.fields) },
+    }).catch((caught: unknown) => {
+      console.error("Failed to save view", caught);
+      enqueueErrorSnackBar("No se pudo guardar la vista");
+    });
   }
 
   return {

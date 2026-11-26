@@ -1,9 +1,13 @@
-import type { ViewObject } from "~/contracts/views/views";
+import type {
+  ViewFieldView,
+  ViewFilterView,
+  ViewObject,
+  ViewSortView,
+} from "~/contracts/views/views";
 
-export interface ViewFieldsTable {
+export interface SavedViewsTable {
   object: ViewObject;
-  field_key: string;
-  position: number;
-  width: number;
-  visible: boolean;
+  view_columns: ViewFieldView[];
+  view_sort: ViewSortView | null;
+  view_filter: ViewFilterView | null;
 }

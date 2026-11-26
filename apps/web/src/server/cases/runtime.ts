@@ -1,6 +1,6 @@
 import type { Kysely } from "kysely";
 
-import type { CaseTypeId } from "~/domain/ids";
+import { CaseTypeId } from "~/domain/ids";
 import type { FilesRuntime } from "~/server/files/runtime";
 import type { FileOperationContext } from "~/server/files/service/contracts";
 import type { WorkspaceDatabase } from "~/server/platform/database/types";
@@ -47,6 +47,15 @@ export function createCasesRuntime(deps: {
     types: (roleKey: string) => listCaseTypes(reads, roleKey),
     definition: (id: CaseTypeId) => reads.findCaseTypeById(id),
     definitions: () => listCaseTypeDefinitions(reads),
+    stages: async (caseTypeId: string) => {
+      const id = CaseTypeId.parse(caseTypeId);
+      if (!id.ok) return [];
+      const stored = await reads.findCaseTypeById(id.value);
+      return (stored?.definition.stages ?? []).map(({ key, name }) => ({
+        key,
+        name,
+      }));
+    },
     list: (input: Parameters<typeof listCases>[1]) => listCases(reads, input),
     waiting: (input: Parameters<typeof listWaitingCases>[1]) =>
       listWaitingCases(reads, input),

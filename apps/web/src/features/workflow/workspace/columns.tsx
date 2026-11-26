@@ -22,12 +22,9 @@ import { capitalize } from "~/shared/text";
 
 import styles from "./styles.module.css";
 
-// Twenty's layout: the field that names the record comes first and stays
-// put, then the fields a user works the record by (stage, owner, next step),
-// then the reference fields. A field takes the default width unless its
-// content needs another one.
+// The saved view orders and sizes these columns; see
+// server/views/domain/default-views.ts for the seed.
 const NAME_COLUMN = fieldColumn<"lead", LeadListRowView>("lead", "legalName", {
-  width: 240,
   renderCell: (lead) => (
     <RecordLinkChip
       href={`/records/${lead.id}`}
@@ -45,7 +42,6 @@ const STAGE_COLUMN = fieldColumn<"lead", LeadListRowView>("lead", "stage", {
 
 const REFERENCE_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
   fieldColumn("lead", "nextStep", {
-    width: 180,
     renderCell: (lead) => (
       <span class={styles.mutedCellText}>
         {leadNextStepLabel(lead.nextStep)}
@@ -57,18 +53,15 @@ const REFERENCE_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
       lead.status ? <Tag color="gray" text={capitalize(lead.status)} /> : null,
   }),
   fieldColumn("lead", "priority", {
-    width: 120,
     renderCell: (lead) =>
       lead.priority ? (
         <Tag color="gray" text={capitalize(lead.priority)} />
       ) : null,
   }),
   fieldColumn("lead", "ruc", {
-    width: 120,
     renderCell: (lead) => <span class={styles.mutedCellText}>{lead.ruc}</span>,
   }),
   fieldColumn("lead", "updatedAt", {
-    width: 120,
     renderCell: (lead) => (
       <span class={styles.mutedCellText}>{formatAppDate(lead.updatedAt)}</span>
     ),
@@ -79,7 +72,6 @@ const CREATED_BY_COLUMN = fieldColumn<"lead", LeadListRowView>(
   "lead",
   "createdBy",
   {
-    width: 160,
     renderCell: (lead) => (
       <RecordChip name={lead.createdByName} shape="round" />
     ),
@@ -90,7 +82,6 @@ function executiveColumn(
   canReassign: boolean,
 ): DataGridColumn<LeadListRowView> {
   return fieldColumn("lead", "executive", {
-    width: 160,
     renderCell: (lead) => (
       <RecordChip name={lead.executiveName} shape="round" />
     ),

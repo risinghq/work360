@@ -170,5 +170,5 @@ export interface WorkspaceDatabase {
   merchant_monthly_gpv: merchantStats.MerchantMonthlyGpvView;
   merchant_month_credit: merchantStats.MerchantMonthCreditView;
 
-  view_fields: views.ViewFieldsTable;
+  saved_views: views.SavedViewsTable;
 }

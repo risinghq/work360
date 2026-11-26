@@ -66,6 +66,21 @@ describe("layout edits", () => {
     ]);
   });
 
+  it("keeps saved fields this page does not show after its own", () => {
+    const saved = toSavedFields(layout, [
+      { fieldKey: "executive", position: 2, width: 160, visible: false },
+      { fieldKey: "ruc", position: 1, width: 90, visible: true },
+    ]);
+    expect(saved.map((field) => [field.fieldKey, field.position])).toEqual([
+      ["name", 0],
+      ["ruc", 1],
+      ["stage", 2],
+      ["owner", 3],
+      ["executive", 4],
+    ]);
+    expect(saved[4]).toMatchObject({ width: 160, visible: false });
+  });
+
   it("never hides the last visible field", () => {
     const one = [{ key: "name", width: 240, visible: true }];
     expect(toggleField(one, "name")).toEqual(one);

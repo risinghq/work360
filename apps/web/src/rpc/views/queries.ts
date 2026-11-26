@@ -1,6 +1,6 @@
 import { query } from "@solidjs/router";
 
-import type { ViewFieldView, ViewObject } from "~/contracts/views/views";
+import type { SavedView, ViewObject } from "~/contracts/views/views";
 import { requireViewObject } from "~/rpc/views/input";
 import { getApplication } from "~/server/composition/application";
 import { executeSessionServerFunction } from "~/server/platform/action";
@@ -11,11 +11,11 @@ import {
 import { Ok } from "~/shared/result";
 
 // Every member sees the workspace's saved view, so any session may read it.
-export const viewFieldsQuery = query(
-  async (object: ViewObject): Promise<ViewFieldView[]> => {
+export const viewQuery = query(
+  async (object: ViewObject): Promise<SavedView> => {
     "use server";
     return executeSessionServerFunction({
-      name: "views.fields.list",
+      name: "views.read",
       access: { kind: "session" },
       parse: () =>
         requireViewObject(
@@ -24,8 +24,8 @@ export const viewFieldsQuery = query(
           })),
         ),
       execute: async (_ctx, input) =>
-        Ok(await getApplication().views.listFields(input.object)),
+        Ok(await getApplication().views.read(input.object)),
     });
   },
-  "views.fields",
+  "views.read",
 );

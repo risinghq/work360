@@ -6,9 +6,10 @@ import {
   type Accessor,
 } from "solid-js";
 
-import { LEAD_WORKSPACE_FILTER_DEFAULT } from "./filter-query";
+import type { SavedView } from "~/contracts/views/views";
+
 import { parseLeadPageIndex } from "./lead-list-query";
-import { LEAD_WORKSPACE_SORT_DEFAULT } from "./sort-query";
+import { leadFilterValue, leadSortValue } from "./saved-view-query";
 import { resolveWorkspaceView, type WorkspaceView } from "./views";
 
 const SEARCH_DEBOUNCE_MS = 250;
@@ -34,6 +35,7 @@ type LeadIndexRoute = {
 export function useLeadIndexRoute(options: {
   availableViews: ReadonlyArray<WorkspaceView>;
   defaultViewId: string;
+  savedView: Accessor<SavedView>;
 }): LeadIndexRoute {
   const [searchParams, setSearchParams] = useSearchParams<{
     filter?: string;
@@ -51,8 +53,10 @@ export function useLeadIndexRoute(options: {
   );
   const activeViewId = () => activeView().id;
   const pageIndex = () => parseLeadPageIndex(searchParams.page);
-  const filter = () => searchParams.filter ?? LEAD_WORKSPACE_FILTER_DEFAULT;
-  const sort = () => searchParams.sort ?? LEAD_WORKSPACE_SORT_DEFAULT;
+  const filterDefault = () => leadFilterValue(options.savedView().filter);
+  const sortDefault = () => leadSortValue(options.savedView().sort);
+  const filter = () => searchParams.filter ?? filterDefault();
+  const sort = () => searchParams.sort ?? sortDefault();
   const search = () => searchParams.query ?? "";
   const [debouncedSearch, setDebouncedSearch] = createSignal(search().trim());
 
@@ -88,8 +92,7 @@ export function useLeadIndexRoute(options: {
       value: filter,
       set(value) {
         setSearchParams({
-          filter:
-            value && value !== LEAD_WORKSPACE_FILTER_DEFAULT ? value : null,
+          filter: value && value !== filterDefault() ? value : null,
           page: null,
         });
       },
@@ -98,7 +101,7 @@ export function useLeadIndexRoute(options: {
       value: sort,
       set(value) {
         setSearchParams({
-          sort: value && value !== LEAD_WORKSPACE_SORT_DEFAULT ? value : null,
+          sort: value && value !== sortDefault() ? value : null,
           page: null,
         });
       },

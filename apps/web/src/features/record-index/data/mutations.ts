@@ -1,14 +1,14 @@
 import { action } from "@solidjs/router";
 import { respond } from "@solidjs/web";
 
-import type { ViewFieldView, ViewObject } from "~/contracts/views/views";
-import { saveViewFields } from "~/rpc/views/actions";
-import { viewFieldsQuery } from "~/rpc/views/queries";
+import type { SavedView, ViewObject } from "~/contracts/views/views";
+import { saveView } from "~/rpc/views/actions";
+import { viewQuery } from "~/rpc/views/queries";
 
-export const saveViewFieldsMutation = action(
-  async (input: { object: ViewObject; fields: ViewFieldView[] }) =>
-    respond(await saveViewFields(input), {
-      revalidate: viewFieldsQuery.keyFor(input.object),
+export const saveViewMutation = action(
+  async (input: { object: ViewObject; view: SavedView }) =>
+    respond(await saveView(input), {
+      revalidate: viewQuery.keyFor(input.object),
     }),
-  "saveViewFields",
+  "saveView",
 );
