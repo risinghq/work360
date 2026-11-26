@@ -9,15 +9,14 @@
   flex: 1;
   flex-direction: column;
   min-height: 0;
+  width: 100%;
 }
 
-.searchRow {
-  display: flex;
-  padding: var(--spacing-2);
-}
-
-.searchRow > * {
-  max-width: 360px;
+.mutedCellText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--foreground-secondary);
 }
 
 .company,

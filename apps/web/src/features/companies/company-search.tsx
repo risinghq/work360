@@ -1,13 +1,19 @@
 import { useNavigate, useSearchParams } from "@solidjs/router";
-import { Loading, createEffect, createMemo, createSignal } from "solid-js";
+import { Errored, Loading, createEffect, createSignal } from "solid-js";
 
+import { Spinner } from "~/components/feedback/spinner/spinner";
 import Building2 from "~/components/icons/building-2";
+import CircleQuestionMark from "~/components/icons/circle-question-mark";
 import List from "~/components/icons/list";
 import MapPin from "~/components/icons/map";
-import { SearchInput } from "~/components/ui/input/search-input";
+import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
+import { RecordLinkChip } from "~/components/ui/record-chip/record-chip";
 import type { CompanySummaryView } from "~/contracts/companies/views";
-import { DataGrid } from "~/features/data-grid/components/grid";
+import { hasPermission } from "~/domain/auth/access/rbac";
+import { createGridSource } from "~/features/data-grid/model/create-grid-source";
 import type { DataGridColumn } from "~/features/data-grid/model/types";
+import { RecordIndexScreen } from "~/features/record-index/components/screen";
+import type { RecordIndexDefinition } from "~/features/record-index/model/definition";
 import { companiesQuery } from "~/rpc/companies/queries";
 
 import styles from "./companies.module.css";
@@ -19,37 +25,43 @@ const COMPANY_COLUMNS = [
     key: "legalName",
     label: "Empresa",
     icon: Building2,
-    minWidth: 260,
-    grow: true,
+    width: 240,
     sticky: true,
-    renderCell: (company) => company.legalName ?? company.ruc,
+    renderCell: (company) => (
+      <RecordLinkChip
+        href={`/companies/${company.id}`}
+        name={company.legalName ?? company.ruc}
+        shape="square"
+      />
+    ),
   },
   {
     key: "ruc",
     label: "RUC",
-    icon: List,
-    width: 130,
-    renderCell: (company) => company.ruc,
+    icon: CircleQuestionMark,
+    width: 120,
+    renderCell: (company) => (
+      <span class={styles.mutedCellText}>{company.ruc}</span>
+    ),
   },
   {
     key: "lineOfBusiness",
     label: "Rubro",
     icon: List,
-    minWidth: 200,
-    grow: true,
+    width: 220,
     renderCell: (company) => company.lineOfBusiness,
   },
   {
     key: "district",
     label: "Distrito",
     icon: MapPin,
-    width: 160,
     renderCell: (company) => company.district,
   },
 ] satisfies ReadonlyArray<DataGridColumn<CompanySummaryView>>;
 
 export function CompanySearch() {
   const navigate = useNavigate();
+  const { currentUser } = useAuthenticatedSession();
   const [search, setSearch] = useSearchParams<{ q?: string }>();
   const text = () => search.q ?? "";
   const [debounced, setDebounced] = createSignal(text().trim());
@@ -67,42 +79,43 @@ export function CompanySearch() {
     return () => clearTimeout(timeout);
   });
 
-  const companies = createMemo(() => companiesQuery(debounced()));
-  const emptyState = () =>
-    debounced()
-      ? "Sin resultados. Revisa el RUC o prueba con otra parte de la razón social."
-      : "Las empresas de tus casos, llamadas y campañas aparecen aquí.";
-
-  const renderGrid = (
-    rows: ReadonlyArray<CompanySummaryView>,
-    empty: string,
-  ) => (
-    <DataGrid
-      ariaLabel="Empresas"
-      columns={COMPANY_COLUMNS}
-      emptyState={empty}
-      onRowOpen={(company) => navigate(`/companies/${company.id}`)}
-      rowId={(company) => company.id}
-      rowOpenIndicator="route"
-      source={{ rows }}
-    />
+  const companies = createGridSource(
+    () => companiesQuery(debounced()),
+    (rows) => ({ rows }),
   );
 
+  const recordIndex = {
+    id: "companies",
+    title: () => "Empresas",
+    ariaLabel: "Empresas",
+    class: styles.index,
+    object: { label: "Empresas", icon: Building2, color: "blue" },
+    columns: COMPANY_COLUMNS,
+    savedView: {
+      object: "company",
+      canSave: hasPermission(currentUser(), "view:manage"),
+    },
+    source: companies.source,
+    search: {
+      value: text,
+      placeholder: "Buscar por RUC o razón social",
+      set: (value) => setSearch({ q: value || null }, { replace: true }),
+    },
+    onRowOpen: (company) => navigate(`/companies/${company.id}`),
+    rowOpenIndicator: "route",
+    emptyState: {
+      icon: Building2,
+      title: "No hay empresas",
+      description:
+        "Las empresas de tus casos, llamadas y campañas aparecen aquí. Busca por RUC o razón social.",
+    },
+  } satisfies RecordIndexDefinition<CompanySummaryView>;
+
   return (
-    <div class={styles.index}>
-      <div class={styles.searchRow}>
-        <SearchInput
-          value={text()}
-          onValueChange={(value) =>
-            setSearch({ q: value || null }, { replace: true })
-          }
-          placeholder="Buscar por RUC o razón social"
-          aria-label="Buscar empresas"
-        />
-      </div>
-      <Loading fallback={renderGrid([], "Cargando empresas...")}>
-        {renderGrid(companies(), emptyState())}
-      </Loading>
-    </div>
+    <Loading fallback={<Spinner size="lg" />}>
+      <Errored fallback={<p>No se pudieron cargar las empresas.</p>}>
+        <RecordIndexScreen definition={recordIndex} />
+      </Errored>
+    </Loading>
   );
 }
