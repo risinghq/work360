@@ -136,8 +136,18 @@
   font-size: 13px;
 }
 
-.headerRow > :last-child,
-.bodyRow > :last-child,
+/* Twenty closes the last column with a border and carries each row's line
+   to the grid's edge, so the space right of the columns reads as an empty
+   filler column. The row paints the line under the cells it has no cell
+   for. */
+.headerRow,
+.bodyRow {
+  background-image: linear-gradient(var(--border), var(--border));
+  background-position: bottom;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+}
+
 .actionRow > :last-child {
   border-right: none;
 }
