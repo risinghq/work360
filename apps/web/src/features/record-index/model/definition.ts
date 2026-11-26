@@ -49,14 +49,6 @@ export type RecordIndexEmptyState = {
   description?: string;
 };
 
-export type RecordIndexPagination = {
-  currentPage: Accessor<number>;
-  pageSize: number;
-  totalCount: Accessor<number>;
-  onNextPage: () => void;
-  onPreviousPage: () => void;
-};
-
 export type RecordIndexPresentationDefinition = {
   id: string;
   title: Accessor<string>;
@@ -89,7 +81,6 @@ export type RecordIndexDefinition<T extends { id: string }> = Omit<
   onRowOpen?: (row: T) => void;
   onRowIntent?: (rowId: string) => void;
   rowOpenIndicator?: DataGridRowOpenIndicator;
-  pagination?: RecordIndexPagination;
   loadMore?: Accessor<DataGridLoadMore>;
   filter?: {
     catalog: RecordIndexFilterCatalog;

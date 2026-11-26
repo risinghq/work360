@@ -40,21 +40,6 @@ function SurfaceMessage(props: { content: JSX.Element }) {
 export function DataGridSurface<T>(props: DataGridSurfaceProps<T>) {
   const grid = useDataGrid();
   const rows = () => props.source.rows;
-  const paginationStart = () =>
-    (props.pagination?.currentPage ?? 0) * (props.pagination?.pageSize ?? 0) +
-    1;
-  const paginationEnd = () =>
-    Math.min(
-      (props.pagination?.currentPage ?? 0) * (props.pagination?.pageSize ?? 0) +
-        rows().length,
-      props.pagination?.totalCount ?? rows().length,
-    );
-  const hasPreviousPage = () => (props.pagination?.currentPage ?? 0) > 0;
-  const hasNextPage = () =>
-    props.pagination !== undefined &&
-    paginationEnd() < props.pagination.totalCount;
-  const shouldShowPagination = () =>
-    props.pagination !== undefined && rows().length > 0;
   const selectionLeft = () => (grid.reorder ? REORDER_COLUMN_WIDTH : 0);
   const stickyLeft = () =>
     selectionLeft() + (grid.selection ? SELECTION_COLUMN_WIDTH : 0);
@@ -63,13 +48,8 @@ export function DataGridSurface<T>(props: DataGridSurfaceProps<T>) {
     Number(!!grid.reorder) +
     Number(!!grid.selection) +
     Number(props.onAddColumn !== undefined);
-  const rowIndexOffset = () =>
-    (props.pagination?.currentPage ?? 0) * (props.pagination?.pageSize ?? 0);
   const dataRowCount = () =>
-    Math.max(
-      props.source.totalCount ?? rows().length,
-      rowIndexOffset() + rows().length,
-    );
+    Math.max(props.source.totalCount ?? rows().length, rows().length);
   const ariaRowCount = () =>
     dataRowCount() + 1 + Number(props.actionRow !== undefined);
   const rowIntent = createRowIntent(() => props.onRowIntent);
@@ -115,7 +95,6 @@ export function DataGridSurface<T>(props: DataGridSurfaceProps<T>) {
                 onRowOpen={props.onRowOpen}
                 rowId={props.rowId}
                 rowOpenIndicator={props.rowOpenIndicator}
-                rowIndexOffset={rowIndexOffset()}
                 rows={rows()}
                 totalRowCount={dataRowCount()}
                 stickyColumnIndex={props.stickyColumnIndex}
@@ -131,33 +110,6 @@ export function DataGridSurface<T>(props: DataGridSurfaceProps<T>) {
             />
           </section>
         </div>
-
-        <Show when={shouldShowPagination()}>
-          <div class={styles.paginationBar}>
-            <span class={styles.paginationMeta}>
-              {paginationStart()}-{paginationEnd()} de{" "}
-              {props.pagination?.totalCount ?? rows().length}
-            </span>
-            <div class={styles.paginationControls}>
-              <button
-                type="button"
-                class={styles.paginationButton}
-                disabled={!hasPreviousPage()}
-                onClick={() => props.pagination?.onPreviousPage()}
-              >
-                Anterior
-              </button>
-              <button
-                type="button"
-                class={styles.paginationButton}
-                disabled={!hasNextPage()}
-                onClick={() => props.pagination?.onNextPage()}
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
-        </Show>
       </div>
     </div>
   );

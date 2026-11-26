@@ -424,48 +424,6 @@
   width: 100%;
 }
 
-.paginationBar {
-  align-items: center;
-  border-top: 1px solid var(--border);
-  color: var(--foreground-tertiary);
-  display: flex;
-  font-size: 12px;
-  gap: 12px;
-  justify-content: space-between;
-  min-height: 36px;
-  padding: 0 8px;
-}
-
-.paginationMeta {
-  font-size: 12px;
-}
-
-.paginationControls {
-  display: inline-flex;
-  gap: 8px;
-}
-
-.paginationButton {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--foreground-secondary);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 12px;
-  min-height: 24px;
-  padding: 0 10px;
-}
-
-.paginationButton:hover:not(:disabled) {
-  background: var(--background-transparent-light);
-}
-
-.paginationButton:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
 /* Sticky controls stay above scrollable header cells while columns move under them. */
 .headerRow .checkboxCell,
 .headerRow .reorderCell,

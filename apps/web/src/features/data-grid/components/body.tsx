@@ -14,7 +14,6 @@ export function DataGridBody<T>(props: {
   onRowOpen?: (row: T) => void;
   rowId: (row: T) => string;
   rowOpenIndicator?: DataGridRowOpenIndicator;
-  rowIndexOffset: number;
   rows: ReadonlyArray<T>;
   stickyColumnIndex: number;
   totalRowCount: number;
@@ -29,7 +28,7 @@ export function DataGridBody<T>(props: {
             row={row()}
             rowId={props.rowId}
             rowOpenIndicator={props.rowOpenIndicator}
-            ariaRowIndex={props.rowIndexOffset + index() + 2}
+            ariaRowIndex={index() + 2}
             rowOrderIndex={index()}
             stickyColumnIndex={props.stickyColumnIndex}
           />

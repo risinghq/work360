@@ -15,7 +15,8 @@ import {
   type ViewMember,
 } from "./views";
 
-export const LEAD_PAGE_SIZE = 100;
+// Twenty's DEFAULT_QUERY_PAGE_SIZE: the grid loads this many more on scroll.
+export const LEAD_PAGE_SIZE = 30;
 
 // Keep raw route inputs un-defaulted so every caller resolves the same cache key.
 type LeadListQueryParams = {
@@ -23,15 +24,10 @@ type LeadListQueryParams = {
   filter: string | undefined;
   sort: string | undefined;
   search: string | undefined;
-  pageIndex: number;
 };
 
-export function parseLeadPageIndex(value: string | undefined): number {
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : 0;
-}
-
-// Explicit URL filters override the selected view's defaults.
+// Explicit URL filters override the selected view's defaults. The input asks
+// for the first page; the grid moves `offset` as it loads more.
 export function resolveLeadListQueryInput(
   params: LeadListQueryParams,
   user: ViewMember & { id: string },
@@ -52,6 +48,6 @@ export function resolveLeadListQueryInput(
     ),
     anyFieldSearch: params.search?.trim() || undefined,
     limit: LEAD_PAGE_SIZE,
-    offset: params.pageIndex * LEAD_PAGE_SIZE,
+    offset: 0,
   };
 }

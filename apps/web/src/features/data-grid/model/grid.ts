@@ -10,14 +10,6 @@ import type {
   DataGridRowOpenIndicator,
 } from "./types";
 
-export type DataGridPagination = {
-  currentPage: number;
-  pageSize: number;
-  totalCount: number;
-  onNextPage: () => void;
-  onPreviousPage: () => void;
-};
-
 export type DataGridProps<T> = {
   actionRow?: DataGridActionRowConfig;
   ariaLabel: string;
@@ -30,7 +22,6 @@ export type DataGridProps<T> = {
   onRowOpen?: (row: T) => void;
   // The pointer rests on a row: warm what onRowOpen will read.
   onRowIntent?: (rowId: string) => void;
-  pagination?: DataGridPagination;
   reorder?: DataGridReorderConfig<T>;
   rowId: (row: T) => string;
   rowOpenIndicator?: DataGridRowOpenIndicator;

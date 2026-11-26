@@ -31,18 +31,6 @@ export function RecordIndexTableContainer<T extends { id: string }>(props: {
       onColumnResize={props.controller.columns.resize}
       onRowOpen={props.controller.definition.onRowOpen}
       onRowIntent={props.controller.definition.onRowIntent}
-      pagination={
-        props.controller.definition.pagination
-          ? {
-              currentPage: props.controller.definition.pagination.currentPage(),
-              pageSize: props.controller.definition.pagination.pageSize,
-              totalCount: props.controller.definition.pagination.totalCount(),
-              onNextPage: props.controller.definition.pagination.onNextPage,
-              onPreviousPage:
-                props.controller.definition.pagination.onPreviousPage,
-            }
-          : undefined
-      }
       loadMore={props.controller.definition.loadMore?.()}
       reorder={props.controller.definition.reorder}
       rowId={(row) => row.id}

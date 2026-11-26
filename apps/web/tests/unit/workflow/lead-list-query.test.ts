@@ -1,17 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { BASELINE_PERMISSIONS, type Role } from "~/domain/auth/access/rbac";
-import {
-  parseLeadPageIndex,
-  resolveLeadListQueryInput,
-} from "~/features/workflow/workspace/lead-list-query";
+import { resolveLeadListQueryInput } from "~/features/workflow/workspace/lead-list-query";
 
 function viewMember(role: Role) {
   return { id: "user-1", role, permissions: BASELINE_PERMISSIONS[role] };
 }
 
 describe("resolveLeadListQueryInput", () => {
-  it("applies role defaults and pagination in one query input", () => {
+  it("applies role defaults and asks for the first page", () => {
     expect(
       resolveLeadListQueryInput(
         {
@@ -19,7 +16,6 @@ describe("resolveLeadListQueryInput", () => {
           filter: undefined,
           sort: undefined,
           search: undefined,
-          pageIndex: 2,
         },
         viewMember("executive"),
       ),
@@ -28,8 +24,8 @@ describe("resolveLeadListQueryInput", () => {
       sortBy: "createdAt",
       sortDirection: "desc",
       anyFieldSearch: undefined,
-      limit: 100,
-      offset: 200,
+      limit: 30,
+      offset: 0,
     });
   });
 
@@ -41,7 +37,6 @@ describe("resolveLeadListQueryInput", () => {
           filter: "stage:LIVE",
           sort: "ruc_asc",
           search: "  Acme  ",
-          pageIndex: 0,
         },
         viewMember("back_office"),
       ),
@@ -50,20 +45,8 @@ describe("resolveLeadListQueryInput", () => {
       sortBy: "ruc",
       sortDirection: "asc",
       anyFieldSearch: "Acme",
-      limit: 100,
+      limit: 30,
       offset: 0,
     });
-  });
-});
-
-describe("parseLeadPageIndex", () => {
-  it.each([
-    [undefined, 0],
-    ["", 0],
-    ["-1", 0],
-    ["1.5", 0],
-    ["3", 3],
-  ])("parses %s as page %s", (value, expected) => {
-    expect(parseLeadPageIndex(value)).toBe(expected);
   });
 });

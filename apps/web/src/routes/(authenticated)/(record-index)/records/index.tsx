@@ -1,9 +1,6 @@
 import { type RouteDefinition } from "@solidjs/router";
 
-import {
-  parseLeadPageIndex,
-  resolveLeadListQueryInput,
-} from "~/features/workflow/workspace/lead-list-query";
+import { resolveLeadListQueryInput } from "~/features/workflow/workspace/lead-list-query";
 import { LeadsWorkspace } from "~/features/workflow/workspace/leads-workspace";
 import {
   leadFilterValue,
@@ -33,7 +30,6 @@ export const route = {
             firstQueryValue(location.query.sort) ??
             leadSortValue(savedView.sort),
           search: firstQueryValue(location.query.query),
-          pageIndex: parseLeadPageIndex(firstQueryValue(location.query.page)),
         },
         user,
       ),

@@ -8,7 +8,6 @@ import {
 
 import type { SavedView } from "~/contracts/views/views";
 
-import { parseLeadPageIndex } from "./lead-list-query";
 import { leadFilterValue, leadSortValue } from "./saved-view-query";
 import { resolveWorkspaceView, type WorkspaceView } from "./views";
 
@@ -25,11 +24,6 @@ type LeadIndexRoute = {
   filter: RouteControl<string | undefined>;
   sort: RouteControl<string | undefined>;
   search: RouteControl<string> & { query: Accessor<string | undefined> };
-  page: {
-    index: Accessor<number>;
-    next: () => void;
-    previous: () => void;
-  };
 };
 
 export function useLeadIndexRoute(options: {
@@ -39,7 +33,6 @@ export function useLeadIndexRoute(options: {
 }): LeadIndexRoute {
   const [searchParams, setSearchParams] = useSearchParams<{
     filter?: string;
-    page?: string;
     query?: string;
     sort?: string;
     view?: string;
@@ -52,7 +45,6 @@ export function useLeadIndexRoute(options: {
     ),
   );
   const activeViewId = () => activeView().id;
-  const pageIndex = () => parseLeadPageIndex(searchParams.page);
   const filterDefault = () => leadFilterValue(options.savedView().filter);
   const sortDefault = () => leadSortValue(options.savedView().sort);
   const filter = () => searchParams.filter ?? filterDefault();
@@ -83,7 +75,6 @@ export function useLeadIndexRoute(options: {
       set(viewId) {
         setSearchParams({
           view: viewId === options.defaultViewId ? null : viewId,
-          page: null,
           query: null,
         });
       },
@@ -93,7 +84,6 @@ export function useLeadIndexRoute(options: {
       set(value) {
         setSearchParams({
           filter: value && value !== filterDefault() ? value : null,
-          page: null,
         });
       },
     },
@@ -102,7 +92,6 @@ export function useLeadIndexRoute(options: {
       set(value) {
         setSearchParams({
           sort: value && value !== sortDefault() ? value : null,
-          page: null,
         });
       },
     },
@@ -110,15 +99,7 @@ export function useLeadIndexRoute(options: {
       value: search,
       query: () => debouncedSearch() || undefined,
       set(value) {
-        setSearchParams({ query: value || null, page: null });
-      },
-    },
-    page: {
-      index: pageIndex,
-      next: () => setSearchParams({ page: String(pageIndex() + 1) }),
-      previous() {
-        const previous = Math.max(0, pageIndex() - 1);
-        setSearchParams({ page: previous === 0 ? null : String(previous) });
+        setSearchParams({ query: value || null });
       },
     },
   };

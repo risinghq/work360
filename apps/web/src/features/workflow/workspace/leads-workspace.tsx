@@ -8,7 +8,7 @@ import List from "~/components/icons/list";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import type { LeadListRowView } from "~/contracts/workflow/views";
 import { hasPermission } from "~/domain/auth/access/rbac";
-import { createGridSource } from "~/features/data-grid/model/create-grid-source";
+import { createPagedGridSource } from "~/features/data-grid/model/create-paged-grid-source";
 import { RecordIndexScreen } from "~/features/record-index/components/screen";
 import type { RecordIndexDefinition } from "~/features/record-index/model/definition";
 import { viewQuery } from "~/rpc/views/queries";
@@ -55,34 +55,26 @@ export function LeadsWorkspace() {
     savedView,
   });
 
-  const leads = createGridSource(
-    () =>
-      leadListQuery(
-        resolveLeadListQueryInput(
-          {
-            view: route.view.value(),
-            filter: route.filter.value(),
-            sort: route.sort.value(),
-            search: route.search.query(),
-            pageIndex: route.page.index(),
-          },
-          {
-            id: user.id,
-            role: user.role,
-            permissions: user.permissions,
-          },
-        ),
-      ),
-    (data) => ({
-      rows: data.rows,
-      totalCount: data.totalCount,
-    }),
+  const input = createMemo(() =>
+    resolveLeadListQueryInput(
+      {
+        view: route.view.value(),
+        filter: route.filter.value(),
+        sort: route.sort.value(),
+        search: route.search.query(),
+      },
+      {
+        id: user.id,
+        role: user.role,
+        permissions: user.permissions,
+      },
+    ),
   );
-
-  const totalCount = () => leads.data()?.totalCount ?? 0;
-  const hasPreviousPage = () => route.page.index() > 0;
-  const hasNextPage = () =>
-    (route.page.index() + 1) * LEAD_PAGE_SIZE < totalCount();
+  const leads = createPagedGridSource({
+    pageSize: LEAD_PAGE_SIZE,
+    resetKey: input,
+    load: (limit, offset) => leadListQuery({ ...input(), limit, offset }),
+  });
 
   const openLeadRecord = useOpenLeadRecord();
   const { enqueueWarningSnackBar } = useSnackBar();
@@ -123,27 +115,12 @@ export function LeadsWorkspace() {
       filter: { read: leadFilterValue, write: leadViewFilter },
     },
     source: leads.source,
+    loadMore: leads.loadMore,
 
     search: {
       value: route.search.value,
       placeholder: "RUC, cliente, dirección o ejecutivo",
       set: route.search.set,
-    },
-
-    pagination: {
-      currentPage: route.page.index,
-      pageSize: LEAD_PAGE_SIZE,
-      totalCount,
-      onNextPage: () => {
-        if (hasNextPage()) {
-          route.page.next();
-        }
-      },
-      onPreviousPage: () => {
-        if (hasPreviousPage()) {
-          route.page.previous();
-        }
-      },
     },
 
     onRowOpen: openLeadRecord,
