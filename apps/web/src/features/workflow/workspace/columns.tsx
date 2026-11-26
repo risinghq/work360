@@ -1,7 +1,7 @@
 import Building2 from "~/components/icons/building-2";
 import CalendarDays from "~/components/icons/calendar-days";
-import CircleQuestionMark from "~/components/icons/circle-question-mark";
 import Info from "~/components/icons/info";
+import List from "~/components/icons/list";
 import Package from "~/components/icons/package";
 import Target from "~/components/icons/target";
 import TimelineEvent from "~/components/icons/timeline-event";
@@ -30,39 +30,43 @@ import { capitalize } from "~/shared/text";
 import styles from "./styles.module.css";
 
 // Twenty's layout: the field that names the record comes first and stays
-// put, the other fields take the default width unless their content needs
-// another one.
-const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
+// put, then the fields a user works the record by (stage, owner, next step),
+// then the reference fields. A field takes the default width unless its
+// content needs another one.
+const NAME_COLUMN: DataGridColumn<LeadListRowView> = {
+  key: "legalName",
+  label: "Razón social",
+  icon: Building2,
+  width: 240,
+  sticky: true,
+  renderCell: (lead) => (
+    <RecordLinkChip
+      href={`/records/${lead.id}`}
+      name={lead.legalName ?? lead.ruc}
+      shape="square"
+    />
+  ),
+};
+
+const STAGE_COLUMN: DataGridColumn<LeadListRowView> = {
+  key: "stage",
+  label: "Etapa",
+  icon: Target,
+  renderCell: (lead) => (
+    <Tag color={leadStageColor(lead.stage)} text={leadStageLabel(lead.stage)} />
+  ),
+};
+
+const REFERENCE_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
   {
-    key: "legalName",
-    label: "Razón social",
-    icon: Building2,
-    width: 240,
-    sticky: true,
+    key: "nextStep",
+    label: "Siguiente paso",
+    icon: TimelineEvent,
+    width: 180,
     renderCell: (lead) => (
-      <RecordLinkChip
-        href={`/records/${lead.id}`}
-        name={lead.legalName ?? lead.ruc}
-        shape="square"
-      />
-    ),
-  },
-  {
-    key: "ruc",
-    label: "RUC",
-    icon: CircleQuestionMark,
-    width: 120,
-    renderCell: (lead) => <span class={styles.mutedCellText}>{lead.ruc}</span>,
-  },
-  {
-    key: "stage",
-    label: "Etapa",
-    icon: Target,
-    renderCell: (lead) => (
-      <Tag
-        color={leadStageColor(lead.stage)}
-        text={leadStageLabel(lead.stage)}
-      />
+      <span class={styles.mutedCellText}>
+        {leadNextStepLabel(lead.nextStep)}
+      </span>
     ),
   },
   {
@@ -76,26 +80,24 @@ const COMMON_COLUMNS: ReadonlyArray<DataGridColumn<LeadListRowView>> = [
     key: "priority",
     label: "Prioridad",
     icon: Package,
+    width: 120,
     renderCell: (lead) =>
       lead.priority ? (
         <Tag color="gray" text={capitalize(lead.priority)} />
       ) : null,
   },
   {
-    key: "nextStep",
-    label: "Siguiente paso",
-    icon: TimelineEvent,
-    width: 180,
-    renderCell: (lead) => (
-      <span class={styles.mutedCellText}>
-        {leadNextStepLabel(lead.nextStep)}
-      </span>
-    ),
+    key: "ruc",
+    label: "RUC",
+    icon: List,
+    width: 120,
+    renderCell: (lead) => <span class={styles.mutedCellText}>{lead.ruc}</span>,
   },
   {
     key: "updatedAt",
     label: "Actualizado",
     icon: CalendarDays,
+    width: 120,
     renderCell: (lead) => (
       <span class={styles.mutedCellText}>{formatAppDate(lead.updatedAt)}</span>
     ),
@@ -106,6 +108,7 @@ const CREATED_BY_COLUMN: DataGridColumn<LeadListRowView> = {
   key: "createdBy",
   label: "Registrado por",
   icon: User,
+  width: 160,
   renderCell: (lead) => <RecordChip name={lead.createdByName} shape="round" />,
 };
 
@@ -116,6 +119,7 @@ function executiveColumn(
     key: "executive",
     label: "Ejecutivo",
     icon: User,
+    width: 160,
     renderCell: (lead) => (
       <RecordChip name={lead.executiveName} shape="round" />
     ),
@@ -139,14 +143,11 @@ function executiveColumn(
 export function workspaceColumnsForRole(
   member: PermissionHolder & { role: Role },
 ): ReadonlyArray<DataGridColumn<LeadListRowView>> {
-  const columns: DataGridColumn<LeadListRowView>[] = [
-    ...COMMON_COLUMNS,
+  return [
+    NAME_COLUMN,
+    STAGE_COLUMN,
     executiveColumn(hasPermission(member, "lead:reassign")),
+    ...REFERENCE_COLUMNS,
+    ...(member.role === "back_office" ? [CREATED_BY_COLUMN] : []),
   ];
-
-  if (member.role === "back_office") {
-    columns.push(CREATED_BY_COLUMN);
-  }
-
-  return columns;
 }
