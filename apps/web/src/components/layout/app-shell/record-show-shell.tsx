@@ -1,23 +1,15 @@
-import { useParams, type RouteSectionProps } from "@solidjs/router";
-import { Loading } from "solid-js";
+import { type JSX } from "@solidjs/web";
+import { Loading, type ParentProps } from "solid-js";
 
 import { PageCardLayout } from "~/components/ui/layout/page-card/page-card-layout";
-import { RecordShowHeader } from "~/features/record-show/header/record-show-header";
-import { RecordShowHeaderActions } from "~/features/record-show/header/record-show-header-actions";
 
 import { RecordShowShellSkeleton } from "./skeletons/record-show-shell-skeleton";
 
-export function RecordShowShell(props: RouteSectionProps) {
-  const params = useParams<{ recordId: string }>();
-
+// The record page frame every object shares: a page card whose header holds
+// the object's breadcrumb and actions, and the record body below it.
+export function RecordShowShell(props: ParentProps<{ header: JSX.Element }>) {
   return (
-    <PageCardLayout
-      header={
-        <RecordShowHeader leadId={params.recordId}>
-          <RecordShowHeaderActions leadId={params.recordId} />
-        </RecordShowHeader>
-      }
-    >
+    <PageCardLayout header={props.header}>
       <Loading fallback={<RecordShowShellSkeleton />}>{props.children}</Loading>
     </PageCardLayout>
   );

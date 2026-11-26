@@ -1,6 +1,9 @@
 import { type RouteDefinition, useParams } from "@solidjs/router";
 
+import { RecordShowShell } from "~/components/layout/app-shell/record-show-shell";
 import { leadNavigationQuery } from "~/features/record-show/header/lead-navigation";
+import { RecordShowHeader } from "~/features/record-show/header/record-show-header";
+import { RecordShowHeaderActions } from "~/features/record-show/header/record-show-header-actions";
 import { RecordShowPage } from "~/features/record-show/page/record-show-page";
 import { leadDetailQuery } from "~/rpc/workflow/lead-detail";
 
@@ -24,5 +27,15 @@ export const route = {
 export default function RecordShowRoute() {
   const params = useParams<{ recordId: string }>();
 
-  return <RecordShowPage recordId={params.recordId} />;
+  return (
+    <RecordShowShell
+      header={
+        <RecordShowHeader leadId={params.recordId}>
+          <RecordShowHeaderActions leadId={params.recordId} />
+        </RecordShowHeader>
+      }
+    >
+      <RecordShowPage recordId={params.recordId} />
+    </RecordShowShell>
+  );
 }

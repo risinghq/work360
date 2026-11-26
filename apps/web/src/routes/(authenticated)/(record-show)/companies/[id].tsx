@@ -1,7 +1,10 @@
 import { type RouteDefinition, useParams } from "@solidjs/router";
 
-import { AppPage } from "~/components/layout/page";
-import { CompanyDetail } from "~/features/companies/company-detail";
+import { RecordShowShell } from "~/components/layout/app-shell/record-show-shell";
+import {
+  CompanyRecordHeader,
+  CompanyRecordPage,
+} from "~/features/companies/company-record-page";
 import { companyQuery } from "~/rpc/companies/queries";
 
 export const route = {
@@ -15,8 +18,8 @@ export const route = {
 export default function CompanyPage() {
   const params = useParams<{ id: string }>();
   return (
-    <AppPage width="medium">
-      <CompanyDetail companyId={params.id} />
-    </AppPage>
+    <RecordShowShell header={<CompanyRecordHeader companyId={params.id} />}>
+      <CompanyRecordPage companyId={params.id} />
+    </RecordShowShell>
   );
 }

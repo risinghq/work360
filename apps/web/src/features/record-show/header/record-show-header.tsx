@@ -6,6 +6,7 @@ import { PageCardHeader } from "~/components/ui/layout/page-card/page-card-heade
 import { leadDetailQuery } from "~/rpc/workflow/lead-detail";
 
 import { useLeadNavigation } from "./lead-navigation";
+import { RecordBreadcrumb } from "./record-breadcrumb";
 
 import styles from "./record-show-header.module.css";
 
@@ -34,30 +35,16 @@ export function RecordShowHeader(
 
       <PageCardHeader
         breadcrumb={
-          <span class={styles.breadcrumb}>
-            <a
-              href="/records"
-              class={styles.breadcrumbLink}
-              aria-label="Volver a Registros"
-            >
-              <span class={styles.breadcrumbPrefix}>
-                <span class={styles.objectIcon}>
-                  <Building2 size={16} />
-                </span>
-                <span>Registros</span>
-              </span>
-            </a>
-
-            <span class={styles.breadcrumbSep}>/</span>
-
-            <span class={styles.breadcrumbCurrent} title={displayName()}>
-              {displayName()}
-            </span>
-
+          <RecordBreadcrumb
+            href="/records"
+            objectLabel="Registros"
+            icon={Building2}
+            name={displayName()}
+          >
             <Loading fallback={null}>
               <PaginationInfo leadId={props.leadId} />
             </Loading>
-          </span>
+          </RecordBreadcrumb>
         }
         actionButton={props.children}
       />

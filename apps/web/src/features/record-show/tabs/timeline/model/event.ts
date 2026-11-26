@@ -1,5 +1,7 @@
 import { type LeadTimelineItem } from "~/contracts/workflow/views";
 
+export type EventKind = LeadTimelineItem["kind"] | "call" | "visit";
+
 export type Event = {
   id: string;
   createdAt: number;
@@ -8,7 +10,7 @@ export type Event = {
   action: string;
   subject: string;
   description?: string;
-  kind: LeadTimelineItem["kind"];
+  kind: EventKind;
 };
 
 export function normalizeLeadEvent(item: LeadTimelineItem): Event {

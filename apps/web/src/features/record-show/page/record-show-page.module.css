@@ -11,6 +11,25 @@
   width: 100%;
 }
 
+.leftPanel {
+  background: var(--background);
+  border-bottom-left-radius: var(--radius-md);
+  border-right: 1px solid var(--border);
+  border-top-left-radius: var(--radius-md);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.leftScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--t-spacing-4);
+}
+
 /* Mobile record pages scroll as one surface instead of splitting scroll
    ownership between the left rail and tab pane. */
 @media (max-width: 768px) {
@@ -18,5 +37,17 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
     overflow-y: auto;
+  }
+
+  .leftPanel {
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    border-right: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .leftScroll {
+    overflow-y: visible;
   }
 }
