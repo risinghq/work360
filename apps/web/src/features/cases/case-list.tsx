@@ -2,7 +2,6 @@ import { useAction, useNavigate, useSearchParams } from "@solidjs/router";
 import { Errored, Loading, Show, createMemo } from "solid-js";
 
 import { saveSheet } from "~/browser/files/sheet";
-import { EmptyState } from "~/components/feedback/empty-state/empty";
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
 import { Spinner } from "~/components/feedback/spinner/spinner";
 import Inbox from "~/components/icons/inbox";
@@ -67,7 +66,7 @@ function caseViews(types: ReadonlyArray<CaseTypeView>): CaseView[] {
 }
 
 function caseColumns(
-  type: CaseTypeView,
+  stages: CaseTypeView["stages"],
 ): ReadonlyArray<DataGridColumn<CaseSummaryView>> {
   return [
     fieldColumn("case", "legalName", {
@@ -82,7 +81,7 @@ function caseColumns(
     fieldColumn("case", "ruc", {
       renderCell: (row) => <span class={styles.meta}>{row.ruc}</span>,
     }),
-    ...type.stages.map((stage) =>
+    ...stages.map((stage) =>
       metadataColumn<CaseSummaryView>("case", caseStageField(stage), {
         renderCell: (row) => (
           <Tag color="gray" text={row.statuses[stage.key] ?? "Sin estado"} />
@@ -106,18 +105,34 @@ export function CaseList() {
 
   return (
     <Loading fallback={<Spinner size="lg" />}>
-      <Show
-        when={views()[0]}
-        fallback={
-          <EmptyState
-            title="Sin procesos"
-            description="Este espacio de trabajo todavía no tiene un proceso de casos."
-          />
-        }
-      >
+      <Show when={views()[0]} fallback={<NoCaseTypes />}>
         {(first) => <CaseIndex views={views()} defaultView={first()} />}
       </Show>
     </Loading>
+  );
+}
+
+// The page keeps its header and columns with no case type, as Twenty does for
+// an object with no records; the empty state sits inside the grid.
+function NoCaseTypes() {
+  return (
+    <RecordIndexScreen<CaseSummaryView>
+      definition={{
+        id: "cases-empty",
+        title: () => "Casos",
+        ariaLabel: "Casos",
+        class: styles.index,
+        object: { label: "Casos", icon: Inbox, color: "orange" },
+        columns: caseColumns([]),
+        source: () => ({ rows: [] }),
+        emptyState: {
+          icon: Inbox,
+          title: "Sin procesos",
+          description:
+            "Este espacio de trabajo todavía no tiene un proceso de casos.",
+        },
+      }}
+    />
   );
 }
 
@@ -154,7 +169,7 @@ function CaseIndex(props: { views: CaseView[]; defaultView: CaseView }) {
     ariaLabel: "Casos",
     class: styles.index,
     object: { label: type().name, icon: Inbox, color: "orange" },
-    columns: caseColumns(type()),
+    columns: caseColumns(type().stages),
     savedView: {
       object: caseViewObject(type().id),
       canSave: hasPermission(currentUser(), "view:manage"),

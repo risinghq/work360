@@ -8,7 +8,6 @@ import {
   createSignal,
 } from "solid-js";
 
-import { EmptyState } from "~/components/feedback/empty-state/empty";
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
 import { Spinner } from "~/components/feedback/spinner/spinner";
 import Target from "~/components/icons/target";
@@ -94,20 +93,41 @@ export function CampaignRecords() {
 
   return (
     <Loading fallback={<Spinner size="lg" />}>
-      <Show
-        when={campaigns()[0]}
-        fallback={
-          <EmptyState
-            title="Sin campañas"
-            description="Un gerente comercial carga las bases en Configuración, Campañas."
-          />
-        }
-      >
+      <Show when={campaigns()[0]} fallback={<NoCampaigns />}>
         {(first) => (
           <CampaignIndex campaigns={campaigns()} defaultCampaign={first()} />
         )}
       </Show>
     </Loading>
+  );
+}
+
+// The page keeps its header and columns with no campaign, as Twenty does for
+// an object with no records; the empty state sits inside the grid.
+function NoCampaigns() {
+  const { currentUser } = useAuthenticatedSession();
+
+  return (
+    <RecordIndexScreen<HeldCampaignRecordView>
+      definition={{
+        id: "campaigns-empty",
+        title: () => "Campañas",
+        ariaLabel: "Campañas",
+        class: styles.index,
+        object: { label: "Campañas", icon: Target, color: "blue" },
+        columns: campaignColumns(
+          [],
+          hasPermission(currentUser(), "company:read"),
+        ),
+        source: () => ({ rows: [] }),
+        emptyState: {
+          icon: Target,
+          title: "Sin campañas",
+          description:
+            "Un gerente comercial carga las bases en Configuración, Campañas.",
+        },
+      }}
+    />
   );
 }
 
