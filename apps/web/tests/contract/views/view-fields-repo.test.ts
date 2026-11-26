@@ -6,6 +6,7 @@ import {
 } from "@tests/support/runtime/db";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
+import { caseViewObject } from "~/contracts/views/views";
 import { createViewFieldsRepo } from "~/server/views/infrastructure/view-fields-repo";
 
 describe("view fields repository", () => {
@@ -42,6 +43,8 @@ describe("view fields repository", () => {
       { fieldKey: "ruc", position: 1, width: 120, visible: true },
     ]);
     expect(await repo.list("company")).toHaveLength(1);
-    expect(await repo.list("case")).toEqual([]);
+    expect(
+      await repo.list(caseViewObject("00000000-0000-4000-8000-000000000000")),
+    ).toEqual([]);
   });
 });

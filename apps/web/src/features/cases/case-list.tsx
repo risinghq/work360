@@ -1,24 +1,32 @@
 import { useAction, useNavigate, useSearchParams } from "@solidjs/router";
-import { For, Loading, Show, createMemo } from "solid-js";
+import { Errored, Loading, Show, createMemo } from "solid-js";
 
+import { saveSheet } from "~/browser/files/sheet";
 import { EmptyState } from "~/components/feedback/empty-state/empty";
-import { Skeleton } from "~/components/ui/feedback/skeleton";
-import { Button } from "~/components/ui/input/button";
-import { ExportButton } from "~/components/ui/input/export-button";
-import { Select } from "~/components/ui/input/select";
+import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
+import { Spinner } from "~/components/feedback/spinner/spinner";
+import Building2 from "~/components/icons/building-2";
+import CalendarDays from "~/components/icons/calendar-days";
+import CircleQuestionMark from "~/components/icons/circle-question-mark";
+import Inbox from "~/components/icons/inbox";
+import Target from "~/components/icons/target";
+import User from "~/components/icons/user";
+import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/layout/table";
+  RecordChip,
+  RecordLinkChip,
+} from "~/components/ui/record-chip/record-chip";
 import { Tag } from "~/components/ui/tag/tag";
 import type { CaseSummaryView, CaseTypeView } from "~/contracts/cases/views";
+import { actionErrorMessage } from "~/contracts/errors";
+import { caseViewObject } from "~/contracts/views/views";
+import { hasPermission } from "~/domain/auth/access/rbac";
 import { formatAppDateTime } from "~/domain/time/app-time";
 import { requestCaseReportMutation } from "~/features/cases/data/mutations";
-import { TabStrip } from "~/features/side-panel/components/tab-strip";
+import { createGridSource } from "~/features/data-grid/model/create-grid-source";
+import type { DataGridColumn } from "~/features/data-grid/model/types";
+import { RecordIndexScreen } from "~/features/record-index/components/screen";
+import type { RecordIndexDefinition } from "~/features/record-index/model/definition";
 import {
   caseTypesQuery,
   casesQuery,
@@ -27,21 +35,94 @@ import {
 
 import styles from "./cases.module.css";
 
-type CaseTab = "waiting" | "all";
+// A view is one case type, whole or narrowed to the cases waiting on the
+// viewer's role: "<type key>" or "<type key>.waiting".
+type CaseView = {
+  id: string;
+  label: string;
+  type: CaseTypeView;
+  waiting: boolean;
+};
+
+function caseViews(types: ReadonlyArray<CaseTypeView>): CaseView[] {
+  const multiple = types.length > 1;
+  return types.flatMap((type) => {
+    const all = {
+      id: type.key,
+      label: multiple ? type.name : "Todos",
+      type,
+      waiting: false,
+    };
+    if (!type.hasQueue) return [all];
+    const waiting = {
+      id: `${type.key}.waiting`,
+      label: multiple ? `${type.name} · Por atender` : "Por atender",
+      type,
+      waiting: true,
+    };
+    return [waiting, all];
+  });
+}
+
+function caseColumns(
+  type: CaseTypeView,
+): ReadonlyArray<DataGridColumn<CaseSummaryView>> {
+  return [
+    {
+      key: "legalName",
+      label: "Empresa",
+      icon: Building2,
+      width: 240,
+      sticky: true,
+      renderCell: (row) => (
+        <RecordLinkChip
+          href={`/cases/${row.id}`}
+          name={row.legalName ?? row.ruc}
+          shape="square"
+        />
+      ),
+    },
+    {
+      key: "ruc",
+      label: "RUC",
+      icon: CircleQuestionMark,
+      width: 120,
+      renderCell: (row) => <span class={styles.meta}>{row.ruc}</span>,
+    },
+    ...type.stages.map((stage): DataGridColumn<CaseSummaryView> => ({
+      key: `stage.${stage.key}`,
+      label: stage.name,
+      icon: Target,
+      renderCell: (row) => (
+        <Tag color="gray" text={row.statuses[stage.key] ?? "Sin estado"} />
+      ),
+    })),
+    {
+      key: "holder",
+      label: "Responsable",
+      icon: User,
+      renderCell: (row) => <RecordChip name={row.holderName} shape="round" />,
+    },
+    {
+      key: "updatedAt",
+      label: "Actualizado",
+      icon: CalendarDays,
+      width: 160,
+      renderCell: (row) => (
+        <span class={styles.meta}>{formatAppDateTime(row.updatedAt)}</span>
+      ),
+    },
+  ];
+}
 
 export function CaseList() {
-  const [search, setSearch] = useSearchParams();
-  const navigate = useNavigate();
   const types = createMemo(() => caseTypesQuery());
-  const selected = createMemo(() => {
-    const list = types();
-    return list.find((caseType) => caseType.key === search.type) ?? list[0];
-  });
+  const views = createMemo(() => caseViews(types()));
 
   return (
-    <Loading fallback={<Skeleton height={240} />}>
+    <Loading fallback={<Spinner size="lg" />}>
       <Show
-        when={selected()}
+        when={views()[0]}
         fallback={
           <EmptyState
             title="Sin procesos"
@@ -49,184 +130,90 @@ export function CaseList() {
           />
         }
       >
-        {(caseType) => (
-          <div class={styles.page}>
-            <div class={styles.toolbar}>
-              <Show when={types().length > 1}>
-                <div class={styles.picker}>
-                  <Select
-                    label="Proceso"
-                    value={caseType().key}
-                    onInput={(event) =>
-                      setSearch({ type: event.currentTarget.value, tab: null })
-                    }
-                  >
-                    <For each={types()}>
-                      {(option) => (
-                        <option value={option.key}>{option.name}</option>
-                      )}
-                    </For>
-                  </Select>
-                </div>
-              </Show>
-              <div class={styles.toolbarActions}>
-                <CaseReportButton caseTypeId={caseType().id} />
-                <Show when={caseType().canOpen}>
-                  <Button
-                    type="button"
-                    onClick={() =>
-                      navigate(
-                        `/cases/new?${new URLSearchParams({ type: caseType().key }).toString()}`,
-                      )
-                    }
-                  >
-                    Nuevo caso
-                  </Button>
-                </Show>
-              </div>
-            </div>
-            <CaseTabs caseType={caseType()} />
-          </div>
-        )}
+        {(first) => <CaseIndex views={views()} defaultView={first()} />}
       </Show>
     </Loading>
   );
 }
 
-function CaseReportButton(props: { caseTypeId: string }) {
-  const requestReport = useAction(requestCaseReportMutation);
-  return <ExportButton start={() => requestReport(props.caseTypeId)} />;
-}
-
-function CaseTabs(props: { caseType: CaseTypeView }) {
-  const [search, setSearch] = useSearchParams();
-  const tab = (): CaseTab =>
-    props.caseType.hasQueue && search.tab !== "all" ? "waiting" : "all";
-
-  return (
-    <>
-      <Show when={props.caseType.hasQueue}>
-        <TabStrip<CaseTab>
-          tabs={[
-            { id: "waiting", label: "Por atender" },
-            { id: "all", label: "Todos" },
-          ]}
-          activeTab={tab()}
-          onTabSelect={(id) => setSearch({ tab: id })}
-        />
-      </Show>
-      <Loading fallback={<Skeleton height={200} />}>
-        <Show
-          when={tab() === "waiting"}
-          fallback={<AllCases caseType={props.caseType} />}
-        >
-          <WaitingCases caseType={props.caseType} />
-        </Show>
-      </Loading>
-    </>
-  );
-}
-
-function WaitingCases(props: { caseType: CaseTypeView }) {
-  const cases = createMemo(() => waitingCasesQuery(props.caseType.id));
-  return (
-    <CaseTable
-      caseType={props.caseType}
-      cases={cases()}
-      empty={
-        <EmptyState
-          title="Nada por atender"
-          description="Cuando un caso llegue a una etapa de tu rol, aparece aquí."
-        />
-      }
-    />
-  );
-}
-
-function AllCases(props: { caseType: CaseTypeView }) {
-  const cases = createMemo(() => casesQuery(props.caseType.id));
-  return (
-    <CaseTable
-      caseType={props.caseType}
-      cases={cases()}
-      empty={
-        <EmptyState
-          title="Sin casos"
-          description={
-            props.caseType.canOpen
-              ? "Abre un caso con Nuevo caso o desde una empresa de tu lote de campaña."
-              : "Todavía no hay casos de este proceso."
-          }
-        />
-      }
-    />
-  );
-}
-
-function CaseTable(props: {
-  caseType: CaseTypeView;
-  cases: CaseSummaryView[];
-  empty: ReturnType<typeof EmptyState>;
-}) {
+function CaseIndex(props: { views: CaseView[]; defaultView: CaseView }) {
   const navigate = useNavigate();
+  const { currentUser } = useAuthenticatedSession();
+  const { enqueueErrorSnackBar } = useSnackBar();
+  const requestReport = useAction(requestCaseReportMutation);
+  const [search, setSearch] = useSearchParams<{ view?: string }>();
+
+  const view = () =>
+    props.views.find((candidate) => candidate.id === search.view) ??
+    props.defaultView;
+  const type = () => view().type;
+
+  const cases = createGridSource(
+    () =>
+      view().waiting ? waitingCasesQuery(type().id) : casesQuery(type().id),
+    (rows) => ({ rows }),
+  );
+
+  async function exportCases() {
+    try {
+      await saveSheet(await requestReport(type().id));
+    } catch (error) {
+      enqueueErrorSnackBar(actionErrorMessage(error));
+    }
+  }
+
+  const definition = (): RecordIndexDefinition<CaseSummaryView> => ({
+    id: `cases-${type().key}`,
+    title: () => view().label,
+    ariaLabel: "Casos",
+    class: styles.index,
+    object: { label: type().name, icon: Inbox, color: "orange" },
+    columns: caseColumns(type()),
+    savedView: {
+      object: caseViewObject(type().id),
+      canSave: hasPermission(currentUser(), "view:manage"),
+    },
+    source: cases.source,
+    onRowOpen: (row) => navigate(`/cases/${row.id}`),
+    rowOpenIndicator: "route",
+    emptyState: view().waiting
+      ? {
+          icon: Inbox,
+          title: "Nada por atender",
+          description:
+            "Cuando un caso llegue a una etapa de tu rol, aparece aquí.",
+        }
+      : {
+          icon: Inbox,
+          title: "Sin casos",
+          description: type().canOpen
+            ? "Abre un caso con Nuevo caso o desde una empresa de tu lote de campaña."
+            : "Todavía no hay casos de este proceso.",
+        },
+    createAction: type().canOpen
+      ? {
+          label: "Nuevo caso",
+          onClick: () =>
+            navigate(
+              `/cases/new?${new URLSearchParams({ type: type().key }).toString()}`,
+            ),
+        }
+      : undefined,
+    actions: [{ label: "Exportar", onClick: exportCases }],
+    views: {
+      catalog: { available: props.views },
+      control: {
+        value: () => view().id,
+        set: (id) => setSearch({ view: id }),
+      },
+    },
+  });
 
   return (
-    <Show when={props.cases.length > 0} fallback={props.empty}>
-      <Table aria-label="Casos" variant="list">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Empresa</TableHead>
-            <For each={props.caseType.stages}>
-              {(stage) => <TableHead>{stage.name}</TableHead>}
-            </For>
-            <TableHead>Responsable</TableHead>
-            <TableHead align="right">Actualizado</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <For each={props.cases}>
-            {(row) => {
-              const open = () => navigate(`/cases/${row.id}`);
-              return (
-                <TableRow
-                  clickable
-                  tabindex={0}
-                  onClick={open}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      open();
-                    }
-                  }}
-                >
-                  <TableCell>
-                    <div class={styles.company}>
-                      <span class={styles.name}>
-                        {row.legalName ?? row.ruc}
-                      </span>
-                      <span class={styles.meta}>RUC {row.ruc}</span>
-                    </div>
-                  </TableCell>
-                  <For each={props.caseType.stages}>
-                    {(stage) => (
-                      <TableCell>
-                        <Tag
-                          color="gray"
-                          text={row.statuses[stage.key] ?? "Sin estado"}
-                        />
-                      </TableCell>
-                    )}
-                  </For>
-                  <TableCell>{row.holderName}</TableCell>
-                  <TableCell align="right" class={styles.meta}>
-                    {formatAppDateTime(row.updatedAt)}
-                  </TableCell>
-                </TableRow>
-              );
-            }}
-          </For>
-        </TableBody>
-      </Table>
-    </Show>
+    <Errored fallback={<p>No se pudieron cargar los casos.</p>}>
+      <Show when={definition()} keyed>
+        {(current) => <RecordIndexScreen definition={current} />}
+      </Show>
+    </Errored>
   );
 }

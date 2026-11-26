@@ -4,22 +4,12 @@
   gap: var(--spacing-4, 16px);
 }
 
-.toolbar {
+.index {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--spacing-3, 12px);
-}
-
-.picker {
-  flex: 1 1 16rem;
-  max-width: 24rem;
-}
-
-.toolbarActions {
-  display: flex;
-  gap: var(--spacing-2, 8px);
-  margin-inline-start: auto;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
 }
 
 .caseHeader,
@@ -29,8 +19,7 @@
   gap: var(--spacing-1, 4px);
 }
 
-.title,
-.name {
+.title {
   color: var(--foreground, #111827);
   font-size: var(--font-size-body, 14px);
   font-weight: var(--font-weight-semibold, 600);

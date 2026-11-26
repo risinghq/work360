@@ -1,10 +1,7 @@
 import { query } from "@solidjs/router";
 
-import {
-  VIEW_OBJECTS,
-  type ViewFieldView,
-  type ViewObject,
-} from "~/contracts/views/views";
+import type { ViewFieldView, ViewObject } from "~/contracts/views/views";
+import { requireViewObject } from "~/rpc/views/input";
 import { getApplication } from "~/server/composition/application";
 import { executeSessionServerFunction } from "~/server/platform/action";
 import {
@@ -21,9 +18,11 @@ export const viewFieldsQuery = query(
       name: "views.fields.list",
       access: { kind: "session" },
       parse: () =>
-        parseObject({ object }, validationFail, (r) => ({
-          object: r.enum("object", VIEW_OBJECTS),
-        })),
+        requireViewObject(
+          parseObject({ object }, validationFail, (r) => ({
+            object: r.str("object", { max: 60 }),
+          })),
+        ),
       execute: async (_ctx, input) =>
         Ok(await getApplication().views.listFields(input.object)),
     });
