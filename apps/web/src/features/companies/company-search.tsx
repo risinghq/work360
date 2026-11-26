@@ -3,13 +3,17 @@ import { Errored, Loading, createEffect, createSignal } from "solid-js";
 
 import { Spinner } from "~/components/feedback/spinner/spinner";
 import Building2 from "~/components/icons/building-2";
-import CircleQuestionMark from "~/components/icons/circle-question-mark";
+import CalendarDays from "~/components/icons/calendar-days";
 import List from "~/components/icons/list";
+import Mail from "~/components/icons/mail";
 import MapPin from "~/components/icons/map";
+import Phone from "~/components/icons/phone";
+import Target from "~/components/icons/target";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import { RecordLinkChip } from "~/components/ui/record-chip/record-chip";
 import type { CompanySummaryView } from "~/contracts/companies/views";
 import { hasPermission } from "~/domain/auth/access/rbac";
+import { formatAppDate } from "~/domain/time/app-time";
 import { createGridSource } from "~/features/data-grid/model/create-grid-source";
 import type { DataGridColumn } from "~/features/data-grid/model/types";
 import { RecordIndexScreen } from "~/features/record-index/components/screen";
@@ -38,7 +42,7 @@ const COMPANY_COLUMNS = [
   {
     key: "ruc",
     label: "RUC",
-    icon: CircleQuestionMark,
+    icon: List,
     width: 120,
     renderCell: (company) => (
       <span class={styles.mutedCellText}>{company.ruc}</span>
@@ -47,15 +51,51 @@ const COMPANY_COLUMNS = [
   {
     key: "lineOfBusiness",
     label: "Rubro",
-    icon: List,
-    width: 220,
+    icon: Target,
+    width: 200,
     renderCell: (company) => company.lineOfBusiness,
+  },
+  {
+    key: "phone",
+    label: "Teléfono",
+    icon: Phone,
+    width: 140,
+    renderCell: (company) => company.phone,
+  },
+  {
+    key: "email",
+    label: "Correo",
+    icon: Mail,
+    width: 200,
+    renderCell: (company) => company.email,
   },
   {
     key: "district",
     label: "Distrito",
     icon: MapPin,
     renderCell: (company) => company.district,
+  },
+  {
+    key: "province",
+    label: "Provincia",
+    icon: MapPin,
+    renderCell: (company) => company.province,
+  },
+  {
+    key: "department",
+    label: "Departamento",
+    icon: MapPin,
+    renderCell: (company) => company.department,
+  },
+  {
+    key: "createdAt",
+    label: "Creado",
+    icon: CalendarDays,
+    renderCell: (company) => (
+      <span class={styles.mutedCellText}>
+        {formatAppDate(company.createdAt)}
+      </span>
+    ),
   },
 ] satisfies ReadonlyArray<DataGridColumn<CompanySummaryView>>;
 

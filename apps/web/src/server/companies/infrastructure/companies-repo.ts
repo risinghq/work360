@@ -25,14 +25,15 @@ export type CompanySummary = {
   legalName: string | null;
   lineOfBusiness: string | null;
   district: string | null;
-};
-
-export type CompanyIdentity = CompanySummary & {
-  address: string | null;
   province: string | null;
   department: string | null;
   phone: string | null;
   email: string | null;
+  createdAt: Date;
+};
+
+export type CompanyIdentity = CompanySummary & {
+  address: string | null;
 };
 
 export type CompanyPerson = {
@@ -122,6 +123,11 @@ export function createCompaniesRepo(db: Kysely<WorkspaceDatabase>) {
           "o.legal_name",
           "o.line_of_business",
           "o.district",
+          "o.province",
+          "o.department",
+          "o.phone",
+          "o.email",
+          "o.created_at",
         ])
         .limit(SEARCH_LIMIT);
       let ordered;
@@ -154,6 +160,11 @@ export function createCompaniesRepo(db: Kysely<WorkspaceDatabase>) {
         legalName: row.legal_name,
         lineOfBusiness: row.line_of_business,
         district: row.district,
+        province: row.province,
+        department: row.department,
+        phone: row.phone,
+        email: row.email,
+        createdAt: row.created_at,
       }));
     },
 
@@ -177,6 +188,7 @@ export function createCompaniesRepo(db: Kysely<WorkspaceDatabase>) {
             department: row.department,
             phone: row.phone,
             email: row.email,
+            createdAt: row.created_at,
           }
         : null;
     },

@@ -4,19 +4,15 @@ export type CompanySummaryView = {
   legalName: string | null;
   lineOfBusiness: string | null;
   district: string | null;
-};
-
-export type CompanyDetailView = {
-  id: string;
-  ruc: string;
-  legalName: string | null;
-  lineOfBusiness: string | null;
-  address: string | null;
-  district: string | null;
   province: string | null;
   department: string | null;
   phone: string | null;
   email: string | null;
+  createdAt: number;
+};
+
+export type CompanyDetailView = CompanySummaryView & {
+  address: string | null;
   people: {
     name: string;
     role: string | null;

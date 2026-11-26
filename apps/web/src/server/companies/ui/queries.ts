@@ -16,13 +16,20 @@ import {
 import { Ok } from "~/shared/result";
 
 import type { CompanyDetail } from "../application/read-companies";
-import type { CompanyViewer } from "../infrastructure/companies-repo";
+import type {
+  CompanySummary,
+  CompanyViewer,
+} from "../infrastructure/companies-repo";
 
 function viewerOf(actor: PermissionHolder & { userId: UserId }): CompanyViewer {
   return {
     userId: actor.userId,
     viewAll: hasPermission(actor, "company:view:all"),
   };
+}
+
+function toSummaryView(company: CompanySummary): CompanySummaryView {
+  return { ...company, createdAt: company.createdAt.getTime() };
 }
 
 function toDetailView({
@@ -34,6 +41,7 @@ function toDetailView({
 }: CompanyDetail): CompanyDetailView {
   return {
     ...identity,
+    createdAt: identity.createdAt.getTime(),
     people,
     cases: cases.map((each) => ({
       ...each,
@@ -61,7 +69,11 @@ export async function searchCompanies(
         text: r.optStr("text") ?? "",
       })),
     execute: async (ctx, { text }) =>
-      Ok(await getApplication().companies.search(text, viewerOf(ctx.actor))),
+      Ok(
+        (
+          await getApplication().companies.search(text, viewerOf(ctx.actor))
+        ).map(toSummaryView),
+      ),
   });
 }
 

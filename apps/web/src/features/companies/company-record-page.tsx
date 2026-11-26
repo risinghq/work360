@@ -2,6 +2,7 @@ import { Title } from "@solidjs/meta";
 import { For, Loading, Show, createMemo, createSignal } from "solid-js";
 
 import Building2 from "~/components/icons/building-2";
+import CalendarDays from "~/components/icons/calendar-days";
 import List from "~/components/icons/list";
 import Mail from "~/components/icons/mail";
 import MapIcon from "~/components/icons/map";
@@ -14,7 +15,7 @@ import {
   RecordLinkChip,
 } from "~/components/ui/record-chip/record-chip";
 import type { CompanyDetailView } from "~/contracts/companies/views";
-import { formatAppDateTime } from "~/domain/time/app-time";
+import { formatAppDate, formatAppDateTime } from "~/domain/time/app-time";
 import { companyTimeline } from "~/features/companies/model/company-timeline";
 import { RecordBreadcrumb } from "~/features/record-show/header/record-breadcrumb";
 import { RecordPageLayout } from "~/features/record-show/page/record-page-layout";
@@ -147,6 +148,11 @@ function CompanyFields(props: { detail: CompanyDetailView }) {
           <TextField label="Ubicación" icon={MapIcon} value={place()} />
           <TextField label="Teléfono" icon={Phone} value={props.detail.phone} />
           <TextField label="Correo" icon={Mail} value={props.detail.email} />
+          <TextField
+            label="Creado"
+            icon={CalendarDays}
+            value={formatAppDate(props.detail.createdAt)}
+          />
         </FieldTable>
       </WidgetCardContent>
     </WidgetCard>
