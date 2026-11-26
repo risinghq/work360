@@ -16,7 +16,10 @@ export type CaseStage = { key: string; name: string };
 
 type SeedField = { key: string; width?: number };
 
-const COMPANY_FIELDS: ReadonlyArray<{ key: FieldKey<"company">; width?: number }> = [
+const COMPANY_FIELDS: ReadonlyArray<{
+  key: FieldKey<"company">;
+  width?: number;
+}> = [
   { key: "legalName", width: IDENTIFIER_WIDTH },
   { key: "ruc", width: RUC_WIDTH },
   { key: "lineOfBusiness" },
@@ -78,6 +81,10 @@ export function defaultView(
         filter: null,
       };
     case "case":
-      return { fields: seedFields(caseFields(caseStages)), sort: null, filter: null };
+      return {
+        fields: seedFields(caseFields(caseStages)),
+        sort: null,
+        filter: null,
+      };
   }
 }

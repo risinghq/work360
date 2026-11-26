@@ -27,7 +27,9 @@ export function createViewsRuntime(deps: {
 
   return {
     async read(object: ViewObject): Promise<SavedView> {
-      return (await repo.find(object)) ?? defaultView(object, await stagesOf(object));
+      return (
+        (await repo.find(object)) ?? defaultView(object, await stagesOf(object))
+      );
     },
     async save(
       object: ViewObject,
