@@ -3,8 +3,10 @@ import type { Component } from "solid-js";
 import Building2 from "~/components/icons/building-2";
 import Info from "~/components/icons/info";
 import Search from "~/components/icons/search";
+import Target from "~/components/icons/target";
 import User from "~/components/icons/user";
 import Users from "~/components/icons/users";
+import type { HeldCampaignRecordView } from "~/contracts/campaigns/views";
 import type { LeadActionKind } from "~/features/record-show/model/lead-action-kind";
 import type { RecordTabId } from "~/features/record-show/model/record-tab-id";
 import type {
@@ -30,7 +32,8 @@ export type SidePanelPageKey =
   | "create-lead"
   | "view-record"
   | "lead-action"
-  | "data-grid-detail";
+  | "data-grid-detail"
+  | "campaign-record";
 
 export type SidePanelNavigationEntry = {
   page: SidePanelPageKey;
@@ -96,6 +99,12 @@ export type DataGridDetailSidePanelPageState = {
   items: DataGridDetailSidePanelItem[];
 };
 
+export type CampaignRecordSidePanelPageState = {
+  page: "campaign-record";
+  campaignId: string;
+  record: HeldCampaignRecordView;
+};
+
 export type SidePanelPageState =
   | RootSidePanelPageState
   | SearchRecordsSidePanelPageState
@@ -104,7 +113,8 @@ export type SidePanelPageState =
   | CreateLeadSidePanelPageState
   | ViewRecordSidePanelPageState
   | LeadActionSidePanelPageState
-  | DataGridDetailSidePanelPageState;
+  | DataGridDetailSidePanelPageState
+  | CampaignRecordSidePanelPageState;
 
 export type SidePanelPageDefinition = {
   entry: SidePanelNavigationEntry;
@@ -295,6 +305,25 @@ export function createDataGridDetailSidePanelPage(input: {
       title: input.title,
       subtitle: input.subtitle ?? "",
       items: input.items,
+    },
+  };
+}
+
+export function createCampaignRecordSidePanelPage(input: {
+  campaignId: string;
+  record: HeldCampaignRecordView;
+}): SidePanelPageDefinition {
+  return {
+    entry: {
+      page: "campaign-record",
+      pageId: createEntitySidePanelPageId("campaign-record", input.record.id),
+      pageTitle: input.record.legalName ?? input.record.ruc,
+      pageIcon: Target,
+    },
+    state: {
+      page: "campaign-record",
+      campaignId: input.campaignId,
+      record: input.record,
     },
   };
 }

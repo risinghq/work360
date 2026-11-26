@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 
+import { CampaignRecordPageInfo } from "../pages/campaign-record/page-info";
 import { CompactDetailPageSkeleton } from "../pages/common/skeletons/compact-detail-page-skeleton";
 import { ListPageSkeleton } from "../pages/common/skeletons/list-page-skeleton";
 import { RecordPageSkeleton } from "../pages/common/skeletons/record-page-skeleton";
@@ -12,6 +13,7 @@ import { SearchPersonPageInfo } from "../pages/search-person/page-info";
 import type { SidePanelPageKey } from "../types/side-panel-page";
 import { SearchCompanyPage, SearchPersonPage } from "./lazy-detail-pages";
 import {
+  CampaignRecordPage,
   CreateLeadPage,
   DataGridDetailPage,
   LeadActionPage,
@@ -83,6 +85,13 @@ export const SIDE_PANEL_PAGES_CONFIG = {
     component: DataGridDetailPage,
     skeleton: CompactDetailPageSkeleton,
     pageInfoComponent: DataGridDetailPageInfo,
+    topBarActionsComponent: undefined,
+  },
+  "campaign-record": {
+    showsSearch: false,
+    component: CampaignRecordPage,
+    skeleton: RecordPageSkeleton,
+    pageInfoComponent: CampaignRecordPageInfo,
     topBarActionsComponent: undefined,
   },
 } satisfies Record<SidePanelPageKey, SidePanelPageConfig>;

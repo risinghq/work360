@@ -284,6 +284,7 @@ const CAMPAIGN_RECORD = defineObject({
       icon: "calendar",
     },
   ],
+  fieldGroups: [{ name: "General", fields: ["company", "ruc", "segment"] }],
 });
 
 export const OBJECTS = {

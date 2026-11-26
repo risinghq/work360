@@ -1,0 +1,12 @@
+.index {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+.meta {
+  color: var(--muted-foreground);
+  font-size: var(--font-size-sm, 13px);
+}

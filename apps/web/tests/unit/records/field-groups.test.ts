@@ -64,6 +64,22 @@ describe("record field groups", () => {
     expect(groups[0]?.fields[0]?.value).toBe("Portabilidad");
   });
 
+  it("shows a campaign record's company, RUC and segment", () => {
+    const groups = recordFieldGroups("campaignRecord", {
+      ruc: "20100047218",
+      segment: "Pyme",
+    });
+    expect(
+      groups.flatMap((group) =>
+        group.fields.map((entry) => [entry.field.key, entry.value]),
+      ),
+    ).toEqual([
+      ["company", null],
+      ["ruc", "20100047218"],
+      ["segment", "Pyme"],
+    ]);
+  });
+
   it("returns no groups for an object without a layout", () => {
     expect(recordFieldGroups("person", { name: "Ana" })).toEqual([]);
   });

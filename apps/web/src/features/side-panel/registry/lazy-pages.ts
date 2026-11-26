@@ -39,6 +39,12 @@ export const DataGridDetailPage = lazy(() =>
   })),
 );
 
+export const CampaignRecordPage = lazy(() =>
+  import("../pages/campaign-record/page").then((m) => ({
+    default: m.CampaignRecordPage,
+  })),
+);
+
 // These are the only pages commonly opened before the panel is already active.
 export function preloadSidePanelEntryPages(): void {
   void RootPage.preload();
