@@ -60,13 +60,19 @@ export function MeetingFormPage() {
 function EditMeeting(props: { meetingId: string }) {
   const meeting = createMemo(() => meetingQuery(props.meetingId));
 
+  // MeetingForm seeds its signals from props once, so it must not mount
+  // before the meeting has loaded.
   return (
-    <MeetingForm
-      meeting={meeting()}
-      organizationId={meeting().organizationId}
-      caseId={meeting().caseId}
-      subject={null}
-    />
+    <Show when={meeting()}>
+      {(loaded) => (
+        <MeetingForm
+          meeting={loaded()}
+          organizationId={loaded().organizationId}
+          caseId={loaded().caseId}
+          subject={null}
+        />
+      )}
+    </Show>
   );
 }
 
