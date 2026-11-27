@@ -5,6 +5,7 @@ import CircleCheckBig from "~/components/icons/circle-check-big";
 import ColorSwatch from "~/components/icons/color-swatch";
 import DoorEnter from "~/components/icons/door-enter";
 import HelpCircle from "~/components/icons/help-circle";
+import Link from "~/components/icons/link";
 import Lock from "~/components/icons/lock";
 import MoneyBag from "~/components/icons/moneybag";
 import ShieldCheck from "~/components/icons/shield-check";
@@ -131,6 +132,14 @@ export function createSettingsNavigationSections(
           icon: CircleCheckBig,
           section: "administration",
           isHidden: !canAccessPath(options.member, "/settings/outcomes"),
+        },
+        {
+          id: "integrations",
+          label: "Integraciones",
+          href: "/settings/integrations",
+          icon: Link,
+          section: "administration",
+          isHidden: !canAccessPath(options.member, "/settings/integrations"),
         },
         {
           id: "data-sources",

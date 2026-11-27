@@ -1,5 +1,6 @@
 import type { Kysely } from "kysely";
 
+import type { WorkspaceId } from "~/domain/ids";
 import { formatAppDateTime } from "~/domain/time/app-time";
 import type { MessagingGateway } from "~/server/notifications/channels/messaging-gateway";
 import { classifySendReceipt } from "~/server/notifications/channels/send-result";
@@ -8,7 +9,7 @@ import { createJobQueue } from "~/server/platform/jobs/job-queue";
 import type { QueueRunner, Settlement } from "~/server/platform/jobs/types";
 import { PLATFORM_NAME } from "~/shared/branding";
 
-import { buildIcs } from "../domain/ics";
+import { buildIcs, meetingUid } from "../domain/ics";
 import { createMeetingInviteStore } from "../infrastructure/invite-store";
 import { createMeetingsRepo } from "../infrastructure/meetings-repo";
 
@@ -19,6 +20,8 @@ import { createMeetingsRepo } from "../infrastructure/meetings-repo";
 export function createMeetingInviteQueue(
   db: Kysely<WorkspaceDatabase>,
   messaging: Pick<MessagingGateway, "sendMeetingInvite">,
+  // `replyTo` is MEETING_REPLY_ADDRESS, or null to ask for no replies.
+  options: { workspaceId: WorkspaceId; replyTo: string | null },
 ): QueueRunner {
   const meetings = createMeetingsRepo(db);
   return createJobQueue({
@@ -34,7 +37,11 @@ export function createMeetingInviteQueue(
 
       const recipient = meeting.guests.find(
         (guest) => guest.email === invite.recipient_email,
-      ) ?? { email: invite.recipient_email, name: null };
+      ) ?? {
+        email: invite.recipient_email,
+        name: null,
+        response: "needs_action" as const,
+      };
       // A cancel sent to one removed guest names only that guest; a whole
       // cancelled meeting names everyone, as the request did.
       const attendees =
@@ -42,7 +49,7 @@ export function createMeetingInviteQueue(
           ? [recipient]
           : meeting.guests;
       const ics = buildIcs({
-        uid: `${meeting.id}@work360`,
+        uid: meetingUid(options.workspaceId, meeting.id),
         method: invite.method,
         sequence: invite.sequence,
         title: meeting.title,
@@ -56,6 +63,7 @@ export function createMeetingInviteQueue(
           name: meeting.organizerName,
         },
         attendees,
+        replyTo: options.replyTo,
       });
 
       const when = `${formatAppDateTime(meeting.startsAt)} – ${formatAppDateTime(meeting.endsAt)}`;

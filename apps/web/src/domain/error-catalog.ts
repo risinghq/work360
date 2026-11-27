@@ -887,6 +887,25 @@ export const ERROR_CATALOG = {
     kind: "validation",
     message: "El enlace de la videollamada debe empezar con https://.",
   },
+  meeting_video_unavailable: {
+    kind: "conflict",
+    message:
+      "Ese servicio de videollamada no está conectado. Elige otro o conéctalo en Ajustes.",
+  },
+  meeting_video_failed: {
+    kind: "external",
+    message:
+      "El servicio de videollamada no respondió. No se guardó ningún cambio; inténtalo de nuevo.",
+  },
+  integration_credentials_invalid: {
+    kind: "validation",
+    message:
+      "El servicio rechazó las credenciales. Revísalas e inténtalo de nuevo.",
+  },
+  integration_unreachable: {
+    kind: "external",
+    message: "No se pudo contactar al servicio. Inténtalo de nuevo.",
+  },
 } as const satisfies Record<string, { kind: DomainErrorKind; message: string }>;
 
 export type DomainCode = keyof typeof ERROR_CATALOG;

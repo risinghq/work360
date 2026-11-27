@@ -178,4 +178,5 @@ export interface WorkspaceDatabase {
   meetings: meetings.MeetingsTable;
   meeting_guests: meetings.MeetingGuestsTable;
   meeting_invites: meetings.MeetingInvitesTable;
+  workspace_integrations: meetings.WorkspaceIntegrationsTable;
 }

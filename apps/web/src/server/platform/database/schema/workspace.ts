@@ -4,7 +4,11 @@ import { WORKSPACE_CASES } from "./workspace-cases";
 import { WORKSPACE_CORE } from "./workspace-core";
 import { WORKSPACE_FILES } from "./workspace-files";
 import { WORKSPACE_INGEST } from "./workspace-ingest";
-import { WORKSPACE_MEETINGS } from "./workspace-meetings";
+import { WORKSPACE_INTEGRATIONS } from "./workspace-integrations";
+import {
+  WORKSPACE_MEETING_VIDEO,
+  WORKSPACE_MEETINGS,
+} from "./workspace-meetings";
 import {
   WORKSPACE_MERCHANT_STATS,
   WORKSPACE_MERCHANT_STATS_LATEST_ADJUSTMENT,
@@ -37,4 +41,5 @@ export const WORKSPACE_MIGRATIONS: readonly (readonly string[])[] = [
   WORKSPACE_SAVED_VIEWS,
   WORKSPACE_ORGANIZATIONS_LIST,
   WORKSPACE_MEETINGS,
+  [...WORKSPACE_INTEGRATIONS, ...WORKSPACE_MEETING_VIDEO],
 ];

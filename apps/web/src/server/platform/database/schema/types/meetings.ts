@@ -1,6 +1,10 @@
 import type { Generated } from "kysely";
 
 import type {
+  MeetingGuestResponse,
+  MeetingVideoProvider,
+} from "~/contracts/meetings/views";
+import type {
   CaseId,
   IdColumn,
   MeetingId,
@@ -17,6 +21,8 @@ export interface MeetingsTable {
   ends_at: Date;
   location: string | null;
   video_link: string | null;
+  video_provider: Generated<MeetingVideoProvider>;
+  video_external_id: string | null;
   organizer_user_id: IdColumn<UserId>;
   organization_id: NullableIdColumn<OrganizationId>;
   case_id: NullableIdColumn<CaseId>;
@@ -31,6 +37,16 @@ export interface MeetingGuestsTable {
   email: string;
   name: string | null;
   member_user_id: NullableIdColumn<UserId>;
+  response: Generated<MeetingGuestResponse>;
+  responded_at: Date | null;
+}
+
+export interface WorkspaceIntegrationsTable {
+  provider: "zoom";
+  sealed_config: string;
+  label: string;
+  connected_by_user_id: IdColumn<UserId>;
+  connected_at: Date;
 }
 
 export interface MeetingInvitesTable {

@@ -1,7 +1,10 @@
 import { action } from "@solidjs/router";
 import { respond } from "@solidjs/web";
 
-import type { MeetingGuestView } from "~/contracts/meetings/views";
+import type {
+  MeetingGuestView,
+  MeetingVideoProvider,
+} from "~/contracts/meetings/views";
 import {
   cancelMeeting,
   createMeeting,
@@ -16,6 +19,7 @@ export type MeetingFormInput = {
   startsAt: number;
   endsAt: number;
   location: string | null;
+  videoProvider: MeetingVideoProvider;
   videoLink: string | null;
   organizationId: string | null;
   caseId: string | null;

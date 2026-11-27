@@ -309,7 +309,7 @@ const MEETING = defineObject({
     { key: "endsAt", label: "Fin", type: "DATE_TIME", icon: "calendar" },
     { key: "status", label: "Estado", type: "SELECT", icon: "info" },
     { key: "location", label: "Lugar", type: "TEXT", icon: "map" },
-    { key: "videoLink", label: "Enlace", type: "TEXT", icon: "link" },
+    { key: "videoLink", label: "Videollamada", type: "TEXT", icon: "link" },
     {
       key: "organizer",
       label: "Organizador",

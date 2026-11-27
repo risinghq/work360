@@ -46,3 +46,7 @@
   gap: var(--spacing-2, 8px);
   align-items: center;
 }
+
+.response {
+  margin-left: auto;
+}

@@ -29,6 +29,7 @@ jobs:
       GOOGLE_CLIENT_ID: ci-build-client
       GOOGLE_CLIENT_SECRET: ci-build-client-secret
       GOOGLE_REDIRECT_URI: http://localhost:3000/api/auth/google/callback
+      INTEGRATIONS_ENCRYPTION_KEY: ci-build-integrations-key-3Hv8qN5x2Rm7
       NOTIFICATION_ROUTES: ""
       SESSION_SECRET: ci-build-session-secret-4Nq8vR2m7Kx5
       TOTP_ENCRYPTION_KEY: ci-build-totp-encryption-key-9Wp3mK7xQ2v8

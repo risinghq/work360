@@ -60,19 +60,21 @@ proxy that supplies these headers.
 
 ## Authentication and integrations
 
-| Variable               | Required when | Default                 | Purpose                                                                                                     |
-| ---------------------- | ------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `SESSION_SECRET`       | Always        | None                    | Signs the workspace id in session cookies and extension refresh tokens. Must pass the secret-entropy check. |
-| `TOTP_ENCRYPTION_KEY`  | Always        | None                    | Encrypts TOTP data. Must pass the secret-entropy check.                                                     |
-| `RECOVERY_CODE_PEPPER` | Always        | None                    | Protects recovery codes. Must pass the secret-entropy check.                                                |
-| `ENGINE_HMAC_KEY_ID`   | Always        | None                    | Identifies the web key to the engine.                                                                       |
-| `ENGINE_HMAC_SECRET`   | Always        | None                    | Signs engine requests. Must pass the secret-entropy check.                                                  |
-| `ENGINE_CONNECT_MODE`  | Optional      | `local`                 | Selects `local`, `internal`, or `remote` URL validation.                                                    |
-| `ENGINE_URL`           | Optional      | `http://127.0.0.1:3001` | Sets the engine endpoint.                                                                                   |
-| `ENGINE_TIMEOUT_MS`    | Optional      | `5000`                  | Sets the engine request timeout.                                                                            |
-| `GOOGLE_CLIENT_ID`     | Always        | None                    | Configures the Google OAuth client.                                                                         |
-| `GOOGLE_CLIENT_SECRET` | Always        | None                    | Configures the Google OAuth secret.                                                                         |
-| `GOOGLE_REDIRECT_URI`  | Always        | None                    | Sets the OAuth callback URL.                                                                                |
+| Variable                      | Required when | Default                 | Purpose                                                                                                     |
+| ----------------------------- | ------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `SESSION_SECRET`              | Always        | None                    | Signs the workspace id in session cookies and extension refresh tokens. Must pass the secret-entropy check. |
+| `TOTP_ENCRYPTION_KEY`         | Always        | None                    | Encrypts TOTP data. Must pass the secret-entropy check.                                                     |
+| `RECOVERY_CODE_PEPPER`        | Always        | None                    | Protects recovery codes. Must pass the secret-entropy check.                                                |
+| `ENGINE_HMAC_KEY_ID`          | Always        | None                    | Identifies the web key to the engine.                                                                       |
+| `ENGINE_HMAC_SECRET`          | Always        | None                    | Signs engine requests. Must pass the secret-entropy check.                                                  |
+| `ENGINE_CONNECT_MODE`         | Optional      | `local`                 | Selects `local`, `internal`, or `remote` URL validation.                                                    |
+| `ENGINE_URL`                  | Optional      | `http://127.0.0.1:3001` | Sets the engine endpoint.                                                                                   |
+| `ENGINE_TIMEOUT_MS`           | Optional      | `5000`                  | Sets the engine request timeout.                                                                            |
+| `GOOGLE_CLIENT_ID`            | Always        | None                    | Configures the Google OAuth client.                                                                         |
+| `GOOGLE_CLIENT_SECRET`        | Always        | None                    | Configures the Google OAuth secret.                                                                         |
+| `GOOGLE_REDIRECT_URI`         | Always        | None                    | Sets the OAuth callback URL.                                                                                |
+| `INTEGRATIONS_ENCRYPTION_KEY` | Always        | None                    | Seals the credentials of connected video providers. Must pass the secret-entropy check.                     |
+| `MEETING_REPLY_ADDRESS`       | Optional      | Empty                   | The address guests' calendar replies go to. Empty sends invitations that ask for no reply.                  |
 
 The [engine guide](../crates/engine/readme.md#configuration) describes how
 `ENGINE_HMAC_KEY_ID` and `ENGINE_HMAC_SECRET` pair with the engine's keys.

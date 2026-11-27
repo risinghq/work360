@@ -67,3 +67,17 @@ export const WORKSPACE_MEETINGS: readonly string[] = [
     where kind in ('admin', 'superuser')
       and not exists (select 1 from json_each(workspace_roles.permissions) where value = 'meeting:view:all')`,
 ];
+
+// A meeting's video room is a link the organizer pastes or a room work360
+// opens with a connected provider. `video_external_id` is the provider's id
+// for that room, kept so an edit or a cancel reaches the same room. A guest's
+// response comes from the calendar reply their client mails back.
+export const WORKSPACE_MEETING_VIDEO: readonly string[] = [
+  `alter table meetings add column video_provider text not null default 'none'
+    check (video_provider in ('none', 'link', 'zoom', 'google_meet', 'teams'))`,
+  `alter table meetings add column video_external_id text`,
+  `update meetings set video_provider = 'link' where video_link is not null`,
+  `alter table meeting_guests add column response text not null default 'needs_action'
+    check (response in ('needs_action', 'accepted', 'declined', 'tentative'))`,
+  `alter table meeting_guests add column responded_at timestamptz`,
+];

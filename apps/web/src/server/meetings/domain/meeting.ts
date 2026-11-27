@@ -1,3 +1,7 @@
+import type {
+  MeetingGuestResponse,
+  MeetingVideoProvider,
+} from "~/contracts/meetings/views";
 import { fail, type DomainError } from "~/domain/errors";
 import type { CaseId, OrganizationId, UserId } from "~/domain/ids";
 import { Err, Ok, type Result } from "~/shared/result";
@@ -18,6 +22,8 @@ export type MeetingDraft = {
   startsAt: Date;
   endsAt: Date;
   location: string | null;
+  videoProvider: MeetingVideoProvider;
+  // The pasted address for `link`; a hosted provider supplies its own.
   videoLink: string | null;
   organizationId: OrganizationId | null;
   caseId: CaseId | null;
@@ -36,8 +42,12 @@ export function settleDraft(
   if (!(span > 0 && span <= MAX_DURATION_MS)) {
     return Err(fail("meeting_time_invalid", { fields: ["endsAt"] }));
   }
-  const videoLink = draft.videoLink?.trim() || null;
-  if (videoLink !== null && !isHttpsUrl(videoLink)) {
+  const videoLink =
+    draft.videoProvider === "link" ? draft.videoLink?.trim() || null : null;
+  if (
+    draft.videoProvider === "link" &&
+    (videoLink === null || !isHttpsUrl(videoLink))
+  ) {
     return Err(fail("meeting_link_invalid", { fields: ["videoLink"] }));
   }
 
@@ -77,6 +87,34 @@ function isHttpsUrl(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+export type MeetingAttendee = MeetingGuest & {
+  response: MeetingGuestResponse;
+  respondedAt: Date | null;
+};
+
+// The organizer attends what they schedule. A guest kept through an edit
+// keeps their answer unless the time moved, since they answered for a time
+// that no longer holds.
+export function settleAttendees(
+  guests: readonly MeetingGuest[],
+  organizerUserId: UserId,
+  previous: readonly MeetingAttendee[],
+  timeMoved: boolean,
+): MeetingAttendee[] {
+  const before = new Map(previous.map((guest) => [guest.email, guest]));
+  return guests.map((guest) => {
+    if (guest.memberUserId === organizerUserId) {
+      return { ...guest, response: "accepted", respondedAt: null };
+    }
+    const kept = timeMoved ? undefined : before.get(guest.email);
+    return {
+      ...guest,
+      response: kept?.response ?? "needs_action",
+      respondedAt: kept?.respondedAt ?? null,
+    };
+  });
 }
 
 export type InvitePlan = {

@@ -7,6 +7,8 @@ import { createOrganizationEnrichment } from "~/server/organization/enrichment";
 import {
   appConfig,
   engineConfig,
+  integrationsConfig,
+  meetingsConfig,
   notificationsConfig,
 } from "~/server/platform/config/env";
 import {
@@ -49,7 +51,12 @@ export type HostServices = Omit<WorkspaceHostServices, "platform" | "registry">;
 
 export function createHostServices(): HostServices {
   const engine = createDefaultEngineClient(engineConfig());
-  const config = { app: appConfig(), notifications: notificationsConfig() };
+  const config = {
+    app: appConfig(),
+    notifications: notificationsConfig(),
+    integrations: integrationsConfig(),
+    meetings: meetingsConfig(),
+  };
   return {
     config,
     messaging: createNotificationMessaging(config.notifications),

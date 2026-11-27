@@ -31,21 +31,24 @@ export type DomainError =
   | (DomainErrorBase & {
       kind: "external" | "internal";
       internalMessage: string;
+      catalogCode?: DomainCode;
     });
 
 export function fail(
   code: DomainCode,
   opts?: { details?: unknown; fields?: readonly string[]; cause?: unknown },
 ): DomainError {
-  const entry = ERROR_CATALOG[code];
-  return {
-    kind: entry.kind,
+  const { kind, message } = ERROR_CATALOG[code];
+  const base = {
     code,
     catalogCode: code,
     details: opts?.details,
     fields: opts?.fields,
     cause: opts?.cause,
   };
+  return kind === "external"
+    ? { ...base, kind, internalMessage: message }
+    : { ...base, kind };
 }
 
 export function invalid(opts?: {

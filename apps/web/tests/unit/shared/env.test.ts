@@ -20,6 +20,8 @@ describe("env validation", () => {
     WHATSAPP_WEBHOOK_VERIFY_TOKEN:
       "stable-test-whatsapp-verify-token-satisfies-entropy-checks-12345",
     KAPSO_WEBHOOK_SECRET: "test-kapso-webhook-secret",
+    INTEGRATIONS_ENCRYPTION_KEY:
+      "temp_integrations_key_for_tests_32_chars_long",
   } satisfies Record<string, string>;
 
   it("throws if secret is too short", () => {

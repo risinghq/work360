@@ -45,6 +45,7 @@ import {
 import { runInHost } from "~/server/entrypoints/runtime.workers";
 import { workerSentryOptions } from "~/server/entrypoints/sentry.workers";
 import { extensionCredentialWorkspace } from "~/server/extension/crypto";
+import { readMeetingReply } from "~/server/meetings/invites/reply-mail";
 import type { CommitEffects } from "~/server/platform/database/commit-effects";
 import { createDurableObjectStore } from "~/server/platform/database/durable-object-store";
 import { applyMigrations } from "~/server/platform/database/migrate";
@@ -302,6 +303,18 @@ export default withSentry(workerSentryOptions, {
     return pathname.startsWith("/api/") || pathname.startsWith("/_server")
       ? route(request, env)
       : serveAppShell(request, env.ASSETS);
+  },
+
+  // Email Routing delivers mail to MEETING_REPLY_ADDRESS here: the calendar
+  // answers to meeting invites. Other mail is dropped.
+  async email(
+    message: { from: string; raw: ReadableStream<Uint8Array> },
+    env: Env,
+  ): Promise<void> {
+    const reply = await readMeetingReply(message.raw, message.from);
+    if (!reply) return;
+    const { workspaceId, ...answer } = reply;
+    await remoteWorkspace(env, workspaceId).receiveMeetingReply(answer);
   },
 });
 

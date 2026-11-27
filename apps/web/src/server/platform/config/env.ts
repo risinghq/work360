@@ -335,6 +335,25 @@ function parseSentryEnv(source: EnvSource) {
   } as const;
 }
 
+// Seals the credentials of connected video providers in the workspace store.
+function parseIntegrationsEnv(source: EnvSource) {
+  return {
+    integrationsEncryptionKey: required(
+      source,
+      "INTEGRATIONS_ENCRYPTION_KEY",
+      true,
+    ),
+  } as const;
+}
+
+// Calendar replies to invites go to this address, which Email Routing hands
+// to the Worker. Empty sends invites without asking guests to reply.
+function parseMeetingsEnv(source: EnvSource) {
+  return {
+    meetingReplyAddress: optional(source, "MEETING_REPLY_ADDRESS", ""),
+  } as const;
+}
+
 export function loadServerEnv(source: EnvSource) {
   return {
     session: parseSessionEnv(source),
@@ -348,6 +367,8 @@ export function loadServerEnv(source: EnvSource) {
     engine: parseEngineEnv(source),
     googleOAuth: parseGoogleOAuthEnv(source),
     notifications: parseNotificationsEnv(source),
+    integrations: parseIntegrationsEnv(source),
+    meetings: parseMeetingsEnv(source),
     sentry: parseSentryEnv(source),
   } as const;
 }
@@ -378,6 +399,8 @@ export const databaseConfig = section(parseDatabaseEnv);
 export const engineConfig = section(parseEngineEnv);
 export const googleOAuthConfig = section(parseGoogleOAuthEnv);
 export const notificationsConfig = section(parseNotificationsEnv);
+export const integrationsConfig = section(parseIntegrationsEnv);
+export const meetingsConfig = section(parseMeetingsEnv);
 export const sentryConfig = section(parseSentryEnv);
 
 export type NotificationsConfig = ReturnType<typeof parseNotificationsEnv>;

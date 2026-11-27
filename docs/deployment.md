@@ -76,9 +76,17 @@ secrets: a copy overrides the org secret and goes stale when the token rotates.
 Deploy by hand only for the first deploy or a broken pipeline.
 
 The secrets `SESSION_SECRET`, `TOTP_ENCRYPTION_KEY`, `RECOVERY_CODE_PEPPER`,
-`ENGINE_HMAC_SECRET` and `WHATSAPP_WEBHOOK_VERIFY_TOKEN` are set once with
+`ENGINE_HMAC_SECRET`, `INTEGRATIONS_ENCRYPTION_KEY` and
+`WHATSAPP_WEBHOOK_VERIFY_TOKEN` are set once with
 `bunx wrangler secret bulk FILE -c dist/worker/wrangler.json`. Keep a copy of
-`TOTP_ENCRYPTION_KEY`: without it, no enrolled TOTP secret can be decrypted.
+`TOTP_ENCRYPTION_KEY` and `INTEGRATIONS_ENCRYPTION_KEY`: without them, no
+enrolled TOTP secret and no connected Zoom account can be opened.
+
+Guests' calendar replies go to `MEETING_REPLY_ADDRESS`, `reuniones@rising.sh` in
+[`wrangler.jsonc`](../apps/web/wrangler.jsonc). An Email Routing rule in the
+rising.sh zone sends that address to the `work360` Worker, whose `email` handler
+records each answer. Without the rule a reply bounces and the guest stays "Sin
+respuesta".
 
 The deploy sends email through Resend from `work360.rising.sh`, a domain
 verified in Resend with its DNS records in the rising.sh zone. The secret

@@ -24,6 +24,7 @@ import { createEventLogsService } from "~/server/event-logs/service";
 import { createExtensionRuntime } from "~/server/extension/runtime";
 import { createFilesRuntime } from "~/server/files/runtime";
 import type { EngineClient } from "~/server/integrations/engine/client";
+import { createIntegrationsRuntime } from "~/server/integrations/workspace/runtime";
 import type { InvitePlatformPort } from "~/server/invites/application/types";
 import { createWorkspaceInvites } from "~/server/invites/infrastructure/invite-service-factory";
 import { createJobsChannel } from "~/server/jobs/channel";
@@ -37,6 +38,8 @@ import type { OrganizationEnrichment } from "~/server/organization/enrichment";
 import { createOrganizationRepo } from "~/server/organization/organization-repo";
 import type {
   appConfig,
+  integrationsConfig,
+  meetingsConfig,
   notificationsConfig,
 } from "~/server/platform/config/env";
 import type { WorkspaceInfrastructure } from "~/server/platform/infrastructure";
@@ -78,6 +81,8 @@ export interface WorkspaceHostServices {
   config: {
     app: ReturnType<typeof appConfig>;
     notifications: ReturnType<typeof notificationsConfig>;
+    integrations: ReturnType<typeof integrationsConfig>;
+    meetings: ReturnType<typeof meetingsConfig>;
   };
 }
 
@@ -134,6 +139,14 @@ export function createWorkspaceApplication(
   });
 
   const cases = createCasesRuntime({ executor: db, files });
+  const integrations = createIntegrationsRuntime({
+    executor: db,
+    keyMaterial: host.config.integrations.integrationsEncryptionKey,
+  });
+  const meetings = createMeetingsRuntime({
+    executor: db,
+    video: integrations.videoRooms,
+  });
 
   // The store's alarm runs these in order, so a queue a sweep feeds drains in
   // the same firing: notification expansion before dispatch.
@@ -154,7 +167,10 @@ export function createWorkspaceApplication(
         notificationQueues.dispatch,
         notificationQueues.whatsappInbound,
         notificationQueues.outboundWhatsApp,
-        createMeetingInviteQueue(db, host.messaging),
+        createMeetingInviteQueue(db, host.messaging, {
+          workspaceId: workspace.workspaceId,
+          replyTo: host.config.meetings.meetingReplyAddress || null,
+        }),
       ].map(queueDuty),
     ];
   }
@@ -178,6 +194,7 @@ export function createWorkspaceApplication(
     receiveWhatsApp: notifications.webhooks.receiveKapso,
     applyEnrichment: clientSearch.applyEnrichment,
     publishEnrichment: clientSearch.publishEnrichment,
+    receiveMeetingReply: meetings.receiveReply,
   };
 
   return {
@@ -203,7 +220,8 @@ export function createWorkspaceApplication(
     extension,
     files: { download: files.download },
     createDuties,
-    meetings: createMeetingsRuntime({ executor: db }),
+    integrations,
+    meetings,
     merchantStats,
     notifications,
     realtime: {

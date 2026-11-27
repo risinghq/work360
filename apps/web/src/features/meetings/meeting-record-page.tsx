@@ -10,7 +10,10 @@ import {
   RecordChip,
   RecordLinkChip,
 } from "~/components/ui/record-chip/record-chip";
-import type { MeetingDetailView } from "~/contracts/meetings/views";
+import {
+  isHostedVideoProvider,
+  type MeetingDetailView,
+} from "~/contracts/meetings/views";
 import { OBJECTS } from "~/contracts/objects/registry";
 import { RecordBreadcrumb } from "~/features/record-show/header/record-breadcrumb";
 import type { RecordFieldValue } from "~/features/record-show/model/field-groups";
@@ -27,7 +30,9 @@ import { createMeetingFormSidePanelPage } from "~/features/side-panel/types/side
 import { FieldTextValue } from "~/features/widgets/field-table";
 import { meetingQuery } from "~/rpc/meetings/queries";
 
+import { GuestResponseTag } from "./guest-response";
 import { MeetingStatusTag, meetingStatusLabel } from "./meeting-status";
+import { VIDEO_PROVIDER_LABELS } from "./video-provider";
 
 import styles from "./meetings.module.css";
 
@@ -113,7 +118,15 @@ function MeetingFields(props: { detail: MeetingDetailView }) {
       record={record()}
       cells={{
         videoLink: (entry) => (
-          <LinkField entry={entry} href={props.detail.videoLink} />
+          <LinkField
+            entry={entry}
+            href={props.detail.videoLink}
+            text={
+              isHostedVideoProvider(props.detail.videoProvider)
+                ? `Unirse por ${VIDEO_PROVIDER_LABELS[props.detail.videoProvider]}`
+                : props.detail.videoLink
+            }
+          />
         ),
         company: (entry) => (
           <RecordFieldCell entry={entry} empty={!props.detail.organizationId}>
@@ -143,7 +156,11 @@ function MeetingFields(props: { detail: MeetingDetailView }) {
   );
 }
 
-function LinkField(props: { entry: RecordFieldValue; href: string | null }) {
+function LinkField(props: {
+  entry: RecordFieldValue;
+  href: string | null;
+  text: string | null;
+}) {
   return (
     <RecordFieldCell entry={props.entry} empty={!props.href}>
       <a
@@ -152,7 +169,7 @@ function LinkField(props: { entry: RecordFieldValue; href: string | null }) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        {props.href}
+        {props.text}
       </a>
     </RecordFieldCell>
   );
@@ -204,6 +221,9 @@ function MeetingTabs(props: { detail: MeetingDetailView }) {
                   <RecordChip name={guest.name ?? guest.email} shape="round" />
                   <span class={styles.meta}>
                     {guest.memberUserId ? "Equipo" : "Contacto"} · {guest.email}
+                  </span>
+                  <span class={styles.response}>
+                    <GuestResponseTag response={guest.response} />
                   </span>
                 </li>
               )}

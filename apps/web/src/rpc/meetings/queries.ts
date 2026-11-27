@@ -2,6 +2,7 @@ import { query } from "@solidjs/router";
 
 import {
   getMeeting,
+  getMeetingVideoOptions,
   listMeetingGuestOptions,
   listMeetings,
 } from "~/server/meetings/ui/queries";
@@ -25,3 +26,8 @@ export const meetingGuestOptionsQuery = query(
   },
   "meetings.guestOptions",
 );
+
+export const meetingVideoOptionsQuery = query(async () => {
+  "use server";
+  return getMeetingVideoOptions();
+}, "meetings.videoOptions");

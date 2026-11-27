@@ -1,5 +1,9 @@
 import type { Kysely, Transaction } from "kysely";
 
+import type {
+  MeetingGuestResponse,
+  MeetingVideoProvider,
+} from "~/contracts/meetings/views";
 import {
   newRowId,
   type CaseId,
@@ -9,7 +13,11 @@ import {
 } from "~/domain/ids";
 import type { WorkspaceDatabase } from "~/server/platform/database/types";
 
-import type { InvitePlan, MeetingDraft, MeetingGuest } from "../domain/meeting";
+import type {
+  InvitePlan,
+  MeetingAttendee,
+  MeetingDraft,
+} from "../domain/meeting";
 
 type Db = Kysely<WorkspaceDatabase>;
 type Tx = Transaction<WorkspaceDatabase>;
@@ -26,6 +34,7 @@ export type MeetingSummary = {
   companyName: string | null;
   caseId: CaseId | null;
   guestCount: number;
+  videoProvider: MeetingVideoProvider;
   videoLink: string | null;
 };
 
@@ -34,7 +43,17 @@ export type MeetingRecord = MeetingSummary & {
   location: string | null;
   sequence: number;
   organizerEmail: string;
-  guests: MeetingGuest[];
+  // The provider's id for a hosted room, used to change or remove it.
+  videoExternalId: string | null;
+  guests: MeetingAttendee[];
+};
+
+// What a save writes: the settled draft, its attendees with their answers,
+// and the hosted room's id when the provider opened one.
+export type SavedMeeting = {
+  draft: MeetingDraft;
+  attendees: readonly MeetingAttendee[];
+  videoExternalId: string | null;
 };
 
 export type MeetingScope = {
@@ -67,6 +86,8 @@ function summaryQuery(db: Db | Tx) {
       "meetings.ends_at",
       "meetings.location",
       "meetings.video_link",
+      "meetings.video_provider",
+      "meetings.video_external_id",
       "meetings.status",
       "meetings.sequence",
       "meetings.organizer_user_id",
@@ -101,6 +122,7 @@ function toSummary(row: SummaryRow): MeetingSummary {
     companyName: row.legal_name,
     caseId: row.case_id,
     guestCount: row.guest_count ?? 0,
+    videoProvider: row.video_provider,
     videoLink: row.video_link,
   };
 }
@@ -108,18 +130,24 @@ function toSummary(row: SummaryRow): MeetingSummary {
 async function guestsOf(executor: Db | Tx, id: MeetingId) {
   const rows = await executor
     .selectFrom("meeting_guests")
-    .select(["email", "name", "member_user_id"])
+    .select(["email", "name", "member_user_id", "response", "responded_at"])
     .where("meeting_id", "=", id)
     .orderBy("email")
     .execute();
-  return rows.map((row): MeetingGuest => ({
+  return rows.map((row): MeetingAttendee => ({
     email: row.email,
     name: row.name,
     memberUserId: row.member_user_id,
+    response: row.response,
+    respondedAt: row.responded_at,
   }));
 }
 
-async function insertGuests(tx: Tx, id: MeetingId, guests: MeetingGuest[]) {
+async function insertGuests(
+  tx: Tx,
+  id: MeetingId,
+  guests: readonly MeetingAttendee[],
+) {
   if (guests.length === 0) return;
   await tx
     .insertInto("meeting_guests")
@@ -129,6 +157,8 @@ async function insertGuests(tx: Tx, id: MeetingId, guests: MeetingGuest[]) {
         email: guest.email,
         name: guest.name,
         member_user_id: guest.memberUserId,
+        response: guest.response,
+        responded_at: guest.respondedAt,
       })),
     )
     .execute();
@@ -233,6 +263,7 @@ export function createMeetingsRepo(db: Db) {
         location: row.location,
         sequence: row.sequence,
         organizerEmail: row.organizer_email,
+        videoExternalId: row.video_external_id,
         guests: await guestsOf(db, id),
       };
     },
@@ -300,12 +331,13 @@ export function createMeetingsRepo(db: Db) {
     },
 
     async create(
-      draft: MeetingDraft,
+      id: MeetingId,
+      saved: SavedMeeting,
       organizerUserId: UserId,
       plans: readonly InvitePlan[],
       now: Date,
-    ): Promise<MeetingId> {
-      const id = MeetingId.mint();
+    ): Promise<void> {
+      const { draft } = saved;
       await db.transaction().execute(async (tx) => {
         await tx
           .insertInto("meetings")
@@ -316,7 +348,9 @@ export function createMeetingsRepo(db: Db) {
             starts_at: draft.startsAt,
             ends_at: draft.endsAt,
             location: draft.location,
+            video_provider: draft.videoProvider,
             video_link: draft.videoLink,
+            video_external_id: saved.videoExternalId,
             organizer_user_id: organizerUserId,
             organization_id: draft.organizationId,
             case_id: draft.caseId,
@@ -324,19 +358,19 @@ export function createMeetingsRepo(db: Db) {
             updated_at: now,
           })
           .execute();
-        await insertGuests(tx, id, draft.guests);
+        await insertGuests(tx, id, saved.attendees);
         await enqueueInvites(tx, id, 0, plans, now);
       });
-      return id;
     },
 
     async update(
       id: MeetingId,
-      draft: MeetingDraft,
+      saved: SavedMeeting,
       sequence: number,
       plans: readonly InvitePlan[],
       now: Date,
     ): Promise<void> {
+      const { draft } = saved;
       await db.transaction().execute(async (tx) => {
         await tx
           .updateTable("meetings")
@@ -346,7 +380,9 @@ export function createMeetingsRepo(db: Db) {
             starts_at: draft.startsAt,
             ends_at: draft.endsAt,
             location: draft.location,
+            video_provider: draft.videoProvider,
             video_link: draft.videoLink,
+            video_external_id: saved.videoExternalId,
             organization_id: draft.organizationId,
             case_id: draft.caseId,
             sequence,
@@ -358,7 +394,7 @@ export function createMeetingsRepo(db: Db) {
           .deleteFrom("meeting_guests")
           .where("meeting_id", "=", id)
           .execute();
-        await insertGuests(tx, id, draft.guests);
+        await insertGuests(tx, id, saved.attendees);
         await enqueueInvites(tx, id, sequence, plans, now);
       });
     },
@@ -377,6 +413,34 @@ export function createMeetingsRepo(db: Db) {
           .execute();
         await enqueueInvites(tx, id, sequence, plans, now);
       });
+    },
+
+    // Records a guest's answer to the invite at `sequence`. An answer to an
+    // older version, or to a cancelled meeting, changes nothing.
+    async recordResponse(
+      id: MeetingId,
+      email: string,
+      response: MeetingGuestResponse,
+      sequence: number,
+      at: Date,
+    ): Promise<boolean> {
+      const result = await db
+        .updateTable("meeting_guests")
+        .set({ response, responded_at: at })
+        .where("meeting_id", "=", id)
+        .where("email", "=", email.toLowerCase())
+        .where((eb) =>
+          eb.exists(
+            eb
+              .selectFrom("meetings")
+              .select("meetings.id")
+              .where("meetings.id", "=", id)
+              .where("meetings.status", "=", "scheduled")
+              .where("meetings.sequence", "<=", sequence),
+          ),
+        )
+        .executeTakeFirst();
+      return Number(result.numUpdatedRows) > 0;
     },
   };
 }

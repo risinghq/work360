@@ -2,6 +2,7 @@ import type {
   MeetingDetailView,
   MeetingGuestOption,
   MeetingSummaryView,
+  MeetingVideoOptionsView,
 } from "~/contracts/meetings/views";
 import { hasPermission } from "~/domain/auth/access/rbac";
 import { CaseId, MeetingId, OrganizationId } from "~/domain/ids";
@@ -31,6 +32,7 @@ function toSummaryView(meeting: MeetingSummary): MeetingSummaryView {
     companyName: meeting.companyName,
     caseId: meeting.caseId,
     guestCount: meeting.guestCount,
+    videoProvider: meeting.videoProvider,
     videoLink: meeting.videoLink,
   };
 }
@@ -47,6 +49,7 @@ function toDetailView(
       email: guest.email,
       name: guest.name,
       memberUserId: guest.memberUserId,
+      response: guest.response,
     })),
     canEdit:
       meeting.organizerUserId === viewerUserId &&
@@ -109,5 +112,19 @@ export async function listMeetingGuestOptions(
       })),
     execute: async (_ctx, { organizationId }) =>
       Ok(await getApplication().meetings.guestOptions(organizationId)),
+  });
+}
+
+// The hosted providers the form offers; the rest show as not connected.
+export async function getMeetingVideoOptions(): Promise<MeetingVideoOptionsView> {
+  return executeSessionServerFunction({
+    name: "meetings.video_options",
+    access: { kind: "permission", permission: "meeting:schedule" },
+    execute: async (ctx) =>
+      Ok({
+        available: await getApplication().meetings.videoOptions(
+          ctx.actor.userId,
+        ),
+      }),
   });
 }

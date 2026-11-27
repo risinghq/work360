@@ -1,3 +1,4 @@
+import { MEETING_VIDEO_PROVIDERS } from "~/contracts/meetings/views";
 import type { DomainError } from "~/domain/errors";
 import { CaseId, MeetingId, OrganizationId, UserId } from "~/domain/ids";
 import { getApplication } from "~/server/composition/application";
@@ -18,6 +19,7 @@ function readMeeting(r: Reader<DomainError>) {
     startsAt: new Date(r.num("startsAt")),
     endsAt: new Date(r.num("endsAt")),
     location: r.optStr("location"),
+    videoProvider: r.enum("videoProvider", MEETING_VIDEO_PROVIDERS),
     videoLink: r.optStr("videoLink"),
     organizationId: r.optId("organizationId", OrganizationId) ?? null,
     caseId: r.optId("caseId", CaseId) ?? null,

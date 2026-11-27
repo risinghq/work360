@@ -8,11 +8,15 @@ import { Button } from "~/components/ui/input/button";
 import { Checkbox } from "~/components/ui/input/checkbox";
 import { Input } from "~/components/ui/input/input";
 import { SearchInput } from "~/components/ui/input/search-input";
+import { Select } from "~/components/ui/input/select";
 import { Textarea } from "~/components/ui/input/textarea";
 import { actionErrorMessage } from "~/contracts/errors";
-import type {
-  MeetingDetailView,
-  MeetingGuestView,
+import {
+  isHostedVideoProvider,
+  MEETING_VIDEO_PROVIDERS,
+  type MeetingDetailView,
+  type MeetingGuestView,
+  type MeetingVideoProvider,
 } from "~/contracts/meetings/views";
 import {
   appDateTimeInputValue,
@@ -23,7 +27,12 @@ import {
   createMeetingMutation,
   updateMeetingMutation,
 } from "~/features/meetings/data/mutations";
-import { meetingGuestOptionsQuery, meetingQuery } from "~/rpc/meetings/queries";
+import { VIDEO_PROVIDER_LABELS } from "~/features/meetings/video-provider";
+import {
+  meetingGuestOptionsQuery,
+  meetingQuery,
+  meetingVideoOptionsQuery,
+} from "~/rpc/meetings/queries";
 
 import { SidePanelPage } from "../../components/page";
 import { SidePanelFooter } from "../../components/panel-footer";
@@ -96,6 +105,7 @@ function MeetingForm(props: {
   const options = createMemo(() =>
     meetingGuestOptionsQuery(props.organizationId),
   );
+  const videoOptions = createMemo(() => meetingVideoOptionsQuery());
 
   const start = props.meeting?.startsAt ?? defaultStart();
   const [title, setTitle] = createSignal(
@@ -106,16 +116,26 @@ function MeetingForm(props: {
     appDateTimeInputValue(props.meeting?.endsAt ?? start + HOUR_MS),
   );
   const [location, setLocation] = createSignal(props.meeting?.location ?? "");
+  const [videoProvider, setVideoProvider] = createSignal<MeetingVideoProvider>(
+    props.meeting?.videoProvider ?? "none",
+  );
+  // A hosted provider's link is its own; only a pasted link is edited here.
   const [videoLink, setVideoLink] = createSignal(
-    props.meeting?.videoLink ?? "",
+    props.meeting?.videoProvider === "link"
+      ? (props.meeting.videoLink ?? "")
+      : "",
   );
   const [description, setDescription] = createSignal(
     props.meeting?.description ?? "",
   );
   const [guests, setGuests] = createSignal<MeetingGuestView[]>(
-    (props.meeting?.guests ?? []).filter(
-      (guest) => guest.memberUserId !== currentUser().id,
-    ),
+    (props.meeting?.guests ?? [])
+      .filter((guest) => guest.memberUserId !== currentUser().id)
+      .map((guest) => ({
+        email: guest.email,
+        name: guest.name,
+        memberUserId: guest.memberUserId,
+      })),
   );
   const [filter, setFilter] = createSignal("");
   const [extraEmail, setExtraEmail] = createSignal("");
@@ -191,7 +211,8 @@ function MeetingForm(props: {
       startsAt: startInstant.getTime(),
       endsAt: endInstant.getTime(),
       location: location().trim() || null,
-      videoLink: videoLink().trim() || null,
+      videoProvider: videoProvider(),
+      videoLink: videoProvider() === "link" ? videoLink().trim() || null : null,
       organizationId: props.organizationId,
       caseId: props.caseId,
       guests: guests(),
@@ -292,14 +313,52 @@ function MeetingForm(props: {
             onInput={(event) => setEndsAt(event.currentTarget.value)}
           />
         </div>
-        <Input
-          label="Enlace de videollamada"
-          type="url"
-          placeholder="https://meet.google.com/…"
-          value={videoLink()}
+        <Select
+          label="Videollamada"
+          value={videoProvider()}
           disabled={busy()}
-          onInput={(event) => setVideoLink(event.currentTarget.value)}
-        />
+          onInput={(event) => {
+            const picked = MEETING_VIDEO_PROVIDERS.find(
+              (provider) => provider === event.currentTarget.value,
+            );
+            if (picked) setVideoProvider(picked);
+          }}
+        >
+          <For each={MEETING_VIDEO_PROVIDERS}>
+            {(provider) => {
+              // A saved meeting keeps its provider even after a disconnect,
+              // so the form never silently switches it.
+              const unavailable = () =>
+                isHostedVideoProvider(provider) &&
+                provider !== props.meeting?.videoProvider &&
+                !videoOptions().available.includes(provider);
+              return (
+                <option value={provider} disabled={unavailable()}>
+                  {VIDEO_PROVIDER_LABELS[provider]}
+                  {unavailable() ? " (no conectado)" : ""}
+                </option>
+              );
+            }}
+          </For>
+        </Select>
+        <Show when={videoProvider() === "link"}>
+          <Input
+            label="Enlace de videollamada"
+            type="url"
+            required
+            placeholder="https://…"
+            value={videoLink()}
+            disabled={busy()}
+            onInput={(event) => setVideoLink(event.currentTarget.value)}
+          />
+        </Show>
+        <Show when={isHostedVideoProvider(videoProvider())}>
+          <p class={styles.meta}>
+            {props.meeting?.videoProvider === videoProvider()
+              ? "La sala se actualiza al guardar y conserva su enlace."
+              : `La sala de ${VIDEO_PROVIDER_LABELS[videoProvider()]} se crea al guardar y su enlace va en la invitación.`}
+          </p>
+        </Show>
         <Input
           label="Lugar"
           value={location()}
