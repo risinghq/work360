@@ -49,6 +49,15 @@ export interface WorkspaceIntegrationsTable {
   connected_at: Date;
 }
 
+export interface MemberConnectionsTable {
+  user_id: IdColumn<UserId>;
+  provider: "google";
+  sealed_config: string;
+  label: string;
+  calendar_id: string | null;
+  connected_at: Date;
+}
+
 export interface MeetingInvitesTable {
   id: string;
   meeting_id: IdColumn<MeetingId>;

@@ -13,6 +13,9 @@
     // Calendars mail their RSVP here; an Email Routing rule on rising.sh
     // sends it to this worker's email() handler.
     "MEETING_REPLY_ADDRESS": "reuniones@rising.sh",
+    // GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are secrets of the work360
+    // client in the teams-rising-sh Google project.
+    "GOOGLE_REDIRECT_URI": "https://work360.rising.sh/api/auth/google/callback",
   },
   // A stores:push commit swaps a whole workspace in one transaction. The
   // 327 MB Entel store took 26 s of CPU locally, near the 30 s default.

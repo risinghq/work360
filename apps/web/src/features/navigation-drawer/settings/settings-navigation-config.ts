@@ -7,6 +7,7 @@ import DoorEnter from "~/components/icons/door-enter";
 import HelpCircle from "~/components/icons/help-circle";
 import Link from "~/components/icons/link";
 import Lock from "~/components/icons/lock";
+import Mail from "~/components/icons/mail";
 import MoneyBag from "~/components/icons/moneybag";
 import ShieldCheck from "~/components/icons/shield-check";
 import Target from "~/components/icons/target";
@@ -54,6 +55,14 @@ export function createSettingsNavigationSections(
           href: "/settings/notifications",
           icon: Bell,
           section: "account",
+        },
+        {
+          id: "accounts",
+          label: "Cuentas conectadas",
+          href: "/settings/accounts",
+          icon: Mail,
+          section: "account",
+          isHidden: !canAccessPath(options.member, "/settings/accounts"),
         },
         {
           id: "security",

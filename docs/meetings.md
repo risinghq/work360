@@ -26,12 +26,14 @@ another mailbox.
 
 ## Video calls
 
-The form's "Videollamada" picks one of three:
+The form's "Videollamada" picks one of these:
 
 - **Ninguna**: the meeting has no call.
 - **Enlace propio**: the organizer pastes a link from any service.
 - **Zoom**: work360 creates the room in the workspace's Zoom account. The option
   is disabled until an admin connects Zoom.
+- **Google Meet**: work360 creates the room in the organizer's own Google
+  account. The option is disabled until the organizer connects Google.
 
 An admin connects Zoom in Ajustes > Integraciones with a Zoom Server-to-Server
 OAuth app that holds the scopes `meeting:write:admin` and `user:read:admin`.
@@ -39,19 +41,28 @@ work360 checks the credentials against Zoom before it stores them, sealed with
 `INTEGRATIONS_ENCRYPTION_KEY`. The room belongs to the account, not to the
 organizer, so guests may join before a host.
 
+A member connects Google in Ajustes > Cuentas conectadas. The flow at
+`/api/integrations/google` uses the app's Google OAuth client and asks only for
+`calendar.app.created`: work360 can manage the calendars it creates and cannot
+read the member's other calendars. The first Meet room creates a calendar named
+"work360" in the member's account, and each room is an event in it with a Meet
+conference and no guests, so Google sends no invitation of its own. If the
+member deletes that calendar, the next room creates a new one. The refresh token
+is sealed with `INTEGRATIONS_ENCRYPTION_KEY`. Disconnecting deletes it and
+revokes the grant at Google.
+
 [`runtime.ts`](../apps/web/src/server/meetings/runtime.ts) keeps the room in
 step with the meeting:
 
 - Scheduling creates the room before the meeting is saved, so the first
-  invitation carries its link. If Zoom refuses, nothing is saved. If the save
-  fails, the room is removed.
+  invitation carries its link. If the provider refuses, nothing is saved. If the
+  save fails, the room is removed.
 - Editing moves the room to the new time and keeps its link. Switching to
   another option removes the old room.
 - Cancelling removes the room.
 
 A room left behind by a failed removal is reported to Sentry and does not fail
-the request. Google Meet and Microsoft Teams rooms are later work: each needs a
-per-member OAuth connection.
+the request. Microsoft Teams rooms are later work.
 
 ## Who can do what
 

@@ -38,6 +38,7 @@ import type { OrganizationEnrichment } from "~/server/organization/enrichment";
 import { createOrganizationRepo } from "~/server/organization/organization-repo";
 import type {
   appConfig,
+  googleOAuthConfig,
   integrationsConfig,
   meetingsConfig,
   notificationsConfig,
@@ -82,6 +83,7 @@ export interface WorkspaceHostServices {
     app: ReturnType<typeof appConfig>;
     notifications: ReturnType<typeof notificationsConfig>;
     integrations: ReturnType<typeof integrationsConfig>;
+    googleOAuth: ReturnType<typeof googleOAuthConfig>;
     meetings: ReturnType<typeof meetingsConfig>;
   };
 }
@@ -142,6 +144,10 @@ export function createWorkspaceApplication(
   const integrations = createIntegrationsRuntime({
     executor: db,
     keyMaterial: host.config.integrations.integrationsEncryptionKey,
+    google: {
+      clientId: host.config.googleOAuth.googleClientId,
+      clientSecret: host.config.googleOAuth.googleClientSecret,
+    },
   });
   const meetings = createMeetingsRuntime({
     executor: db,

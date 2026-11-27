@@ -80,7 +80,13 @@ The secrets `SESSION_SECRET`, `TOTP_ENCRYPTION_KEY`, `RECOVERY_CODE_PEPPER`,
 `WHATSAPP_WEBHOOK_VERIFY_TOKEN` are set once with
 `bunx wrangler secret bulk FILE -c dist/worker/wrangler.json`. Keep a copy of
 `TOTP_ENCRYPTION_KEY` and `INTEGRATIONS_ENCRYPTION_KEY`: without them, no
-enrolled TOTP secret and no connected Zoom account can be opened.
+enrolled TOTP secret and no connected Zoom or Google account can be opened.
+
+`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are secrets of the `work360` OAuth
+client in the `teams-rising-sh` Google project. The client allows the redirect
+URIs `https://work360.rising.sh/api/integrations/google/callback` and
+`http://localhost:3000/api/integrations/google/callback`. Each member's refresh
+token belongs to this client, so replacing the client disconnects every member.
 
 Guests' calendar replies go to `MEETING_REPLY_ADDRESS`, `reuniones@rising.sh` in
 [`wrangler.jsonc`](../apps/web/wrangler.jsonc). An Email Routing rule in the

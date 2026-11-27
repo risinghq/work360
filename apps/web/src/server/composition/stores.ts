@@ -7,6 +7,7 @@ import { createOrganizationEnrichment } from "~/server/organization/enrichment";
 import {
   appConfig,
   engineConfig,
+  googleOAuthConfig,
   integrationsConfig,
   meetingsConfig,
   notificationsConfig,
@@ -55,6 +56,7 @@ export function createHostServices(): HostServices {
     app: appConfig(),
     notifications: notificationsConfig(),
     integrations: integrationsConfig(),
+    googleOAuth: googleOAuthConfig(),
     meetings: meetingsConfig(),
   };
   return {

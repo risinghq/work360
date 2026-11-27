@@ -70,9 +70,9 @@ proxy that supplies these headers.
 | `ENGINE_CONNECT_MODE`         | Optional      | `local`                 | Selects `local`, `internal`, or `remote` URL validation.                                                    |
 | `ENGINE_URL`                  | Optional      | `http://127.0.0.1:3001` | Sets the engine endpoint.                                                                                   |
 | `ENGINE_TIMEOUT_MS`           | Optional      | `5000`                  | Sets the engine request timeout.                                                                            |
-| `GOOGLE_CLIENT_ID`            | Always        | None                    | Configures the Google OAuth client.                                                                         |
+| `GOOGLE_CLIENT_ID`            | Always        | None                    | Configures the Google OAuth client for sign-in and for members' Meet connections.                           |
 | `GOOGLE_CLIENT_SECRET`        | Always        | None                    | Configures the Google OAuth secret.                                                                         |
-| `GOOGLE_REDIRECT_URI`         | Always        | None                    | Sets the OAuth callback URL.                                                                                |
+| `GOOGLE_REDIRECT_URI`         | Always        | None                    | Sets the sign-in callback URL. The Meet connection returns to `/api/integrations/google/callback`.          |
 | `INTEGRATIONS_ENCRYPTION_KEY` | Always        | None                    | Seals the credentials of connected video providers. Must pass the secret-entropy check.                     |
 | `MEETING_REPLY_ADDRESS`       | Optional      | Empty                   | The address guests' calendar replies go to. Empty sends invitations that ask for no reply.                  |
 

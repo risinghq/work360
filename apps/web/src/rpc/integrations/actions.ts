@@ -36,3 +36,16 @@ export async function disconnectZoom() {
     },
   });
 }
+
+export async function disconnectGoogle() {
+  "use server";
+
+  return executeSessionServerFunctionResult({
+    name: "integrations.disconnect_google",
+    access: { kind: "permission", permission: "meeting:schedule" },
+    execute: async (ctx) => {
+      await getApplication().integrations.disconnectGoogle(ctx.actor.userId);
+      return Ok(null);
+    },
+  });
+}

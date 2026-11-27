@@ -9,3 +9,10 @@ export type IntegrationConnectionView = {
 export type WorkspaceIntegrationsView = {
   zoom: IntegrationConnectionView | null;
 };
+
+// An account the signed-in member connected for themselves.
+export type MemberConnectionView = { label: string; connectedAt: number };
+
+export type MemberConnectionsView = {
+  google: MemberConnectionView | null;
+};

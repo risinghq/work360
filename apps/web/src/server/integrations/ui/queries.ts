@@ -1,4 +1,7 @@
-import type { WorkspaceIntegrationsView } from "~/contracts/integrations/views";
+import type {
+  MemberConnectionsView,
+  WorkspaceIntegrationsView,
+} from "~/contracts/integrations/views";
 import { getApplication } from "~/server/composition/application";
 import { executeSessionServerFunction } from "~/server/platform/action";
 import { Ok } from "~/shared/result";
@@ -16,6 +19,23 @@ export async function getWorkspaceIntegrations(): Promise<WorkspaceIntegrationsV
               connectedAt: zoom.connectedAt.getTime(),
               connectedByName: zoom.connectedByName,
             }
+          : null,
+      });
+    },
+  });
+}
+
+export async function getMyConnections(): Promise<MemberConnectionsView> {
+  return executeSessionServerFunction({
+    name: "integrations.my_connections",
+    access: { kind: "permission", permission: "meeting:schedule" },
+    execute: async (ctx) => {
+      const { google } = await getApplication().integrations.memberStatus(
+        ctx.actor.userId,
+      );
+      return Ok({
+        google: google
+          ? { label: google.label, connectedAt: google.connectedAt.getTime() }
           : null,
       });
     },

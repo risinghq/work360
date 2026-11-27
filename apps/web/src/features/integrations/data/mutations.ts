@@ -1,8 +1,15 @@
 import { action } from "@solidjs/router";
 import { respond } from "@solidjs/web";
 
-import { connectZoom, disconnectZoom } from "~/rpc/integrations/actions";
-import { integrationsQuery } from "~/rpc/integrations/queries";
+import {
+  connectZoom,
+  disconnectGoogle,
+  disconnectZoom,
+} from "~/rpc/integrations/actions";
+import {
+  integrationsQuery,
+  myConnectionsQuery,
+} from "~/rpc/integrations/queries";
 import { meetingVideoOptionsQuery } from "~/rpc/meetings/queries";
 
 export type ZoomCredentialsInput = {
@@ -23,4 +30,12 @@ export const connectZoomMutation = action(
 export const disconnectZoomMutation = action(
   async () => respond(await disconnectZoom(), { revalidate }),
   "disconnectZoom",
+);
+
+export const disconnectGoogleMutation = action(
+  async () =>
+    respond(await disconnectGoogle(), {
+      revalidate: [myConnectionsQuery.key, meetingVideoOptionsQuery.key],
+    }),
+  "disconnectGoogle",
 );
