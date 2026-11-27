@@ -1,7 +1,6 @@
 import { useNavigate, useSearchParams } from "@solidjs/router";
-import { Errored, Loading, createEffect, createSignal } from "solid-js";
+import { Errored, createEffect, createSignal } from "solid-js";
 
-import { Spinner } from "~/components/feedback/spinner/spinner";
 import Building2 from "~/components/icons/building-2";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import { RecordLinkChip } from "~/components/ui/record-chip/record-chip";
@@ -123,10 +122,8 @@ export function CompanySearch() {
   } satisfies RecordIndexDefinition<CompanySummaryView>;
 
   return (
-    <Loading fallback={<Spinner size="lg" />}>
-      <Errored fallback={<p>No se pudieron cargar las empresas.</p>}>
-        <RecordIndexScreen definition={recordIndex} />
-      </Errored>
-    </Loading>
+    <Errored fallback={<p>No se pudieron cargar las empresas.</p>}>
+      <RecordIndexScreen definition={recordIndex} />
+    </Errored>
   );
 }

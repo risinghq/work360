@@ -1,9 +1,8 @@
 import { useAction, useNavigate, useSearchParams } from "@solidjs/router";
-import { Errored, Loading, Show, createMemo } from "solid-js";
+import { Errored, Show, createMemo } from "solid-js";
 
 import { saveSheet } from "~/browser/files/sheet";
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
-import { Spinner } from "~/components/feedback/spinner/spinner";
 import Inbox from "~/components/icons/inbox";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import {
@@ -104,11 +103,9 @@ export function CaseList() {
   const views = createMemo(() => caseViews(types()));
 
   return (
-    <Loading fallback={<Spinner size="lg" />}>
-      <Show when={views()[0]} fallback={<NoCaseTypes />}>
-        {(first) => <CaseIndex views={views()} defaultView={first()} />}
-      </Show>
-    </Loading>
+    <Show when={views()[0]} fallback={<NoCaseTypes />}>
+      {(first) => <CaseIndex views={views()} defaultView={first()} />}
+    </Show>
   );
 }
 

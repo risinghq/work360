@@ -1,15 +1,7 @@
 import { useAction, useSearchParams } from "@solidjs/router";
-import {
-  Errored,
-  For,
-  Loading,
-  Show,
-  createMemo,
-  createSignal,
-} from "solid-js";
+import { Errored, For, Show, createMemo, createSignal } from "solid-js";
 
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
-import { Spinner } from "~/components/feedback/spinner/spinner";
 import Target from "~/components/icons/target";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
@@ -92,13 +84,11 @@ export function CampaignRecords() {
   const campaigns = createMemo(() => campaignsQuery());
 
   return (
-    <Loading fallback={<Spinner size="lg" />}>
-      <Show when={campaigns()[0]} fallback={<NoCampaigns />}>
-        {(first) => (
-          <CampaignIndex campaigns={campaigns()} defaultCampaign={first()} />
-        )}
-      </Show>
-    </Loading>
+    <Show when={campaigns()[0]} fallback={<NoCampaigns />}>
+      {(first) => (
+        <CampaignIndex campaigns={campaigns()} defaultCampaign={first()} />
+      )}
+    </Show>
   );
 }
 

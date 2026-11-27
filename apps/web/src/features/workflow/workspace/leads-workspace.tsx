@@ -1,8 +1,7 @@
-import { createMemo, Errored, Loading } from "solid-js";
+import { createMemo, Errored } from "solid-js";
 
 import { saveCsv } from "~/browser/files/sheet";
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
-import { Spinner } from "~/components/feedback/spinner/spinner";
 import Building2 from "~/components/icons/building-2";
 import List from "~/components/icons/list";
 import { useAuthenticatedSession } from "~/components/providers/authenticated-session-provider";
@@ -180,11 +179,9 @@ export function LeadsWorkspace() {
         onChange={recordImport.onFileInputChange}
       />
 
-      <Loading fallback={<Spinner size="lg" />}>
-        <Errored fallback={<p>No se pudieron cargar los registros.</p>}>
-          <RecordIndexScreen definition={recordIndex} />
-        </Errored>
-      </Loading>
+      <Errored fallback={<p>No se pudieron cargar los registros.</p>}>
+        <RecordIndexScreen definition={recordIndex} />
+      </Errored>
     </ImportDropzone>
   );
 }
