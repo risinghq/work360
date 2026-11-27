@@ -1,8 +1,8 @@
 # Meetings
 
-A meeting is a work meeting a member schedules: an HR interview, a team
-meeting called by a supervisor, or a meeting with a client company. work360
-keeps the meeting and emails each guest a calendar invitation. The code is in
+A meeting is a work meeting a member schedules: an HR interview, a team meeting
+called by a supervisor, or a meeting with a client company. work360 keeps the
+meeting and emails each guest a calendar invitation. The code is in
 [`apps/web/src/server/meetings`](../apps/web/src/server/meetings) and
 [`apps/web/src/features/meetings`](../apps/web/src/features/meetings).
 
@@ -19,14 +19,14 @@ keeps the meeting and emails each guest a calendar invitation. The code is in
 | case        | optional; set when the meeting is scheduled from a case    |
 | guests      | members, company contacts or any address, at most 50       |
 
-The organizer is always a guest, so their own calendar gets the invitation.
-Each address is listed once, compared in lower case. A member guest is stored
-by user id and the server supplies the address, so a client cannot point a
-member at another mailbox.
+The organizer is always a guest, so their own calendar gets the invitation. Each
+address is listed once, compared in lower case. A member guest is stored by user
+id and the server supplies the address, so a client cannot point a member at
+another mailbox.
 
 work360 does not create the video call. The organizer pastes a link from Meet,
-Teams or Zoom. A link created through a connected Google or Microsoft account
-is later work.
+Teams or Zoom. A link created through a connected Google or Microsoft account is
+later work.
 
 ## Who can do what
 
@@ -57,13 +57,13 @@ calendar replaces or removes the event it already holds. The `meeting-invites`
 job queue in
 [`invites/queue.ts`](../apps/web/src/server/meetings/invites/queue.ts) builds
 the attachment at send time from the meeting as it stands. A later edit
-supersedes any invitation still pending, so no guest receives stale fields
-under a newer sequence.
+supersedes any invitation still pending, so no guest receives stale fields under
+a newer sequence.
 
 ## Where it shows
 
-- **Reuniones** in the sidebar lists the meetings the viewer can see.
-  "Nueva reunión" opens the form in the side panel.
+- **Reuniones** in the sidebar lists the meetings the viewer can see. "Nueva
+  reunión" opens the form in the side panel.
 - A meeting's page shows its fields, its guests and its description. The
   organizer edits it from the header and cancels it from the form's menu.
 - The company page and the case page have a Reuniones card. Its `+` schedules a
