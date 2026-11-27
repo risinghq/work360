@@ -81,6 +81,8 @@ const PERMISSION_MODULES: Record<Permission, WorkspaceModule | null> = {
   "report:view:branch": "cases",
   "report:view:all": "cases",
   "view:manage": null,
+  "meeting:schedule": null,
+  "meeting:view:all": null,
 };
 
 export function isStoredModule(value: string): value is StoredModule {

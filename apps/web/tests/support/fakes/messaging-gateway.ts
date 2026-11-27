@@ -78,8 +78,15 @@ export function createScriptedMessagingGateway() {
     params: Parameters<MessagingGateway["sendCampaignEmail"]>[0]["params"];
   }> = [];
   const whatsAppMessages: Array<{ to: string; body: string }> = [];
+  const meetingInvites: Array<
+    Parameters<MessagingGateway["sendMeetingInvite"]>[0]
+  > = [];
 
   const gateway: MessagingGateway = {
+    async sendMeetingInvite(input) {
+      meetingInvites.push(input);
+      return emailScript.shift() ?? DEFAULT_EMAIL;
+    },
     async sendInviteEmail() {
       return DEFAULT_EMAIL;
     },
@@ -103,6 +110,7 @@ export function createScriptedMessagingGateway() {
     gateway,
     campaignEmails,
     whatsAppMessages,
+    meetingInvites,
     scriptEmail(...results: SendResult[]) {
       emailScript.push(...results);
     },

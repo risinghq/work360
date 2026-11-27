@@ -51,6 +51,12 @@ export const CreateCasePage = lazy(() =>
   })),
 );
 
+export const MeetingFormPage = lazy(() =>
+  import("../pages/meeting-form/page").then((m) => ({
+    default: m.MeetingFormPage,
+  })),
+);
+
 // These are the only pages commonly opened before the panel is already active.
 export function preloadSidePanelEntryPages(): void {
   void RootPage.preload();

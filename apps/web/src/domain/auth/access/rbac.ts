@@ -68,7 +68,9 @@ export type Permission =
   | "report:read"
   | "report:view:branch"
   | "report:view:all"
-  | "view:manage";
+  | "view:manage"
+  | "meeting:schedule"
+  | "meeting:view:all";
 
 const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   executive: [
@@ -91,6 +93,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "lead:sale:upload-proof",
     "fulfillment:client-step",
     "dashboards:read:own",
+    "meeting:schedule",
   ],
 
   supervisor: [
@@ -125,6 +128,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "dashboards:read:own",
     "dashboards:manage",
     "view:manage",
+    "meeting:schedule",
   ],
 
   back_office: [
@@ -190,6 +194,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "report:read",
     "report:view:all",
     "view:manage",
+    "meeting:schedule",
   ],
 
   logistics: [
@@ -200,7 +205,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "company:view:all",
   ],
 
-  hr: ["hr:read", "team:invite", "team:read"],
+  hr: ["hr:read", "team:invite", "team:read", "meeting:schedule"],
 
   admin: [
     "lead:note:add",
@@ -252,6 +257,8 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "report:read",
     "report:view:all",
     "view:manage",
+    "meeting:schedule",
+    "meeting:view:all",
   ],
 
   superuser: [
@@ -307,6 +314,8 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "report:read",
     "report:view:all",
     "view:manage",
+    "meeting:schedule",
+    "meeting:view:all",
   ],
 };
 
@@ -368,6 +377,8 @@ const PERMISSION_SET: Record<Permission, true> = {
   "report:view:branch": true,
   "report:view:all": true,
   "view:manage": true,
+  "meeting:schedule": true,
+  "meeting:view:all": true,
 };
 
 export function isPermission(value: string): value is Permission {

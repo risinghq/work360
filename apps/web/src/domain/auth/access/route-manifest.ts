@@ -29,6 +29,7 @@ export type AppPath =
   | "/settings/campaigns"
   | "/settings/outcomes"
   | "/cases"
+  | "/meetings"
   | "/companies"
   | "/reports";
 
@@ -80,6 +81,8 @@ export const ROUTE_MANIFEST: Record<AppPath, RouteConfig> = {
   "/settings/campaigns": { permission: "campaign:manage" },
   "/settings/outcomes": { permission: "outcome:manage" },
   "/cases": { permission: "case:work", landingPriority: 9 },
+  // Every member sees the meetings they organize or are invited to.
+  "/meetings": {},
   "/companies": { permission: "company:read" },
   "/reports": { permission: "report:read" },
 };
@@ -87,6 +90,7 @@ export const ROUTE_MANIFEST: Record<AppPath, RouteConfig> = {
 export const DYNAMIC_ROUTES: DynamicRouteConfig[] = [
   { pattern: /^\/records\/[^/]+$/, module: "culqi" },
   { pattern: /^\/cases\/[^/]+$/, permission: "case:work" },
+  { pattern: /^\/meetings\/[^/]+$/ },
   { pattern: /^\/companies\/[^/]+$/, permission: "company:read" },
   // Resolving quality rows requires dashboards:manage; the summary requires dashboards:read.
   {

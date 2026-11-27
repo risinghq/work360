@@ -27,6 +27,8 @@ import type { EngineClient } from "~/server/integrations/engine/client";
 import type { InvitePlatformPort } from "~/server/invites/application/types";
 import { createWorkspaceInvites } from "~/server/invites/infrastructure/invite-service-factory";
 import { createJobsChannel } from "~/server/jobs/channel";
+import { createMeetingInviteQueue } from "~/server/meetings/invites/queue";
+import { createMeetingsRuntime } from "~/server/meetings/runtime";
 import { createMerchantStatsRuntime } from "~/server/merchant-stats/infrastructure/runtime";
 import type { MessagingGateway } from "~/server/notifications/channels/messaging-gateway";
 import { createNotificationsRuntime } from "~/server/notifications/runtime";
@@ -152,6 +154,7 @@ export function createWorkspaceApplication(
         notificationQueues.dispatch,
         notificationQueues.whatsappInbound,
         notificationQueues.outboundWhatsApp,
+        createMeetingInviteQueue(db, host.messaging),
       ].map(queueDuty),
     ];
   }
@@ -200,6 +203,7 @@ export function createWorkspaceApplication(
     extension,
     files: { download: files.download },
     createDuties,
+    meetings: createMeetingsRuntime({ executor: db }),
     merchantStats,
     notifications,
     realtime: {

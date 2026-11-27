@@ -10,6 +10,7 @@ export type RouteIcon =
   | "contacts"
   | "campaigns"
   | "cases"
+  | "meetings"
   | "companies"
   | "reports"
   | "rate-simulator"
@@ -93,6 +94,10 @@ export const PAGE_HEADERS = [
   {
     match: /^\/cases(?:\/.*)?$/,
     header: { label: "Casos", icon: "cases", tileColor: "turquoise" },
+  },
+  {
+    match: /^\/meetings(?:\/.*)?$/,
+    header: { label: "Reuniones", icon: "meetings", tileColor: "purple" },
   },
   {
     match: /^\/companies(?:\/.*)?$/,
@@ -273,6 +278,17 @@ export const SIDEBAR_ENTRIES = [
     section: "secondary",
     order: 5,
     group: "Comercial",
+  },
+  {
+    id: "meetings",
+    href: "/meetings",
+    activePrefixes: ["/meetings"],
+    label: "Reuniones",
+    icon: "meetings",
+    tileColor: "purple",
+    section: "secondary",
+    order: 6,
+    group: "Operaciones",
   },
   {
     id: "team",

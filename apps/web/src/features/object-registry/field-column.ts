@@ -1,6 +1,7 @@
 import Building2 from "~/components/icons/building-2";
 import CalendarDays from "~/components/icons/calendar-days";
 import Info from "~/components/icons/info";
+import LinkIcon from "~/components/icons/link";
 import List from "~/components/icons/list";
 import Mail from "~/components/icons/mail";
 import MapIcon from "~/components/icons/map";
@@ -27,6 +28,7 @@ const FIELD_ICONS: Record<FieldIconName, DataGridIcon> = {
   building: Building2,
   calendar: CalendarDays,
   info: Info,
+  link: LinkIcon,
   list: List,
   mail: Mail,
   map: MapIcon,

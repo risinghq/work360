@@ -10,6 +10,7 @@ import type * as files from "./schema/types/files";
 import type * as fulfillment from "./schema/types/fulfillment";
 import type * as identity from "./schema/types/identity";
 import type * as ingest from "./schema/types/ingest";
+import type * as meetings from "./schema/types/meetings";
 import type * as merchantStats from "./schema/types/merchant-stats";
 import type * as notifications from "./schema/types/notifications";
 import type * as observability from "./schema/types/observability";
@@ -33,6 +34,7 @@ export type * from "./schema/types/files";
 export type * from "./schema/types/ingest";
 export type * from "./schema/types/fulfillment";
 export type * from "./schema/types/identity";
+export type * from "./schema/types/meetings";
 export type * from "./schema/types/merchant-stats";
 export type * from "./schema/types/notifications";
 export type * from "./schema/types/observability";
@@ -172,4 +174,8 @@ export interface WorkspaceDatabase {
   merchant_month_credit: merchantStats.MerchantMonthCreditView;
 
   saved_views: views.SavedViewsTable;
+
+  meetings: meetings.MeetingsTable;
+  meeting_guests: meetings.MeetingGuestsTable;
+  meeting_invites: meetings.MeetingInvitesTable;
 }

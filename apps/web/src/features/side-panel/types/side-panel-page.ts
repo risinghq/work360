@@ -1,6 +1,7 @@
 import type { Component } from "solid-js";
 
 import Building2 from "~/components/icons/building-2";
+import CalendarDays from "~/components/icons/calendar-days";
 import Inbox from "~/components/icons/inbox";
 import Info from "~/components/icons/info";
 import Search from "~/components/icons/search";
@@ -35,7 +36,8 @@ export type SidePanelPageKey =
   | "lead-action"
   | "data-grid-detail"
   | "campaign-record"
-  | "create-case";
+  | "create-case"
+  | "meeting-form";
 
 export type SidePanelNavigationEntry = {
   page: SidePanelPageKey;
@@ -114,6 +116,17 @@ export type CreateCaseSidePanelPageState = {
   ruc: string;
 };
 
+// One form schedules a meeting and edits it. A new meeting opened from a
+// company or a case is linked to it, and the company's contacts are offered
+// as guests.
+export type MeetingFormSidePanelPageState = {
+  page: "meeting-form";
+  meetingId: string | null;
+  organizationId: string | null;
+  caseId: string | null;
+  subject: string | null;
+};
+
 export type SidePanelPageState =
   | RootSidePanelPageState
   | SearchRecordsSidePanelPageState
@@ -124,7 +137,8 @@ export type SidePanelPageState =
   | LeadActionSidePanelPageState
   | DataGridDetailSidePanelPageState
   | CampaignRecordSidePanelPageState
-  | CreateCaseSidePanelPageState;
+  | CreateCaseSidePanelPageState
+  | MeetingFormSidePanelPageState;
 
 export type SidePanelPageDefinition = {
   entry: SidePanelNavigationEntry;
@@ -334,6 +348,32 @@ export function createCampaignRecordSidePanelPage(input: {
       page: "campaign-record",
       campaignId: input.campaignId,
       record: input.record,
+    },
+  };
+}
+
+export function createMeetingFormSidePanelPage(input: {
+  meetingId?: string;
+  title?: string;
+  organizationId?: string;
+  caseId?: string;
+  subject?: string;
+}): SidePanelPageDefinition {
+  return {
+    entry: {
+      page: "meeting-form",
+      pageId: input.meetingId
+        ? createEntitySidePanelPageId("meeting-form", input.meetingId)
+        : createSidePanelPageId(),
+      pageTitle: input.title ?? "Nueva reunión",
+      pageIcon: CalendarDays,
+    },
+    state: {
+      page: "meeting-form",
+      meetingId: input.meetingId ?? null,
+      organizationId: input.organizationId ?? null,
+      caseId: input.caseId ?? null,
+      subject: input.subject ?? null,
     },
   };
 }

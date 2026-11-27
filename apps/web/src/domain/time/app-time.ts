@@ -84,6 +84,21 @@ export function appInstantAt(date: CalendarDate, hour = 0, minute = 0): Date {
   return new Date(wallClock.getTime() - APP_UTC_OFFSET_MS);
 }
 
+// The value a datetime-local input shows for an instant, in app time.
+export function appDateTimeInputValue(instant: Date | number): string {
+  return appWallClockAt(instant).toISOString().slice(0, 16);
+}
+
+// The instant a datetime-local value ("YYYY-MM-DDTHH:mm") names in app time,
+// or null when the value is incomplete.
+export function appInstantFromInput(value: string): Date | null {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return null;
+  const wallClock = Date.parse(`${value}:00.000Z`);
+  return Number.isNaN(wallClock)
+    ? null
+    : new Date(wallClock - APP_UTC_OFFSET_MS);
+}
+
 export function appDayRange(date: CalendarDate): InstantRange {
   return {
     start: appInstantAt(date),

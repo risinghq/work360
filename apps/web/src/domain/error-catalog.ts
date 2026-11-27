@@ -862,6 +862,31 @@ export const ERROR_CATALOG = {
     kind: "validation",
     message: "Elige un rango de fechas de hasta 366 días.",
   },
+  meeting_not_found: {
+    kind: "not_found",
+    message: "No se encontró la reunión o no está a tu alcance.",
+  },
+  meeting_not_organizer: {
+    kind: "forbidden",
+    message: "Solo quien organiza la reunión puede cambiarla.",
+  },
+  meeting_canceled: {
+    kind: "conflict",
+    message: "La reunión ya fue cancelada.",
+  },
+  meeting_time_invalid: {
+    kind: "validation",
+    message:
+      "La reunión debe terminar después de empezar y durar hasta 24 horas.",
+  },
+  meeting_guest_invalid: {
+    kind: "validation",
+    message: "Revisa el correo de los invitados.",
+  },
+  meeting_link_invalid: {
+    kind: "validation",
+    message: "El enlace de la videollamada debe empezar con https://.",
+  },
 } as const satisfies Record<string, { kind: DomainErrorKind; message: string }>;
 
 export type DomainCode = keyof typeof ERROR_CATALOG;

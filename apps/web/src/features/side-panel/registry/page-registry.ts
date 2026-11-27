@@ -8,6 +8,7 @@ import { CreateCasePageInfo } from "../pages/create-case/page-info";
 import { CreateLeadPageInfo } from "../pages/create-lead/page-info";
 import { DataGridDetailPageInfo } from "../pages/data-grid-detail/page-info";
 import { LeadActionPageInfo } from "../pages/lead-action/page-info";
+import { MeetingFormPageInfo } from "../pages/meeting-form/page-info";
 import { RecordPageInfo } from "../pages/record-page/page-info";
 import { SearchCompanyPageInfo } from "../pages/search-company/page-info";
 import { SearchPersonPageInfo } from "../pages/search-person/page-info";
@@ -19,6 +20,7 @@ import {
   CreateLeadPage,
   DataGridDetailPage,
   LeadActionPage,
+  MeetingFormPage,
   RecordPage,
   RootPage,
   SearchRecordsPage,
@@ -101,6 +103,13 @@ export const SIDE_PANEL_PAGES_CONFIG = {
     component: CreateCasePage,
     skeleton: RecordPageSkeleton,
     pageInfoComponent: CreateCasePageInfo,
+    topBarActionsComponent: undefined,
+  },
+  "meeting-form": {
+    showsSearch: false,
+    component: MeetingFormPage,
+    skeleton: RecordPageSkeleton,
+    pageInfoComponent: MeetingFormPageInfo,
     topBarActionsComponent: undefined,
   },
 } satisfies Record<SidePanelPageKey, SidePanelPageConfig>;

@@ -1,0 +1,73 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3, 12px);
+  padding: var(--t-spacing-3);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2, 8px);
+}
+
+.guests {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2, 8px);
+}
+
+.guestsHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 4px);
+}
+
+.title {
+  color: var(--foreground, #111827);
+  font-size: var(--font-size-body, 14px);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.meta {
+  color: var(--muted-foreground);
+  font-size: var(--font-size-sm, 13px);
+}
+
+.guestList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 4px);
+  max-height: 240px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.guestItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.guestItem > .meta {
+  padding-left: 24px;
+}
+
+.addRow {
+  display: flex;
+  gap: var(--spacing-2, 8px);
+  align-items: flex-start;
+}
+
+.addRow > :first-child {
+  flex: 1;
+}
+
+.error {
+  margin: 0;
+  color: var(--destructive);
+  font-size: var(--font-size-sm, 13px);
+  font-weight: var(--font-weight-semibold, 600);
+}

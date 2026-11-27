@@ -5,6 +5,7 @@ export interface LoggedMail {
   subject: string;
   text: string;
   html: string;
+  attachments: string[];
 }
 
 export function createLogProvider(
@@ -20,6 +21,7 @@ export function createLogProvider(
         subject: input.subject,
         text: input.text,
         html: input.html,
+        attachments: (input.attachments ?? []).map((file) => file.filename),
       });
 
       return { providerMessageId: null };

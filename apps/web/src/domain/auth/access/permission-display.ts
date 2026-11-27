@@ -330,6 +330,17 @@ const PERMISSION_CATALOG: Record<Permission, PermissionMeta> = {
       "Guardar el orden, el ancho y la visibilidad de las columnas que ve todo el equipo.",
     group: "administracion",
   },
+  "meeting:schedule": {
+    label: "Programar reuniones",
+    description:
+      "Crear, cambiar y cancelar sus reuniones; cada invitado recibe la invitación por correo.",
+    group: "equipo",
+  },
+  "meeting:view:all": {
+    label: "Ver todas las reuniones",
+    description: "Ver las reuniones de todo el espacio, no solo las suyas.",
+    group: "equipo",
+  },
 };
 
 export interface PermissionRow {

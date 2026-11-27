@@ -11,6 +11,10 @@ import {
   type InviteEmailParams,
 } from "./templates/compiled/invite.js";
 import {
+  renderMeetingEmail,
+  type MeetingEmailParams,
+} from "./templates/compiled/meeting.js";
+import {
   renderPasswordResetEmail,
   type PasswordResetEmailParams,
 } from "./templates/compiled/password-reset.js";
@@ -20,6 +24,7 @@ export type EmailTemplateMap = {
   passwordReset: PasswordResetEmailParams;
   accountExpiring: AccountExpiringEmailParams;
   campaign: CampaignEmailParams;
+  meeting: MeetingEmailParams;
 };
 
 export interface EmailMessage {
@@ -33,6 +38,7 @@ export interface EmailComposer {
   passwordReset(params: PasswordResetEmailParams): EmailMessage;
   accountExpiring(params: AccountExpiringEmailParams): EmailMessage;
   campaign(params: CampaignEmailParams): EmailMessage;
+  meeting(params: MeetingEmailParams): EmailMessage;
 }
 
 export function createEmailComposer(): EmailComposer {
@@ -69,6 +75,14 @@ export function createEmailComposer(): EmailComposer {
         text: message.text,
       };
     },
+    meeting(params) {
+      const message = renderMeetingEmail(params);
+      return {
+        subject: params.heading,
+        html: message.html,
+        text: message.text,
+      };
+    },
   };
 }
 
@@ -76,6 +90,7 @@ export {
   renderInviteEmail,
   renderCampaignEmail,
   renderAccountExpiringEmail,
+  renderMeetingEmail,
   renderPasswordResetEmail,
 };
 
@@ -83,5 +98,6 @@ export type {
   InviteEmailParams,
   CampaignEmailParams,
   AccountExpiringEmailParams,
+  MeetingEmailParams,
   PasswordResetEmailParams,
 };

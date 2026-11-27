@@ -12,6 +12,7 @@ import type { CompanyDetailView } from "~/contracts/companies/views";
 import { OBJECTS, objectField } from "~/contracts/objects/registry";
 import { formatAppDateTime } from "~/domain/time/app-time";
 import { companyTimeline } from "~/features/companies/model/company-timeline";
+import { MeetingsRelationCard } from "~/features/meetings/meetings-card";
 import { RecordBreadcrumb } from "~/features/record-show/header/record-breadcrumb";
 import { RecordPageLayout } from "~/features/record-show/page/record-page-layout";
 import { RecordTabPane } from "~/features/record-show/page/record-tab-pane";
@@ -80,6 +81,10 @@ export function CompanyRecordPage(props: { companyId: string }) {
           <RecordFieldsWidget object="company" record={detail()} />
           <CompanyPeople detail={detail()} />
           <CompanyCases detail={detail()} />
+          <MeetingsRelationCard
+            organizationId={detail().id}
+            subject={companyDisplayName(detail())}
+          />
           <CompanyCampaigns detail={detail()} />
         </>
       }

@@ -8,7 +8,8 @@ export type ObjectName =
   | "person"
   | "lead"
   | "case"
-  | "campaignRecord";
+  | "campaignRecord"
+  | "meeting";
 
 // Twenty's field type names, limited to the ones these objects use.
 export type FieldType =
@@ -28,6 +29,7 @@ export type FieldIconName =
   | "building"
   | "calendar"
   | "info"
+  | "link"
   | "list"
   | "mail"
   | "map"
@@ -114,6 +116,13 @@ const COMPANY = defineObject({
       type: "RELATION",
       icon: "target",
       target: "campaignRecord",
+    },
+    {
+      key: "meetings",
+      label: "Reuniones",
+      type: "RELATION",
+      icon: "calendar",
+      target: "meeting",
     },
     { key: "createdAt", label: "Creado", type: "DATE_TIME", icon: "calendar" },
   ],
@@ -287,12 +296,65 @@ const CAMPAIGN_RECORD = defineObject({
   fieldGroups: [{ name: "General", fields: ["company", "ruc", "segment"] }],
 });
 
+// Twenty's calendar event: when, where, who organizes it and what it is about.
+const MEETING = defineObject({
+  name: "meeting",
+  labelSingular: "Reunión",
+  labelPlural: "Reuniones",
+  icon: "calendar",
+  labelIdentifier: "title",
+  fields: [
+    { key: "title", label: "Título", type: "TEXT", icon: "calendar" },
+    { key: "startsAt", label: "Inicio", type: "DATE_TIME", icon: "calendar" },
+    { key: "endsAt", label: "Fin", type: "DATE_TIME", icon: "calendar" },
+    { key: "status", label: "Estado", type: "SELECT", icon: "info" },
+    { key: "location", label: "Lugar", type: "TEXT", icon: "map" },
+    { key: "videoLink", label: "Enlace", type: "TEXT", icon: "link" },
+    {
+      key: "organizer",
+      label: "Organizador",
+      type: "RELATION",
+      icon: "user",
+      target: "workspaceMember",
+    },
+    {
+      key: "guests",
+      label: "Invitados",
+      type: "RELATION",
+      icon: "users",
+      target: "person",
+    },
+    {
+      key: "company",
+      label: "Empresa",
+      type: "RELATION",
+      icon: "building",
+      target: "company",
+    },
+    {
+      key: "case",
+      label: "Caso",
+      type: "RELATION",
+      icon: "package",
+      target: "case",
+    },
+  ],
+  fieldGroups: [
+    {
+      name: "Reunión",
+      fields: ["startsAt", "endsAt", "location", "videoLink", "status"],
+    },
+    { name: "Relaciones", fields: ["organizer", "company", "case"] },
+  ],
+});
+
 export const OBJECTS = {
   company: COMPANY,
   person: PERSON,
   lead: LEAD,
   case: CASE,
   campaignRecord: CAMPAIGN_RECORD,
+  meeting: MEETING,
 } as const satisfies Record<ObjectName, ObjectMetadata>;
 
 type Objects = typeof OBJECTS;

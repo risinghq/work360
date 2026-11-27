@@ -1,0 +1,70 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-all font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" />
+      <mj-text color="#333333" font-size="14px" line-height="1.6" padding="0" />
+    </mj-attributes>
+    <mj-style>
+      a {
+        color: #333333;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#f7f7f7">
+    <mj-section padding="32px 0 0 0" background-color="#f7f7f7">
+      <mj-column><mj-text> </mj-text></mj-column>
+    </mj-section>
+
+    <!-- card -->
+    <mj-section
+      background-color="#ffffff"
+      border="1px solid #e8e8e8"
+      border-radius="8px"
+      padding="40px 48px"
+    >
+      <mj-column>
+        <!-- crm:multiline:description -->
+        <mj-text
+          font-size="20px"
+          font-weight="600"
+          color="#333333"
+          padding-bottom="24px"
+          >{{ heading }}</mj-text>
+
+        <mj-text padding-bottom="4px"><strong>Cuándo:</strong> {{ when }}</mj-text>
+        <mj-text padding-bottom="4px"><strong>Organiza:</strong> {{ organizerName }}</mj-text>
+        <!-- crm:if:location -->
+        <mj-text padding-bottom="4px"><strong>Dónde:</strong> {{ location }}</mj-text>
+        <!-- crm:endif -->
+        <!-- crm:if:description -->
+        <mj-text padding-top="16px" padding-bottom="0">{{ description }}</mj-text>
+        <!-- crm:endif -->
+        <!-- crm:if:videoLink -->
+        <mj-button
+          href="{{videoLink}}"
+          background-color="#333333"
+          color="#ffffff"
+          font-size="14px"
+          font-weight="500"
+          border-radius="6px"
+          inner-padding="12px 24px"
+          padding-top="24px"
+          padding-bottom="0"
+          align="left"
+        >
+          Unirse a la videollamada
+        </mj-button>
+        <!-- crm:endif -->
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="32px 0" background-color="#f7f7f7">
+      <mj-column>
+        <mj-text align="center" color="#999999" font-size="12px">
+          {{ organizerName }} te invitó desde {{ platformName }}. El archivo
+          adjunto agrega la reunión a tu calendario.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

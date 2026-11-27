@@ -128,6 +128,9 @@ export const CaseTypeId = uuidId("CaseTypeId");
 export type CaseId = BrandedId<"CaseId">;
 export const CaseId = uuidId("CaseId");
 
+export type MeetingId = BrandedId<"MeetingId">;
+export const MeetingId = uuidId("MeetingId");
+
 export type CampaignId = BrandedId<"CampaignId">;
 export const CampaignId = uuidId("CampaignId");
 

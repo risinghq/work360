@@ -18,6 +18,7 @@ export {
   type DeliveryError,
   type DeliveryProvider,
   type DeliveryProviderId,
+  type EmailAttachment,
   type MessageChannels,
   type MessageChannelsConfig,
   type NotificationChannel,

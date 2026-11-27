@@ -5,7 +5,8 @@ export type JobTableName =
   | "notification_intents"
   | "notification_deliveries"
   | "whatsapp_inbound_events"
-  | "outbound_whatsapp_messages";
+  | "outbound_whatsapp_messages"
+  | "meeting_invites";
 
 // Literal states, so the claim query matches the partial claim indexes, whose
 // predicates are written the same way.

@@ -1,5 +1,6 @@
 import Activity from "~/components/icons/activity";
 import Building2 from "~/components/icons/building-2";
+import CalendarDays from "~/components/icons/calendar-days";
 import ChartColumn from "~/components/icons/chart-column";
 import House from "~/components/icons/house";
 import type { IconComponent } from "~/components/icons/icon-base";
@@ -26,6 +27,7 @@ export const ICON_BY_ROUTE: Record<RouteIcon, IconComponent> = {
   contacts: Phone,
   campaigns: Target,
   cases: Inbox,
+  meetings: CalendarDays,
   companies: Building2,
   reports: ChartColumn,
   "rate-simulator": Moneybag,

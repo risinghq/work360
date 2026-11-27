@@ -194,6 +194,7 @@ export function createNotificationMessaging(
           to: mail.to,
           subject: mail.subject,
           text: mail.text,
+          attachments: mail.attachments,
         });
       }),
     );

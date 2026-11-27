@@ -24,6 +24,7 @@ import { hasPermission } from "~/domain/auth/access/rbac";
 import { formatAppDateTime } from "~/domain/time/app-time";
 import { caseTimeline } from "~/features/cases/model/case-timeline";
 import { CallWithExtension } from "~/features/extension/call-with-extension";
+import { MeetingsRelationCard } from "~/features/meetings/meetings-card";
 import { RecordBreadcrumb } from "~/features/record-show/header/record-breadcrumb";
 import type { RecordFieldValue } from "~/features/record-show/model/field-groups";
 import { RecordPageLayout } from "~/features/record-show/page/record-page-layout";
@@ -128,7 +129,16 @@ export function CaseRecordPage(props: { caseId: string }) {
           tag={<Tag color="gray" text={detail().caseType.name} preventShrink />}
         />
       }
-      fields={<CaseFields detail={detail()} />}
+      fields={
+        <>
+          <CaseFields detail={detail()} />
+          <MeetingsRelationCard
+            organizationId={detail().organizationId}
+            caseId={detail().id}
+            subject={caseDisplayName(detail())}
+          />
+        </>
+      }
     >
       <CaseTabs detail={detail()} />
     </RecordPageLayout>

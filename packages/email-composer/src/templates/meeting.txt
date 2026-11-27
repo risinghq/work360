@@ -1,0 +1,9 @@
+{{heading}}
+
+Cuándo: {{when}}
+Organiza: {{organizerName}}
+{{#if location}}Dónde: {{location}}
+{{/if}}{{#if videoLink}}Videollamada: {{videoLink}}
+{{/if}}{{#if description}}
+{{description}}
+{{/if}}

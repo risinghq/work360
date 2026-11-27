@@ -62,11 +62,21 @@ export interface MessageChannelsConfig {
   providers: DeliveryProvider[];
 }
 
+export interface EmailAttachment {
+  filename: string;
+  // Base64 of the file bytes.
+  content: string;
+  // A calendar invite needs "text/calendar; method=REQUEST" (or CANCEL) for
+  // mail clients to offer it as an event.
+  contentType: string;
+}
+
 export interface OutboundEmail {
   to: string;
   subject: string;
   html: string;
   text: string;
+  attachments?: readonly EmailAttachment[];
 }
 
 export interface OutboundWhatsAppText {

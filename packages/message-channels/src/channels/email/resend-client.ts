@@ -1,4 +1,4 @@
-import type { DeliveryProvider } from "../../types";
+import type { DeliveryProvider, EmailAttachment } from "../../types";
 import type {
   ProviderSendFailure,
   ProviderSendResult,
@@ -10,6 +10,7 @@ interface ResendMailInput {
   subject: string;
   html: string;
   text: string;
+  attachments?: readonly EmailAttachment[];
 }
 
 export function parseResendError(body: unknown): {
@@ -48,6 +49,15 @@ export async function sendWithResend(
       subject: input.subject,
       html: input.html,
       text: input.text,
+      ...(input.attachments?.length
+        ? {
+            attachments: input.attachments.map((attachment) => ({
+              filename: attachment.filename,
+              content: attachment.content,
+              content_type: attachment.contentType,
+            })),
+          }
+        : {}),
     }),
   });
 
@@ -110,6 +120,7 @@ export function createResendProvider(config: {
         subject: input.subject,
         html: input.html,
         text: input.text,
+        attachments: input.attachments,
       });
     },
   };
