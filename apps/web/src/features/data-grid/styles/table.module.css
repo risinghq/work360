@@ -99,6 +99,8 @@
   height: 32px;
   min-width: 0;
   padding: 0;
+  /* A drag from a cell selects rows, so it must not also select text. */
+  user-select: none;
 }
 
 .headerCell {
