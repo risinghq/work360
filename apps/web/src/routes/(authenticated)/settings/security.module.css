@@ -22,28 +22,10 @@
   gap: 16px;
 }
 
-.configuredBlock {
-  display: grid;
-  gap: 12px;
-}
-
-.configuredTitle {
-  margin: 0;
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-semibold);
-  color: var(--foreground);
-}
-
-.configuredDescription {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--muted-foreground);
-  line-height: 1.5;
-}
-
-.totpSetupBlock {
-  display: grid;
-  gap: 16px;
+.rowControls {
+  display: flex;
+  align-items: center;
+  gap: var(--t-spacing-2);
 }
 
 .qrBlock {

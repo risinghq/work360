@@ -8,10 +8,18 @@ import { Show, Loading, createMemo, createSignal } from "solid-js";
 
 import { createActionPending } from "~/browser/ui/action-in-flight";
 import { useSnackBar } from "~/components/feedback/snack-bar-manager/use-snack-bar";
+import List from "~/components/icons/list";
+import Lock from "~/components/icons/lock";
+import ShieldCheck from "~/components/icons/shield-check";
+import {
+  SettingsOptionCard,
+  SettingsOptionCardRow,
+} from "~/components/settings/settings-option-card";
 import { SettingsSection } from "~/components/settings/SettingsSection";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import { Button } from "~/components/ui/input/button";
 import { Input } from "~/components/ui/input/input";
+import { Tag } from "~/components/ui/tag/tag";
 import { actionErrorMessage } from "~/contracts/errors";
 import {
   acknowledgeRecoveryCodesMutation,
@@ -44,25 +52,21 @@ function getSetupKey(otpauthUri: string): string {
   }
 }
 
+function StatusTag(props: { active: boolean }) {
+  return (
+    <Tag
+      color={props.active ? "turquoise" : "gray"}
+      text={props.active ? "Activa" : "Desactivada"}
+    />
+  );
+}
+
 function TotpEnrollmentPanel(props: {
   totp: ReturnType<typeof useTotpEnrollment>;
   onCopySetupKey: (setupKey: string) => void;
 }) {
   return (
-    <Show
-      when={props.totp.enrollment()}
-      fallback={
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          onClick={() => void props.totp.beginEnrollment()}
-          disabled={props.totp.loading()}
-        >
-          Configurar
-        </Button>
-      }
-    >
+    <Show when={props.totp.enrollment()}>
       {(enrollment) => (
         <>
           <div class={styles.qrBlock}>
@@ -325,86 +329,97 @@ export default function SecurityPage() {
         </form>
       </SettingsSection>
 
-      <SettingsSection title="Claves de acceso">
-        <div class={styles.securityStack}>
-          <div class={styles.configuredBlock}>
-            <p class={styles.configuredTitle}>Claves de acceso</p>
-            <p class={styles.configuredDescription}>
-              Usa tu dispositivo para iniciar sesión.
-            </p>
-          </div>
-
-          <Show
-            when={passkeyEnrollment.supported()}
-            fallback={
-              <p class={styles.configuredDescription}>
-                Este dispositivo no es compatible con claves de acceso.
-              </p>
+      <SettingsSection
+        title="Claves de acceso"
+        description="Usa tu dispositivo para iniciar sesión sin contraseña."
+      >
+        <SettingsOptionCard>
+          <SettingsOptionCardRow
+            Icon={Lock}
+            title="Clave de acceso"
+            description={
+              passkeyEnrollment.supported()
+                ? undefined
+                : "Este dispositivo no es compatible con claves de acceso."
             }
-          >
-            <div class={styles.inlineActions}>
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={() => void passkeyEnrollment.enrollPasskey()}
-                disabled={passkeyEnrollment.loading()}
-              >
-                {status()?.hasPasskey
-                  ? "Agregar clave de acceso"
-                  : "Configurar"}
-              </Button>
-
-              <Show when={status()?.hasPasskey}>
-                <button
-                  type="button"
-                  class={styles.inlineLink}
-                  onClick={removePasskeysDialog.open}
-                  disabled={passkeyEnrollment.loading()}
-                >
-                  Eliminar todas
-                </button>
-              </Show>
-            </div>
-          </Show>
-        </div>
+            control={
+              <div class={styles.rowControls}>
+                <StatusTag active={status()?.hasPasskey ?? false} />
+                <Show when={passkeyEnrollment.supported()}>
+                  <Show when={status()?.hasPasskey}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={removePasskeysDialog.open}
+                      disabled={passkeyEnrollment.loading()}
+                    >
+                      Eliminar todas
+                    </Button>
+                  </Show>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => void passkeyEnrollment.enrollPasskey()}
+                    disabled={passkeyEnrollment.loading()}
+                  >
+                    {status()?.hasPasskey ? "Agregar" : "Configurar"}
+                  </Button>
+                </Show>
+              </div>
+            }
+          />
+        </SettingsOptionCard>
       </SettingsSection>
 
-      <SettingsSection title="Autenticación en dos pasos">
+      <SettingsSection
+        title="Autenticación en dos pasos"
+        description="Pide un código temporal además de tu contraseña."
+      >
         <div class={styles.securityStack}>
-          <Show
-            when={!status()?.totpEnabled}
-            fallback={
-              <div class={styles.block}>
-                <p class={styles.title}>Aplicación configurada</p>
-                <p class={styles.sectionDescription}>
-                  Puedes volver a configurarla cuando lo necesites.
-                </p>
+          <SettingsOptionCard>
+            <SettingsOptionCardRow
+              Icon={ShieldCheck}
+              title="Aplicación de autenticación"
+              control={
+                <div class={styles.rowControls}>
+                  <StatusTag active={status()?.totpEnabled ?? false} />
+                  <Show
+                    when={status()?.totpEnabled}
+                    fallback={
+                      <Show when={!totpEnrollment.enrollment()}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => void totpEnrollment.beginEnrollment()}
+                          disabled={totpEnrollment.loading()}
+                        >
+                          Configurar
+                        </Button>
+                      </Show>
+                    }
+                  >
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      onClick={disableTotpDialog.open}
+                    >
+                      Desactivar
+                    </Button>
+                  </Show>
+                </div>
+              }
+            />
+          </SettingsOptionCard>
 
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  onClick={disableTotpDialog.open}
-                >
-                  Desactivar
-                </Button>
-              </div>
-            }
-          >
-            <div class={styles.totpSetupBlock}>
-              <div class={styles.block}>
-                <p class={styles.title}>Aplicación de autenticación</p>
-                <p class={styles.sectionDescription}>
-                  Genera códigos temporales para confirmar tu acceso.
-                </p>
-              </div>
-
-              <TotpEnrollmentPanel
-                totp={totpEnrollment}
-                onCopySetupKey={(setupKey) => void handleCopySetupKey(setupKey)}
-              />
-            </div>
+          <Show when={!status()?.totpEnabled}>
+            <TotpEnrollmentPanel
+              totp={totpEnrollment}
+              onCopySetupKey={(setupKey) => void handleCopySetupKey(setupKey)}
+            />
           </Show>
         </div>
       </SettingsSection>
@@ -415,36 +430,36 @@ export default function SecurityPage() {
             freshRecoveryCodes().length > 0 || recoveryStatus()?.hasActiveSet
           }
         >
-          <SettingsSection title="Códigos de recuperación">
+          <SettingsSection
+            title="Códigos de recuperación"
+            description="Úsalos para entrar si pierdes tu método de autenticación."
+          >
             <div class={styles.securityStack}>
               <Show
                 when={freshRecoveryCodes().length > 0}
                 fallback={
-                  <div class={styles.block}>
-                    <p class={styles.title}>Códigos de recuperación</p>
-                    <p class={styles.sectionDescription}>
-                      Te quedan {recoveryStatus()?.unused ?? 0} de{" "}
-                      {recoveryStatus()?.total ?? 0} códigos. Úsalos para entrar
-                      si pierdes tu método de autenticación.
-                    </p>
-
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      onClick={regenerateRecoveryDialog.open}
-                    >
-                      Regenerar
-                    </Button>
-                  </div>
+                  <SettingsOptionCard>
+                    <SettingsOptionCardRow
+                      Icon={List}
+                      title="Códigos disponibles"
+                      description={`Te quedan ${recoveryStatus()?.unused ?? 0} de ${recoveryStatus()?.total ?? 0}.`}
+                      control={
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={regenerateRecoveryDialog.open}
+                        >
+                          Regenerar
+                        </Button>
+                      }
+                    />
+                  </SettingsOptionCard>
                 }
               >
-                <div class={styles.block}>
-                  <p class={styles.title}>Guarda estos códigos</p>
-                  <p class={styles.sectionDescription}>
-                    Guárdalos en un lugar seguro. No volverás a verlos.
-                  </p>
-                </div>
+                <p class={styles.sectionDescription}>
+                  Guarda estos códigos en un lugar seguro. No volverás a verlos.
+                </p>
 
                 <RecoveryCodesPanel codes={freshRecoveryCodes()} />
 
