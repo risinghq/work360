@@ -3,8 +3,8 @@
 }
 
 .menu {
-  backdrop-filter: var(--t-blur-medium);
   -webkit-backdrop-filter: var(--t-blur-medium);
+  backdrop-filter: var(--t-blur-medium);
   background: var(--background-transparent-primary);
   border: 1px solid var(--background-transparent-medium);
   border-radius: var(--radius-md);

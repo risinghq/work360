@@ -3,8 +3,8 @@
   width: 296px;
   border-radius: var(--t-border-radius-md);
   background-color: var(--t-background-transparent-primary);
-  backdrop-filter: var(--t-blur-medium);
   -webkit-backdrop-filter: var(--t-blur-medium);
+  backdrop-filter: var(--t-blur-medium);
   box-shadow: var(--t-box-shadow-strong);
   box-sizing: border-box;
   padding: var(--t-spacing-2) var(--t-spacing-2) var(--t-spacing-1);
