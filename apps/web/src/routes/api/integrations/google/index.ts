@@ -15,7 +15,7 @@ export async function GET(): Promise<Response> {
   const session = await authenticate();
   if (
     isErr(session) ||
-    isErr(authorizePermission(session.value, "meeting:schedule"))
+    isErr(authorizePermission(session.value, "meeting:video:host"))
   ) {
     return new Response("Forbidden", { status: 403 });
   }

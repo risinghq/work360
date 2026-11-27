@@ -78,7 +78,7 @@ export const ROUTE_MANIFEST: Record<AppPath, RouteConfig> = {
   "/settings/profile": {},
   "/settings/appearance": {},
   "/settings/notifications": {},
-  "/settings/accounts": { permission: "meeting:schedule" },
+  "/settings/accounts": { permission: "meeting:video:host" },
   "/me/capacity": { permission: "capacity:read:self" },
   "/me/assignments": { permission: "lead:work" },
   "/campaigns": { permission: "campaign:work", landingPriority: 8 },

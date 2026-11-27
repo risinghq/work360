@@ -82,6 +82,7 @@ const PERMISSION_MODULES: Record<Permission, WorkspaceModule | null> = {
   "report:view:all": "cases",
   "view:manage": null,
   "meeting:schedule": null,
+  "meeting:video:host": null,
   "meeting:view:all": null,
 };
 

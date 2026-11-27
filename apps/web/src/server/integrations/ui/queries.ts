@@ -28,7 +28,7 @@ export async function getWorkspaceIntegrations(): Promise<WorkspaceIntegrationsV
 export async function getMyConnections(): Promise<MemberConnectionsView> {
   return executeSessionServerFunction({
     name: "integrations.my_connections",
-    access: { kind: "permission", permission: "meeting:schedule" },
+    access: { kind: "permission", permission: "meeting:video:host" },
     execute: async (ctx) => {
       const { google } = await getApplication().integrations.memberStatus(
         ctx.actor.userId,

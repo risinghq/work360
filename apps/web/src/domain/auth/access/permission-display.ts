@@ -336,6 +336,12 @@ const PERMISSION_CATALOG: Record<Permission, PermissionMeta> = {
       "Crear, cambiar y cancelar sus reuniones; cada invitado recibe la invitación por correo.",
     group: "equipo",
   },
+  "meeting:video:host": {
+    label: "Crear salas de videollamada",
+    description:
+      "Crear la sala de Zoom o Google Meet de sus reuniones; sin este permiso, la reunión lleva un enlace propio o ninguno.",
+    group: "equipo",
+  },
   "meeting:view:all": {
     label: "Ver todas las reuniones",
     description: "Ver las reuniones de todo el espacio, no solo las suyas.",

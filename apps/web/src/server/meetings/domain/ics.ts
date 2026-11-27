@@ -72,6 +72,17 @@ export function buildIcs(event: IcsEvent): string {
     `STATUS:${event.method === "request" ? "CONFIRMED" : "CANCELLED"}`,
     `ORGANIZER${cn(event.organizer)}:mailto:${event.replyTo ?? event.organizer.email}`,
     ...event.attendees.map((person) => attendeeLine(person, event.replyTo)),
+    // Outlook and Apple Calendar keep this reminder; Google Calendar applies
+    // the guest's own default notifications instead.
+    ...(event.method === "request"
+      ? [
+          "BEGIN:VALARM",
+          "ACTION:DISPLAY",
+          `DESCRIPTION:${text(event.title)}`,
+          "TRIGGER:-PT15M",
+          "END:VALARM",
+        ]
+      : []),
     "END:VEVENT",
     "END:VCALENDAR",
   ];

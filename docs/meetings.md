@@ -35,6 +35,9 @@ The form's "Videollamada" picks one of these:
 - **Google Meet**: work360 creates the room in the organizer's own Google
   account. The option is disabled until the organizer connects Google.
 
+Only a member with `meeting:video:host` sees Zoom and Google Meet, and the
+server refuses a hosted room to anyone else. The others paste a link.
+
 An admin connects Zoom in Ajustes > Integraciones with a Zoom Server-to-Server
 OAuth app that holds the scopes `meeting:write:admin` and `user:read:admin`.
 work360 checks the credentials against Zoom before it stores them, sealed with
@@ -66,22 +69,25 @@ the request. Microsoft Teams rooms are later work.
 
 ## Who can do what
 
-| Permission         | Allows                                       |
-| ------------------ | -------------------------------------------- |
-| any member         | see meetings they organize or are invited to |
-| `meeting:schedule` | schedule a meeting and list guests to invite |
-| `meeting:view:all` | see every meeting in the workspace           |
+| Permission           | Allows                                              |
+| -------------------- | --------------------------------------------------- |
+| any member           | see meetings they organize or are invited to        |
+| `meeting:schedule`   | schedule a meeting and list guests to invite        |
+| `meeting:video:host` | open Zoom and Google Meet rooms, and connect Google |
+| `meeting:view:all`   | see every meeting in the workspace                  |
 
 [`rbac.ts`](../apps/web/src/domain/auth/access/rbac.ts) lists the roles that
 hold each permission. HR, supervisors, sales managers and executives can
-schedule. Only the organizer changes or cancels a meeting, and a cancelled
-meeting cannot change again.
+schedule. HR and admins host rooms. Only the organizer changes or cancels a
+meeting, and a cancelled meeting cannot change again.
 
 ## Invitations
 
 Every save queues one email per guest through Resend. The email carries an
 iCalendar (`.ics`) attachment, so Gmail, Outlook and Apple Calendar offer to add
-the event.
+the event. A `REQUEST` carries a reminder 15 minutes before the start. Outlook
+and Apple Calendar keep it; Google Calendar uses the guest's own notification
+settings.
 
 - Scheduling sends a `REQUEST` to every guest.
 - Editing sends a new `REQUEST` with a higher `SEQUENCE` to every current guest,

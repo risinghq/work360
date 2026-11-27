@@ -70,6 +70,7 @@ export type Permission =
   | "report:view:all"
   | "view:manage"
   | "meeting:schedule"
+  | "meeting:video:host"
   | "meeting:view:all";
 
 const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
@@ -205,7 +206,13 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "company:view:all",
   ],
 
-  hr: ["hr:read", "team:invite", "team:read", "meeting:schedule"],
+  hr: [
+    "hr:read",
+    "team:invite",
+    "team:read",
+    "meeting:schedule",
+    "meeting:video:host",
+  ],
 
   admin: [
     "lead:note:add",
@@ -258,6 +265,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "report:view:all",
     "view:manage",
     "meeting:schedule",
+    "meeting:video:host",
     "meeting:view:all",
   ],
 
@@ -315,6 +323,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "report:view:all",
     "view:manage",
     "meeting:schedule",
+    "meeting:video:host",
     "meeting:view:all",
   ],
 };
@@ -378,6 +387,7 @@ const PERMISSION_SET: Record<Permission, true> = {
   "report:view:all": true,
   "view:manage": true,
   "meeting:schedule": true,
+  "meeting:video:host": true,
   "meeting:view:all": true,
 };
 

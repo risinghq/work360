@@ -1,5 +1,13 @@
-import { MEETING_VIDEO_PROVIDERS } from "~/contracts/meetings/views";
-import type { DomainError } from "~/domain/errors";
+import {
+  isHostedVideoProvider,
+  MEETING_VIDEO_PROVIDERS,
+  type MeetingVideoProvider,
+} from "~/contracts/meetings/views";
+import {
+  hasPermission,
+  type PermissionHolder,
+} from "~/domain/auth/access/rbac";
+import { fail, type DomainError } from "~/domain/errors";
 import { CaseId, MeetingId, OrganizationId, UserId } from "~/domain/ids";
 import { getApplication } from "~/server/composition/application";
 import { MAX_GUESTS } from "~/server/meetings/domain/meeting";
@@ -9,7 +17,19 @@ import {
   validationFail,
   type Reader,
 } from "~/server/platform/action/input-reader";
-import { Ok } from "~/shared/result";
+import { Err, Ok, type Result } from "~/shared/result";
+
+// Opening a Zoom or Meet room is held back for the roles granted
+// `meeting:video:host`; anyone who schedules may paste a link.
+function authorizeVideo(
+  actor: PermissionHolder,
+  provider: MeetingVideoProvider,
+): Result<null, DomainError> {
+  return isHostedVideoProvider(provider) &&
+    !hasPermission(actor, "meeting:video:host")
+    ? Err(fail("meeting_video_unavailable", { fields: ["videoProvider"] }))
+    : Ok(null);
+}
 
 // Times arrive as epoch milliseconds.
 function readMeeting(r: Reader<DomainError>) {
@@ -43,8 +63,11 @@ export async function createMeeting(input: unknown) {
     access: { kind: "permission", permission: "meeting:schedule" },
     parse: () => parseObject(input, validationFail, readMeeting),
     telemetry: (meeting) => ({ guests: meeting.guests.length }),
-    execute: (ctx, meeting) =>
-      getApplication().meetings.create(ctx.actor.userId, meeting),
+    execute: async (ctx, meeting) => {
+      const allowed = authorizeVideo(ctx.actor, meeting.videoProvider);
+      if (!allowed.ok) return allowed;
+      return getApplication().meetings.create(ctx.actor.userId, meeting);
+    },
   });
 }
 
@@ -61,6 +84,8 @@ export async function updateMeeting(input: unknown) {
       })),
     telemetry: ({ meetingId }) => ({ meetingId }),
     execute: async (ctx, { meetingId, meeting }) => {
+      const allowed = authorizeVideo(ctx.actor, meeting.videoProvider);
+      if (!allowed.ok) return allowed;
       const updated = await getApplication().meetings.update(
         ctx.actor.userId,
         meetingId,

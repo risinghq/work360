@@ -78,6 +78,13 @@ describe("buildIcs", () => {
     const ics = buildIcs({ ...EVENT, method: "cancel" });
     expect(ics).toContain("METHOD:CANCEL\r\n");
     expect(ics).toContain("STATUS:CANCELLED\r\n");
+    expect(ics).not.toContain("VALARM");
+  });
+
+  it("reminds the guest 15 minutes before a requested meeting", () => {
+    const ics = buildIcs(EVENT);
+    expect(ics).toContain("BEGIN:VALARM\r\nACTION:DISPLAY\r\n");
+    expect(ics).toContain("TRIGGER:-PT15M\r\nEND:VALARM\r\nEND:VEVENT\r\n");
   });
 });
 

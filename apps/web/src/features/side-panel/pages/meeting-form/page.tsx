@@ -18,6 +18,7 @@ import {
   type MeetingGuestView,
   type MeetingVideoProvider,
 } from "~/contracts/meetings/views";
+import { hasPermission } from "~/domain/auth/access/rbac";
 import {
   appDateTimeInputValue,
   appInstantFromInput,
@@ -106,6 +107,15 @@ function MeetingForm(props: {
     meetingGuestOptionsQuery(props.organizationId),
   );
   const videoOptions = createMemo(() => meetingVideoOptionsQuery());
+  // Zoom and Meet are offered to members who may host rooms; a saved meeting
+  // still lists its own provider.
+  const offeredProviders = () =>
+    MEETING_VIDEO_PROVIDERS.filter(
+      (provider) =>
+        !isHostedVideoProvider(provider) ||
+        hasPermission(currentUser(), "meeting:video:host") ||
+        provider === props.meeting?.videoProvider,
+    );
 
   const start = props.meeting?.startsAt ?? defaultStart();
   const [title, setTitle] = createSignal(
@@ -324,7 +334,7 @@ function MeetingForm(props: {
             if (picked) setVideoProvider(picked);
           }}
         >
-          <For each={MEETING_VIDEO_PROVIDERS}>
+          <For each={offeredProviders()}>
             {(provider) => {
               // A saved meeting keeps its provider even after a disconnect,
               // so the form never silently switches it.

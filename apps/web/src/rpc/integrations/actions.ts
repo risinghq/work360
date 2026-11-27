@@ -42,7 +42,9 @@ export async function disconnectGoogle() {
 
   return executeSessionServerFunctionResult({
     name: "integrations.disconnect_google",
-    access: { kind: "permission", permission: "meeting:schedule" },
+    // Members only ever remove their own token, so a role that lost
+    // `meeting:video:host` can still revoke it.
+    access: { kind: "auth" },
     execute: async (ctx) => {
       await getApplication().integrations.disconnectGoogle(ctx.actor.userId);
       return Ok(null);

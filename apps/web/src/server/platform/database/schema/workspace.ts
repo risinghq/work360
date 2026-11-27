@@ -10,6 +10,7 @@ import {
 } from "./workspace-integrations";
 import {
   WORKSPACE_MEETING_VIDEO,
+  WORKSPACE_MEETING_VIDEO_HOSTS,
   WORKSPACE_MEETINGS,
 } from "./workspace-meetings";
 import {
@@ -46,4 +47,5 @@ export const WORKSPACE_MIGRATIONS: readonly (readonly string[])[] = [
   WORKSPACE_MEETINGS,
   [...WORKSPACE_INTEGRATIONS, ...WORKSPACE_MEETING_VIDEO],
   WORKSPACE_MEMBER_CONNECTIONS,
+  WORKSPACE_MEETING_VIDEO_HOSTS,
 ];

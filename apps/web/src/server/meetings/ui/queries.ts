@@ -122,9 +122,9 @@ export async function getMeetingVideoOptions(): Promise<MeetingVideoOptionsView>
     access: { kind: "permission", permission: "meeting:schedule" },
     execute: async (ctx) =>
       Ok({
-        available: await getApplication().meetings.videoOptions(
-          ctx.actor.userId,
-        ),
+        available: hasPermission(ctx.actor, "meeting:video:host")
+          ? await getApplication().meetings.videoOptions(ctx.actor.userId)
+          : [],
       }),
   });
 }

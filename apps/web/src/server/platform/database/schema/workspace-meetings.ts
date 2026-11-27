@@ -81,3 +81,12 @@ export const WORKSPACE_MEETING_VIDEO: readonly string[] = [
     check (response in ('needs_action', 'accepted', 'declined', 'tentative'))`,
   `alter table meeting_guests add column responded_at timestamptz`,
 ];
+
+// Opening a Zoom or Meet room moved from every scheduler to its own
+// permission, granted to the roles that already exist by kind.
+export const WORKSPACE_MEETING_VIDEO_HOSTS: readonly string[] = [
+  `update workspace_roles
+    set permissions = json_insert(permissions, '$[#]', 'meeting:video:host')
+    where kind in ('hr', 'admin', 'superuser')
+      and not exists (select 1 from json_each(workspace_roles.permissions) where value = 'meeting:video:host')`,
+];
